@@ -1,0 +1,86 @@
+/* 代码初始化 */
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td { margin:0; padding:0; }
+body { background:#fff; color:#555; font-size:14px; font-family: Verdana, Arial, Helvetica, sans-serif }
+td,th,caption { font-size:14px }
+h1, h2, h3, h4, h5, h6 { font-weight:normal; font-size:100% }
+address, caption, cite, code, dfn, em, strong, th, var { font-style:normal; font-weight:normal}
+a { color:#555; text-decoration:none }
+a:hover { text-decoration:underline }
+img { border:none }
+ol,ul,li { list-style:none }
+input, textarea, select, button { font:14px Verdana,Helvetica,Arial,sans-serif }
+table { border-collapse:collapse }
+html {overflow-y: scroll} 
+/* css 清除浮动*/
+.clearfix:after {content: "."; display: block; height:0; clear:both; visibility: hidden}
+.clearfix { *zoom:1 }
+
+.subheader { min-height:46px;border-bottom:1px solid #c7cacd;padding-top:18px;padding-left:10px;}
+.subheader .column { display:inline-block;height:19px;width:26px;font-size:20px;margin: 0 4px;}
+.subheader .column:hover { cursor:pointer}
+.subheader .divider { display:inline-block;height:14px;border-right:1px solid #c7cacd; }
+.editor-toolbar .icon:hover {color:#66C17B;}
+.full-left,.full-right { height:574px; float:left }
+.full-left { width:8%; padding:5px;}
+.full-right { width:92% }
+.full-right-top { background-image: url(../images/gooflow_blank2.gif)!important; }
+.view { height:65%;border-left:1px solid #c7cacd;}
+.full-right-btn { border-top:1px solid #D4D4D5!important;border-left:1px solid #D4D4D5!important;margin-bottom:0px!important }
+.full-right-btn .item{ padding: 0px 20px 0spx 20px!important }
+.full-right-bottom { height:30%;border:1px solid #c7cacd }
+.components-btn { margin-top:2px;line-height:23px;min-height:23px; }
+.components-btn:hover { background: #d8d5d5 }
+.components-btn.active { background: #d8d5d5 }
+.components-btn img,span{ cursor:pointer }
+.components-btn img{ float:left;margin:4px 0 4px 3px }
+.components-btn span{ float:left;padding-left:5px;display:block; }
+
+.startComponent{ height:50px;width:100px;border:2px solid #938f8e;background: url('../icons/startevent/none.png') no-repeat; }
+.activityComponent{ height:50px;width:100px;border:2px solid #938f8e;background: url('../icons/activity/list/type.user.png') no-repeat; }
+.endComponent{ height:50px;width:100px;border:2px solid #938f8e;background: url('../icons/endevent/none.png') no-repeat; }
+.component { cursor:move; }
+.component:hover > .connect{
+	display: block;cursor:crosshair;
+}
+.connect {
+    width: 23px;
+    height:27px;
+    padding-bottom: 10px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    background: url('../icons/connector/sequenceflow.png') no-repeat;
+    float: right;
+    position: relative;
+    right: -21px;
+    top: -5px
+}
+.component span{ margin-top: 20px; display: block; }
+
+.component-name{
+    height: 50px;
+    font-size: 19px;
+    background: #EDE8F1;
+    border-bottom: 1px solid #ADACB8;
+    line-height: 50px;
+    padding-left: 7px;
+    font-weight: bold;
+}
+.component-name:hover{cursor:pointer}
+.component-prop{ height:114px; }
+.component-prop .prop-value{
+    float: left;
+    width: 40%;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 7px;
+}
+
+.prop-value span:first-child{font-weight:bold;display:block;width:36%;float:left;padding-left: 10px}
+
+#xpdlContainer xmp{ margin:0px;color:#736c6c;padding:8px; }
+#xmlContainer xmp{ margin:0px;color:#736c6c;padding:8px; }
+#xmlContainer script{ display:block; }
+.content{overflow:auto;}
+
+

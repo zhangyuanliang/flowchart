@@ -1,0 +1,49 @@
+[{
+  "Key": null,
+  "Value": ""
+}, {
+  "Key": 0,
+  "Value": "Start"
+}, {
+  "Key": 1,
+  "Value": "Finish"
+}, {
+  "Key": 2,
+  "Value": "Stop"
+}, {
+  "Key": 3,
+  "Value": "Land on Estate"
+}, {
+  "Key": 4,
+  "Value": "If"
+}, {
+  "Key": 6,
+  "Value": "Else"
+}, {
+  "Key": 7,
+  "Value": "Pass Go"
+}, {
+  "Key": 8,
+  "Value": "Collect $200"
+}, {
+  "Key": 9,
+  "Value": "Go Directly To Jail!"
+},{
+  "Key": 10,
+  "Value": "Roll Die"
+},{
+  "Key": 11,
+  "Value": "Rolled Doubles"
+},{
+  "Key": 12,
+  "Value": "Move Piece"
+},{
+  "Key": 13,
+  "Value": "Is Owned By Someone"
+},{
+  "Key": 14,
+  "Value": "Pay the Piper!"
+},{
+  "Key": 15,
+  "Value": "Buy It!"
+}]

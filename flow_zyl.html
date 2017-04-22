@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>flowChart</title>
+    <!-- <link rel="stylesheet" type="text/css" href="css/style.css" /> -->
+	<link type="text/css" href="css/Semantic-UI-CSS-master/semantic.min.css" rel="stylesheet">
+	<link type="text/css" href="css/graph-creator.css" rel="stylesheet" />
+	<link type="text/css" href="css/flow_zyl.css"  rel="stylesheet"/>
+	<link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet">
+</head>
+<body>
+	<div class="subheader editor-toolbar">
+		<div class="column"><i class="save icon"></i></div>
+		<div class="divider"></div>
+		<div class="column"><i class="cut icon"></i></div>
+		<div class="column"><i class="copy icon"></i></div>
+		<div class="column"><i class="paste icon"></i></div>
+		<div class="column" id="delete-graph"><i class="trash icon"></i></div>
+		<div class="divider"></div>
+		<div class="column"><i class="repeat icon"></i></div>
+		<div class="column"><i class="undo icon"></i></div>
+		<div class="divider"></div>
+		<div class="column"><i class="zoom icon"></i></div>
+		<div class="column"><i class="zoom out icon"></i></div>
+		<div class="column" id="reset-zoom"><i class="maximize icon"></i></div>
+
+	</div>
+	<div class="full">
+		<div id="flowComponents" class="full-left">
+			<div class="components-btn" name="startComponent" for-name="circle">
+				<img id="img" src="icons/startevent/none.png"/><span>开始</span>
+			</div>
+			<div class="clearfix"></div>
+			<div class="components-btn" name="activityComponent" for-name="rect">
+				<img src="icons/activity/list/type.user.png"><span>普通活动</span>
+			</div>
+			<div class="clearfix"></div>
+			<div class="components-btn" name="endComponent" for-name="circle">
+				<img src="icons/endevent/none.png"><span>结束</span>
+			</div>
+			<div class="clearfix"></div>
+			<div class="components-btn noComponent" name="drawLineBtn" for-name="line">
+				<img src="icons/connector/sequenceflow.png"><span>线</span>
+			</div>
+			<div class="clearfix"></div>
+			<div class="components-btn noComponent" name="selectBtn">
+				<img src="icons/activity/list/type.manual.png"><span>选择</span>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+		<div class="full-right tab">
+			<div id="container" class="ui top attached tab active full-right-top view" data-tab="first"></div>
+			<div id="xpdlContainer" class="ui top attached tab view content" data-tab="second">
+				<xmp>
+					
+				</xmp>
+			</div>
+			<div id="xmlContainer" class="ui top attached tab view content" data-tab="third">
+				<xmp>
+					
+				</xmp>
+			</div>
+			<div class="full-right-btn ui bottom attached tabular menu">
+				<a class="item active" data-tab="first">图标视图</a>
+				<a class="item" data-tab="second">xpdl视图</a>
+				<a class="item" data-tab="third">xml视图</a>
+			</div>
+			<div id="propertiesWrapper" class="full-right-bottom">
+				<div class="component-name"><i class="angle double down icon"></i><span>普通活动</span></div>
+				<div class="component-prop content">
+
+				</div>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+
+	<script type="text/javascript" src="js/jquery.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.9.2.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/d3.v3.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/flowchart_zyl.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/juicer-min.js"></script>
+	<script type="text/javascript" src="js/semantic/semantic.js"></script>
+	<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+	
+	<script>
+		juicer.set({  
+			'tag::operationOpen': '{@',  
+			'tag::operationClose': '}',  
+			'tag::interpolateOpen': '{{=',  
+			'tag::interpolateClose': '}}'  
+		});  
+	</script>
+
+	<script id="tpl" type="text/template">
+	    <activity Id="{{=activity.id}}" Name="{{=activity.title}}" form-id="" formdisplayschema="" hisformdisplayschema="">
+	        <operations/>
+	        <text-limit/>
+	    </activity>
+	       
+	</script>
+
+	<script>
+		var Word = randomWord(false, 8);
+		var workflow_name = '过程';
+		var workflow_id = 'Package_'+Word+'_Wor1';
+		var svg_ns = "http://www.w3.org/2000/svg";
+		var mySvg;
+		var initParameter = { //初始化shape参数
+				circle: 'cx:100,cy:100,r:20',
+				rect: 'x:177,y:49,width:80,height:50',
+				line: 'x1:550,y1:50,x2:650,y2:150'
+			};
+		var commonParameter = 'stroke:#AA99FF,stroke-width:2,fill:none'; //shape共同参数
+	
+		$(function(){
+			// mySvg = mySvg||createSVG();
+			/*// 点击生成svg图形
+			$('.components-btn img,span').on('click', function(){
+				var shape_name  = $(this).parents('.components-btn').attr('for-name');
+				createShape(shape_name);
+	            // mySvg.appendChild(shape);
+			});*/
+			$('#container').on('click', '.component span', function(){
+				alert("component被点击");
+			});
+			//编辑工具
+			$('.editor-toolbar .icon').on('click', function(){
+				alert('handle');
+			});
+			//控制属性显示
+			$('.component-name').on('click', function(){
+				if ($('.component-prop').is(':hidden')) {
+					$('.full-right-bottom ').css({height: '30%'});
+					$('.full-right-top ').css({height: '65%'});
+					$('.component-name .icon').removeClass('up').addClass('down');
+					$('.component-prop').toggle('slow');
+				}else{
+					$('.full-right-bottom ').css({height: '8%'});
+					$('.full-right-top ').css({height: '87%'});
+					$('.component-name .icon').removeClass('down').addClass('up');
+					$('.component-prop').toggle();
+				}
+			});
+			//选择左侧工具
+			$('#flowComponents .components-btn').on('click', function(){
+				$(this).siblings().removeClass('active').end().addClass('active');
+				if('drawLineBtn'==$(this).attr('name')){
+					$('#container').on('mouseover mouseout', '.conceptG', function(){
+						if(event.type == 'mouseover'){
+	        				this.style.cursor = 'crosshair';
+	     				}else if(event.type == 'mouseout'){
+	        				this.style.cursor = 'default';
+	      				}
+						
+					});
+				}else{
+					$('#container').off('mouseover mouseout', '.conceptG');
+				}
+			});
+		})
+	
+		// 创建 svg 对象
+		function createSVG(){
+			var svg = d3.select('#container')
+				.append('svg:svg')
+				.attr('width', '100%')
+				.attr('height', '100%');
+	            return svg;
+		}
+		// 创建 shape（流程图形块）
+		function createShape(shape_name, shapeId, position, shapeLabel){
+	        if (position) {
+	        	initParameter = { //初始化shape参数
+					circle:'cx:'+position.x+',cy:'+position.y+',r:20',
+					rect:'x:'+ (position.x-40)+',y:'+(position.y-25)+',width:80,height:50',
+					line:'x1:'+(position.x-50)+',y1:'+position.y+',x2:'+(position.x+50)+',y2:'+position.y+''
+				};
+	        };
+			var attrs = initParameter[shape_name].split(',');
+	        var g = mySvg.append('g')
+	        	.attr('id', shapeId);
+	        var shape = g.append(shape_name);
+	        var text = g.append("text")
+			    .attr("text-anchor", "middle")
+			    .attr("dy", "-" + 7.5)
+			    .append('tspan').text(shapeLabel)
+			    .attr('x', position.x).attr('dy', position.y);
+	        for (var i=0,j=attrs.length;i<j;i++) { //遍历初始化shape参数
+	            var attr_single = attrs[i].split(":");
+	            var name = attr_single[0], 
+	            	value = attr_single[1];
+	            shape.attr(name, value);
+	        }
+	        var com_attrs = commonParameter.split(',');
+	        for (var i=0,j=com_attrs.length;i<j;i++) { //遍历shape共同参数
+	            var com_single = com_attrs[i].split(':');
+	            shape.attr(com_single[0], com_single[1]);
+	        }
+	        return shape;
+		}
+		
+	    
+	</script>
+	<script>
+		$(function(){
+			var initProp = '<div>'+
+								'<div name="id" class="prop-value"><span>id:</span><span>'+workflow_id+'</span></div>'+
+								'<div name="name" class="prop-value"><span>名称:</span><span>'+workflow_name+'</span></div>'+
+							'</div>'+
+							'<div class="clearfix"></div>';
+			$('.component-prop').append(initProp);
+			$('.component-name span').text(workflow_name);
+			$('.menu .item').tab();
+			function tempFun(){
+				var dataTab = $(this).attr('data-tab');
+				if(dataTab=='third'){ //xml视图
+					var customScrollbar=$("#xmlContainer").find(".mCSB_scrollTools");
+					// customScrollbar.css({"opacity":0});
+					$("#xmlContainer").mCustomScrollbar("update");
+					// customScrollbar.animate({opacity:1},"slow");
+				}
+				if(dataTab=='second'){ //xml视图
+					var customScrollbar=$("#xpdlContainer").find(".mCSB_scrollTools");
+					$("#xpdlContainer").mCustomScrollbar("update");
+				}
+			}
+			$('.menu .item').on('click', tempFun);
+			var initXml = '<WorkflowProcess Id="'+workflow_id+'" Name="'+workflow_name+'" endform-id="" endformschema="">\n'+
+					 			'  <text-limit/>\n'+
+					 	  '</WorkflowProcess>';
+			$('#xmlContainer xmp').text(initXml);
+			var initXpdl = 
+				'<WorkflowProcesses>\n'+
+				'  <WorkflowProcess AccessLevel="PUBLIC" Id="'+workflow_id+'" Name="'+workflow_name+'">\n'+
+				'    <ProcessHeader DurationUnit="D">\n'+
+				'      <Created>2017-04-21 11:46:59</Created>\n'+
+				'      <Priority/>\n'+
+				'    </ProcessHeader>\n'+
+				'    <RedefinableHeader PublicationStatus="UNDER_TEST">\n'+
+				'      <Author>管理员</Author>\n'+
+				'      <Version>1.0</Version>\n'+
+				'    </RedefinableHeader>\n'+
+				'    <Applications>\n'+
+				'      <Application Id="workflow_DefaultToolAgent" Name="执行其他的toolagent">\n'+
+				'        <Description>执行其他的toolagent</Description>\n'+
+				'        <FormalParameters>\n'+
+				'          <FormalParameter Id="ToolAgentClass" Index="0" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <ExternalReference location="java.lang.String"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>其他组件名称</Description>\n'+
+				'          </FormalParameter>\n'+
+				'        </FormalParameters>\n'+
+				'        <ExtendedAttributes>\n'+
+				'          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.DefaultToolAgent"/>\n'+
+				'          <ExtendedAttribute Name="ToolAgentClass"/>\n'+
+				'        </ExtendedAttributes>\n'+
+				'      </Application>\n'+
+				'      <Application Id="workflow_sendMailToolAgent" Name="发送邮件">\n'+
+				'        <Description>发送电子邮件</Description>\n'+
+				'        <FormalParameters>\n'+
+				'          <FormalParameter Id="body" Index="body" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <BasicType Type="STRING"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>邮件正文</Description>\n'+
+				'          </FormalParameter>\n'+
+				'          <FormalParameter Id="subject" Index="subject" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <BasicType Type="STRING"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>邮件标题</Description>\n'+
+				'          </FormalParameter>\n'+
+				'          <FormalParameter Id="to" Index="to" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <BasicType Type="STRING"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>邮件地址,多个使用 , 分割</Description>\n'+
+				'          </FormalParameter>\n'+
+				'        </FormalParameters>\n'+
+				'        <ExtendedAttributes>\n'+
+				'          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.sendMailToolAgent"/>\n'+
+				'        </ExtendedAttributes>\n'+
+				'      </Application>\n'+
+				'      <Application Id="workflow_dbToolAgent" Name="修改数据">\n'+
+				'        <Description>修改数据库数据</Description>\n'+
+				'        <FormalParameters>\n'+
+				'          <FormalParameter Id="tableName" Index="0" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <ExternalReference location="java.lang.String"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>数据表名称</Description>\n'+
+				'          </FormalParameter>\n'+
+				'          <FormalParameter Id="dbdata" Index="1" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <ExternalReference location="java.lang.Object"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>需要操作的数据可以是一个String,pojo或者Map</Description>\n'+
+				'          </FormalParameter>\n'+
+				'          <FormalParameter Id="DbActionType" Index="2" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <BasicType Type="INTEGER"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>对数据库的操作类型，取值：1 增加 2 修改 3 删除</Description>\n'+
+				'          </FormalParameter>\n'+
+				'          <FormalParameter Id="Condition" Index="3" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <ExternalReference location="java.lang.Object"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>\n'+
+				'          </FormalParameter>\n'+
+				'        </FormalParameters>\n'+
+				'        <ExtendedAttributes>\n'+
+				'          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.dbToolAgent"/>\n'+
+				'          <ExtendedAttribute Name="DataTableName"/>\n'+
+				'        </ExtendedAttributes>\n'+
+				'      </Application>\n'+
+				'      <Application Id="workflow_fetchDataAgent" Name="获取数据">\n'+
+				'        <Description>获取数据库数据</Description>\n'+
+				'        <FormalParameters>\n'+
+				'          <FormalParameter Id="Condition" Index="1" Mode="IN">\n'+
+				'            <DataType>\n'+
+				'              <ExternalReference location="java.lang.Object"/>\n'+
+				'            </DataType>\n'+
+				'            <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>\n'+
+				'          </FormalParameter>\n'+
+				'        </FormalParameters>\n'+
+				'        <ExtendedAttributes>\n'+
+				'          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.fetchDataAgent"/>\n'+
+				'          <ExtendedAttribute Name="DataTableName"/>\n'+
+				'        </ExtendedAttributes>\n'+
+				'      </Application>\n'+
+				'    </Applications>\n'+
+				'    <ExtendedAttributes>\n'+
+				'      <ExtendedAttribute Name="IsMain" Value="true"/>\n'+
+				'      <ExtendedAttribute Name="warnTimeiFrequency"/>\n'+
+				'      <ExtendedAttribute Name="warnTime"/>\n'+
+				'      <ExtendedAttribute Name="warnAgentClassName"/>\n'+
+				'      <ExtendedAttribute Name="LimitAgentClassName"/>\n'+
+				'      <ExtendedAttribute Name="initFormPlugin" Value="wfd_form.xml"/>\n'+
+				'      <ExtendedAttribute Name="initReserve"/>\n'+
+				'      <ExtendedAttribute Name="initType" Value="money"/>\n'+
+				'      <ExtendedAttribute Name="initAuthor" Value="管理员"/>\n'+
+				'    </ExtendedAttributes>\n'+
+				'  </WorkflowProcess>\n'+
+				'</WorkflowProcesses>';
+				$('#xpdlContainer xmp').text(initXpdl);
+
+		})
+		//jquery插件滚动条
+		$(window).load(function(){
+            $(".content").mCustomScrollbar();
+        });
+	</script>
+</body>
+</html>
