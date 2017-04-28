@@ -11,20 +11,22 @@
 </head>
 <body>
 	<div class="subheader editor-toolbar">
-		<div class="column"><i class="save icon"></i></div>
+		<div class="column pop-btn" data-content="保存" data-position="bottom center" data-variation="mini"><i class="save icon"></i></div>
 		<div class="divider"></div>
-		<div class="column"><i class="cut icon"></i></div>
-		<div class="column"><i class="copy icon"></i></div>
-		<div class="column"><i class="paste icon"></i></div>
-		<div class="column" id="delete-graph"><i class="trash icon"></i></div>
+		<div class="column pop-btn" data-content="剪切" data-position="bottom center" data-variation="mini"><i class="cut icon"></i></div>
+		<div class="column pop-btn" data-content="复制" data-position="bottom center" data-variation="mini"><i class="copy icon"></i></div>
+		<div class="column pop-btn" data-content="粘贴" data-position="bottom center" data-variation="mini"><i class="paste icon"></i></div>
+		<div class="column pop-btn" id="delete-graph" data-content="清空" data-position="bottom center" data-variation="mini"><i class="trash icon"></i></div>
 		<div class="divider"></div>
-		<div class="column"><i class="repeat icon"></i></div>
-		<div class="column"><i class="undo icon"></i></div>
+		<div class="column pop-btn" data-content="撤销" data-position="bottom center" data-variation="mini"><i class="repeat icon"></i></div>
+		<div class="column pop-btn" data-content="恢复" data-position="bottom center" data-variation="mini"><i class="undo icon"></i></div>
 		<div class="divider"></div>
-		<div class="column"><i class="zoom icon"></i></div>
-		<div class="column"><i class="zoom out icon"></i></div>
-		<div class="column" id="reset-zoom"><i class="maximize icon"></i></div>
-
+		<div class="column pop-btn" data-content="放大" data-position="bottom center" data-variation="mini"><i class="zoom icon"></i></div>
+		<div class="column pop-btn" data-content="缩小" data-position="bottom center" data-variation="mini"><i class="zoom out icon"></i></div>
+		<div class="column pop-btn" id="reset-zoom" data-content="最大化" data-position="bottom center" data-variation="mini"><i class="maximize icon"></i></div>
+		<div class="divider"></div>
+		<div class="column pop-btn" data-content="导入json" data-position="bottom center" data-variation="mini"><i class="sign in icon"></i></div>
+		<div class="column pop-btn small popup" data-content="导出json" data-position="bottom center" data-variation="mini"><i class="sign out icon"></i></div>
 	</div>
 	<div class="full">
 		<div id="flowComponents" class="full-left">
@@ -51,12 +53,12 @@
 		</div>
 		<div class="full-right tab">
 			<div id="container" class="ui top attached tab active full-right-top view" data-tab="first"></div>
-			<div id="xpdlContainer" class="ui top attached tab view content" data-tab="second">
+			<div id="xpdlContainer" class="ui top attached tab view content-div" data-tab="second">
 				<xmp>
 					
 				</xmp>
 			</div>
-			<div id="xmlContainer" class="ui top attached tab view content" data-tab="third">
+			<div id="xmlContainer" class="ui top attached tab view content-div" data-tab="third">
 				<xmp>
 					
 				</xmp>
@@ -68,21 +70,35 @@
 			</div>
 			<div id="propertiesWrapper" class="full-right-bottom">
 				<div class="component-name"><i class="angle double down icon"></i><span>普通活动</span></div>
-				<div class="component-prop content">
-
+				<div class="component-prop content-div">
+					
 				</div>
 			</div>
 		</div>
 		<div class="clearfix"></div>
 	</div>
+	<!-- 导入导出弹出层 -->
+	<div class="ui small modal json_data">
+	  	<i class="close icon"></i>
+	  	<div class="header">
+	   		导入数据
+	  	</div>
+	  	<div class="content">
+	    	<textarea></textarea>
+	  	</div>
+	  	<div class="actions">
+	      	<div class="ui negative button">No </div>
+	      	<div class="ui positive right labeled icon button">Yes <i class="checkmark icon"></i> </div>
+	    </div>
+	</div>
 
 	<script type="text/javascript" src="js/jquery.min.js" charset="utf-8"></script>
-	<script type="text/javascript" src="js/jquery-ui-1.9.2.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/common.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/d3.v3.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/juicer-min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/semantic/semantic.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/flowchart_zyl.js" charset="utf-8"></script>
-	<script type="text/javascript" src="js/juicer-min.js"></script>
-	<script type="text/javascript" src="js/semantic/semantic.js"></script>
-	<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js"></script>
 	
 	<script>
 		juicer.set({  
@@ -105,6 +121,7 @@
 		var Word = randomWord(false, 8);
 		var workflow_name = '过程';
 		var workflow_id = 'Package_'+Word+'_Wor1';
+		var creat_time = new Date().pattern("yyyy-MM-dd hh:mm:ss");
 		var svg_ns = "http://www.w3.org/2000/svg";
 		var mySvg;
 		var initParameter = { //初始化shape参数
@@ -126,19 +143,19 @@
 				alert("component被点击");
 			});
 			//编辑工具
-			$('.editor-toolbar .icon').on('click', function(){
-				alert('handle');
+			$('.editor-toolbar .icon.save').on('click', function(){
+				alert('保存');
 			});
 			//控制属性显示
 			$('.component-name').on('click', function(){
 				if ($('.component-prop').is(':hidden')) {
 					$('.full-right-bottom ').css({height: '30%'});
-					$('.full-right-top ').css({height: '65%'});
+					$('.view').css({height: '65%'});
 					$('.component-name .icon').removeClass('up').addClass('down');
 					$('.component-prop').toggle('slow');
 				}else{
 					$('.full-right-bottom ').css({height: '8%'});
-					$('.full-right-top ').css({height: '87%'});
+					$('.view').css({height: '87%'});
 					$('.component-name .icon').removeClass('down').addClass('up');
 					$('.component-prop').toggle();
 				}
@@ -212,8 +229,9 @@
 							'<div class="clearfix"></div>';
 			$('.component-prop').append(initProp);
 			$('.component-name span').text(workflow_name);
-			$('.menu .item').tab();
-			function tempFun(){
+			$('.menu .item').tab();//标签显示必须放updateScrollbar之前
+
+			function updateScrollbar(){
 				var dataTab = $(this).attr('data-tab');
 				if(dataTab=='third'){ //xml视图
 					var customScrollbar=$("#xmlContainer").find(".mCSB_scrollTools");
@@ -226,7 +244,8 @@
 					$("#xpdlContainer").mCustomScrollbar("update");
 				}
 			}
-			$('.menu .item').on('click', tempFun);
+			$('.menu .item').on('click', updateScrollbar);
+
 			var initXml = '<WorkflowProcess Id="'+workflow_id+'" Name="'+workflow_name+'" endform-id="" endformschema="">\n'+
 					 			'  <text-limit/>\n'+
 					 	  '</WorkflowProcess>';
@@ -235,7 +254,7 @@
 				'<WorkflowProcesses>\n'+
 				'  <WorkflowProcess AccessLevel="PUBLIC" Id="'+workflow_id+'" Name="'+workflow_name+'">\n'+
 				'    <ProcessHeader DurationUnit="D">\n'+
-				'      <Created>2017-04-21 11:46:59</Created>\n'+
+				'      <Created>'+creat_time+'</Created>\n'+
 				'      <Priority/>\n'+
 				'    </ProcessHeader>\n'+
 				'    <RedefinableHeader PublicationStatus="UNDER_TEST">\n'+
@@ -349,10 +368,19 @@
 				$('#xpdlContainer xmp').text(initXpdl);
 
 		})
+
+		//semantic初始化
+		$(function(){
+			$('.pop-btn').popup({
+			    
+			 });
+
+		})
+
 		//jquery插件滚动条
 		$(window).load(function(){
-            $(".content").mCustomScrollbar();
+            $(".content-div").mCustomScrollbar();
         });
 	</script>
 </body>
-</html>
+</html

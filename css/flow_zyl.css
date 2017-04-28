@@ -81,6 +81,5 @@ html {overflow-y: scroll}
 #xpdlContainer xmp{ margin:0px;color:#736c6c;padding:8px; }
 #xmlContainer xmp{ margin:0px;color:#736c6c;padding:8px; }
 #xmlContainer script{ display:block; }
-.content{overflow:auto;}
-
-
+.content-div{overflow:auto;}
+.modal textarea{ width: 100%!important;height: 100px;padding: 7px}

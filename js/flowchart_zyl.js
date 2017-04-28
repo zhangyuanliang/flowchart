@@ -224,8 +224,9 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
         shapeId = shapename + new Date().getTime();
 
       var d = {
-          id: thisGraph.idct++,
+          id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
           title: shapeLabel,
+          component: component,
           x: position.x,
           y: position.y,
           eventTypeId: null
@@ -256,16 +257,70 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
         thisGraph.state.drawLine = false;
       }
     });
-
-    $('.menu .item').on('click',  function tempFun(){
-        var dataTab = $(this).attr('data-tab');
-        if(dataTab=='third'){ //xml视图
-          thisGraph.emergeAllXmlContent();
-        }
-        if(dataTab=='second'){ //xml视图
-          thisGraph.emergeAllxpdlContent();
-        }
+    //切换标签时获取xml和xpdl
+    $('.menu .item').on('click', function () {
+      var dataTab = $(this).attr('data-tab');
+      if(dataTab=='third'){ //xml视图
+        thisGraph.emergeAllXmlContent();
+      }
+      if(dataTab=='second'){ //xpdl视图
+        thisGraph.emergeAllxpdlContent();
+      }
     });
+    //点击导入导出按钮
+    $('.editor-toolbar').on('click', '.sign.in,.sign.out', function(event) {
+      var isImport = $(this).hasClass('in');
+      $('.ui.modal').modal({
+        onDeny: function(){
+          // window.alert('取消!');
+        },
+        onApprove: function() {
+          if(isImport){
+            var jsonStr = $('div.json_data textarea').val();
+            if(jsonStr){
+              var json = JSON.parse(jsonStr);
+              var edges = [];
+              var nodes =json.nodes;
+              for(var i in json.edges){
+                var source = json.edges[i].source.id;
+                var target = json.edges[i].target.id;
+                var edge = {};
+                for(var j in json.nodes){
+                  var node = json.nodes[j].id
+                  if(source==node){
+                    edge.source = nodes[j];
+                  }
+                  if(target==node){
+                    edge.target = nodes[j];
+                  }
+                }
+                edges.push(edge);
+              }
+              thisGraph.nodes = thisGraph.nodes.concat(nodes);
+              thisGraph.edges = thisGraph.edges.concat(edges);
+              graph.updateGraph();
+            }
+          }
+        },
+        onHidden: function(){
+          $('#div.json_data input,textarea').val('');
+        }
+      })
+      .modal('setting', 'transition', 'scale')
+      .modal('show');
+
+      if($(this).hasClass('in')){
+        $('div.json_data .header').text('导入数据');
+      }else{
+        $('div.json_data .header').text('导出数据');
+        var json = {};
+        json.nodes = thisGraph.nodes;
+        json.edges = thisGraph.edges;
+        console.log(JSON.stringify(json));
+        $('div.json_data textarea').val(JSON.stringify(json));
+      }
+    });
+    
   };
   //生成activity xml并添加至xmlContainer
   GraphCreator.prototype.emergeXmlContent = function(data){
@@ -293,11 +348,13 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
       curText = '' + start,
       activity = '';
     for(var i in nodes){
+      if(nodes[i].component=='activityComponent'){
         activity = '  <activity Id="'+nodes[i].id+'" Name="'+nodes[i].title+'" form-id="" formdisplayschema="" hisformdisplayschema="">\n'+
                    '    <operations/>\n'+
                    '    <text-limit/>\n'+
                    '  </activity>\n';
         curText += activity;
+      }
     }
     curText += end;
     $('#xmlContainer xmp').empty().text(curText);
@@ -309,7 +366,7 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
       '<WorkflowProcesses>\n'+
       '  <WorkflowProcess AccessLevel="PUBLIC" Id="'+workflow_id+'" Name="'+workflow_name+'">\n'+
       '    <ProcessHeader DurationUnit="D">\n'+
-      '      <Created>2017-04-21 11:46:59</Created>\n'+
+      '      <Created>'+creat_time+'</Created>\n'+
       '      <Priority/>\n'+
       '    </ProcessHeader>\n'+
       '    <RedefinableHeader PublicationStatus="UNDER_TEST">\n'+
@@ -433,6 +490,7 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     }
     var curText = '' + start;
     for(var i in nodes){
+      if(nodes[i].component=='activityComponent'){
         activity = '    <Activity Id="'+nodes[i].id+'" Name="'+nodes[i].title+'">\n'+
                    '      <Implementation>\n'+
                    '        <No/>\n'+
@@ -466,6 +524,7 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
                    '      </ExtendedAttributes>\n'+
                    '    </Activity>\n'
         curText += activity;
+      }
     }
     curText += end;
     $('#xpdlContainer xmp').empty().text(curText);
@@ -957,12 +1016,13 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     // .attr("height", height);
     .attr("width", "100%")
     .attr("height", "100%");
-  /*var graph = new GraphCreator(svg, nodes, edges);
-  graph.setIdCt(2);
-  graph.updateGraph();*/
   var graph = new GraphCreator(svg, [], []);
-  // graph.setIdCt(2);
+  graph.setIdCt(2);
   graph.updateGraph();
+  /*var graph = new GraphCreator(svg, [], []);
+  // graph.setIdCt(2);
+  graph.updateGraph();*/
+
 })(window.d3, window.saveAs, window.Blob);
 
 function generateUUID() {
