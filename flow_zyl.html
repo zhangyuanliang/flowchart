@@ -30,26 +30,39 @@
 	</div>
 	<div class="full">
 		<div id="flowComponents" class="full-left">
-			<div class="components-btn" name="startComponent" for-name="circle">
+			<div class="components-btn noComponent" name="selectBtn">
+				<img src="icons/activity/list/type.manual.png"><span>选择</span>
+			</div>
+			<div class="clearfix"></div>
+			<div class="components-btn" name="startComponent" type="" for-name="circle">
 				<img id="img" src="icons/startevent/none.png"/><span>开始</span>
 			</div>
 			<div class="clearfix"></div>
-			<div class="components-btn" name="activityComponent" for-name="rect">
+			<div class="components-btn" name="endComponent" type="" for-name="circle">
+				<img src="icons/endevent/none.png"><span>结束</span>
+			</div>
+			<div class="clearfix"></div>
+			<div class="components-btn" name="activityComponent" type="activity" for-name="rect">
 				<img src="icons/activity/list/type.user.png"><span>普通活动</span>
 			</div>
 			<div class="clearfix"></div>
-			<div class="components-btn" name="endComponent" for-name="circle">
-				<img src="icons/endevent/none.png"><span>结束</span>
+			<div class="components-btn" name="blockActivity" type="activity" for-name="">
+				<img src="icons/activity/task.png"><span>块活动</span>
+			</div>
+			<div class="clearfix"></div>
+			<div class="components-btn" name="subFlowActivity" type="activity" for-name="">
+				<img src="icons/activity/event.subprocess.png"><span>子活动</span>
+			</div>
+			<div class="clearfix"></div>
+			<div class="components-btn" name="routeActivity" type="activity" for-name="">
+				<img src="icons/activity/list/type.receive.png"><span>路径活动</span>
 			</div>
 			<div class="clearfix"></div>
 			<div class="components-btn noComponent" name="drawLineBtn" for-name="line">
 				<img src="icons/connector/sequenceflow.png"><span>线</span>
 			</div>
 			<div class="clearfix"></div>
-			<div class="components-btn noComponent" name="selectBtn">
-				<img src="icons/activity/list/type.manual.png"><span>选择</span>
-			</div>
-			<div class="clearfix"></div>
+			
 		</div>
 		<div class="full-right tab">
 			<div id="container" class="ui top attached tab active full-right-top view" data-tab="first"></div>
@@ -98,6 +111,7 @@
 	<script type="text/javascript" src="js/juicer-min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/semantic/semantic.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/vkbeautify.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/flowchart_zyl.js" charset="utf-8"></script>
 	
 	<script>
@@ -245,138 +259,12 @@
 				}
 			}
 			$('.menu .item').on('click', updateScrollbar);
-
-			var initXml = '<WorkflowProcess Id="'+workflow_id+'" Name="'+workflow_name+'" endform-id="" endformschema="">\n'+
-					 			'  <text-limit/>\n'+
-					 	  '</WorkflowProcess>';
-			$('#xmlContainer xmp').text(initXml);
-			var initXpdl = 
-				'<WorkflowProcesses>\n'+
-				'  <WorkflowProcess AccessLevel="PUBLIC" Id="'+workflow_id+'" Name="'+workflow_name+'">\n'+
-				'    <ProcessHeader DurationUnit="D">\n'+
-				'      <Created>'+creat_time+'</Created>\n'+
-				'      <Priority/>\n'+
-				'    </ProcessHeader>\n'+
-				'    <RedefinableHeader PublicationStatus="UNDER_TEST">\n'+
-				'      <Author>管理员</Author>\n'+
-				'      <Version>1.0</Version>\n'+
-				'    </RedefinableHeader>\n'+
-				'    <Applications>\n'+
-				'      <Application Id="workflow_DefaultToolAgent" Name="执行其他的toolagent">\n'+
-				'        <Description>执行其他的toolagent</Description>\n'+
-				'        <FormalParameters>\n'+
-				'          <FormalParameter Id="ToolAgentClass" Index="0" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <ExternalReference location="java.lang.String"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>其他组件名称</Description>\n'+
-				'          </FormalParameter>\n'+
-				'        </FormalParameters>\n'+
-				'        <ExtendedAttributes>\n'+
-				'          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.DefaultToolAgent"/>\n'+
-				'          <ExtendedAttribute Name="ToolAgentClass"/>\n'+
-				'        </ExtendedAttributes>\n'+
-				'      </Application>\n'+
-				'      <Application Id="workflow_sendMailToolAgent" Name="发送邮件">\n'+
-				'        <Description>发送电子邮件</Description>\n'+
-				'        <FormalParameters>\n'+
-				'          <FormalParameter Id="body" Index="body" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <BasicType Type="STRING"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>邮件正文</Description>\n'+
-				'          </FormalParameter>\n'+
-				'          <FormalParameter Id="subject" Index="subject" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <BasicType Type="STRING"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>邮件标题</Description>\n'+
-				'          </FormalParameter>\n'+
-				'          <FormalParameter Id="to" Index="to" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <BasicType Type="STRING"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>邮件地址,多个使用 , 分割</Description>\n'+
-				'          </FormalParameter>\n'+
-				'        </FormalParameters>\n'+
-				'        <ExtendedAttributes>\n'+
-				'          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.sendMailToolAgent"/>\n'+
-				'        </ExtendedAttributes>\n'+
-				'      </Application>\n'+
-				'      <Application Id="workflow_dbToolAgent" Name="修改数据">\n'+
-				'        <Description>修改数据库数据</Description>\n'+
-				'        <FormalParameters>\n'+
-				'          <FormalParameter Id="tableName" Index="0" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <ExternalReference location="java.lang.String"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>数据表名称</Description>\n'+
-				'          </FormalParameter>\n'+
-				'          <FormalParameter Id="dbdata" Index="1" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <ExternalReference location="java.lang.Object"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>需要操作的数据可以是一个String,pojo或者Map</Description>\n'+
-				'          </FormalParameter>\n'+
-				'          <FormalParameter Id="DbActionType" Index="2" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <BasicType Type="INTEGER"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>对数据库的操作类型，取值：1 增加 2 修改 3 删除</Description>\n'+
-				'          </FormalParameter>\n'+
-				'          <FormalParameter Id="Condition" Index="3" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <ExternalReference location="java.lang.Object"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>\n'+
-				'          </FormalParameter>\n'+
-				'        </FormalParameters>\n'+
-				'        <ExtendedAttributes>\n'+
-				'          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.dbToolAgent"/>\n'+
-				'          <ExtendedAttribute Name="DataTableName"/>\n'+
-				'        </ExtendedAttributes>\n'+
-				'      </Application>\n'+
-				'      <Application Id="workflow_fetchDataAgent" Name="获取数据">\n'+
-				'        <Description>获取数据库数据</Description>\n'+
-				'        <FormalParameters>\n'+
-				'          <FormalParameter Id="Condition" Index="1" Mode="IN">\n'+
-				'            <DataType>\n'+
-				'              <ExternalReference location="java.lang.Object"/>\n'+
-				'            </DataType>\n'+
-				'            <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>\n'+
-				'          </FormalParameter>\n'+
-				'        </FormalParameters>\n'+
-				'        <ExtendedAttributes>\n'+
-				'          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.fetchDataAgent"/>\n'+
-				'          <ExtendedAttribute Name="DataTableName"/>\n'+
-				'        </ExtendedAttributes>\n'+
-				'      </Application>\n'+
-				'    </Applications>\n'+
-				'    <ExtendedAttributes>\n'+
-				'      <ExtendedAttribute Name="IsMain" Value="true"/>\n'+
-				'      <ExtendedAttribute Name="warnTimeiFrequency"/>\n'+
-				'      <ExtendedAttribute Name="warnTime"/>\n'+
-				'      <ExtendedAttribute Name="warnAgentClassName"/>\n'+
-				'      <ExtendedAttribute Name="LimitAgentClassName"/>\n'+
-				'      <ExtendedAttribute Name="initFormPlugin" Value="wfd_form.xml"/>\n'+
-				'      <ExtendedAttribute Name="initReserve"/>\n'+
-				'      <ExtendedAttribute Name="initType" Value="money"/>\n'+
-				'      <ExtendedAttribute Name="initAuthor" Value="管理员"/>\n'+
-				'    </ExtendedAttributes>\n'+
-				'  </WorkflowProcess>\n'+
-				'</WorkflowProcesses>';
-				$('#xpdlContainer xmp').text(initXpdl);
-
 		})
-
 		//semantic初始化
 		$(function(){
-			$('.pop-btn').popup({
-			    
-			 });
+			$('.pop-btn').popup();
 
 		})
-
 		//jquery插件滚动条
 		$(window).load(function(){
             $(".content-div").mCustomScrollbar();

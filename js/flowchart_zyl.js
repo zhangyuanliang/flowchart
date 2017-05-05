@@ -1,4 +1,4 @@
-document.onload = (function(d3, saveAs, Blob, undefined) {
+document.onload = (function(d3, saveAs, Blob, vkbeautify) {
   "use strict";
 
   // define graphcreator object
@@ -6,8 +6,10 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     var thisGraph = this;
     console.log('thisGraph:');
     console.log(thisGraph);
+    console.log(vkbeautify);
 
     thisGraph.idct = 0;
+    thisGraph.edgeNum = 1;
 
     thisGraph.nodes = nodes || [];
     thisGraph.edges = edges || [];
@@ -210,6 +212,7 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
       ev.originalEvent.dataTransfer.setData('text', $(this).children('span').text());
       ev.originalEvent.dataTransfer.setData('shapename', $(this).attr('for-name'));
       ev.originalEvent.dataTransfer.setData('component', $(this).attr('name'));
+      ev.originalEvent.dataTransfer.setData('type', $(this).attr('type'));
       console.log('drag start');
       console.log('shapename:'+$(this).attr('for-name')+';shapeLabel:'+$(this).children('span').text());
       // $('#reset-zoom').trigger("click");
@@ -221,12 +224,14 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
       var shapeLabel = ev.originalEvent.dataTransfer.getData('text'),
         shapename = ev.originalEvent.dataTransfer.getData('shapename'),
         component = ev.originalEvent.dataTransfer.getData('component'),
+        type = ev.originalEvent.dataTransfer.getData('type'),
         shapeId = shapename + new Date().getTime();
 
       var d = {
           id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
           title: shapeLabel,
           component: component,
+          type: type,
           x: position.x,
           y: position.y,
           eventTypeId: null
@@ -260,11 +265,13 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     //切换标签时获取xml和xpdl
     $('.menu .item').on('click', function () {
       var dataTab = $(this).attr('data-tab');
-      if(dataTab=='third'){ //xml视图
-        thisGraph.emergeAllXmlContent();
+      if(dataTab == 'third'){ //xml视图
+        var XmlContent = thisGraph.emergeAllXmlContent();
+        $('#xmlContainer xmp').empty().text(XmlContent);
       }
-      if(dataTab=='second'){ //xpdl视图
-        thisGraph.emergeAllxpdlContent();
+      if(dataTab == 'second'){ //xpdl视图
+        var xpdlContent = thisGraph.emergeAllxpdlContent();
+        $('#xpdlContainer xmp').empty().text(xpdlContent);
       }
     });
     //点击导入导出按钮
@@ -281,10 +288,12 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
               var json = JSON.parse(jsonStr);
               var edges = [];
               var nodes =json.nodes;
+
               for(var i in json.edges){
                 var source = json.edges[i].source.id;
                 var target = json.edges[i].target.id;
                 var edge = {};
+                edge.edgeId = json.edges[i].edgeId;
                 for(var j in json.nodes){
                   var node = json.nodes[j].id
                   if(source==node){
@@ -322,212 +331,400 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     });
     
   };
-  //生成activity xml并添加至xmlContainer
-  GraphCreator.prototype.emergeXmlContent = function(data){
+  GraphCreator.prototype.getExtendedAttributes = function(node_x, node_y){
+    var ExtendedAttributes = 
+            '<ExtendedAttributes>'
+          + '   <ExtendedAttribute Name="isMulInstance" Value="false"/>'
+          + '   <ExtendedAttribute Name="isResponsibleTem" Value="true"/>'
+          + '   <ExtendedAttribute Name="responsible"/>'
+          + '   <ExtendedAttribute Name="MustActivity" Value="true"/>'
+          + '   <ExtendedAttribute Name="taskAssignMode" Value="taskAutoMode"/>'
+          + '   <ExtendedAttribute Name="assignmentsOrder" Value="false"/>'
+          + '   <ExtendedAttribute Name="completeAllAssignments" Value="false"/>'
+          + '   <ExtendedAttribute Name="autoAcceptAllAssignments" Value="true"/>'
+          + '   <ExtendedAttribute Name="isResponsible" Value="true"/>'
+          + '   <ExtendedAttribute Name="deadline"/>'
+          + '   <ExtendedAttribute Name="FinishRule"/>'
+          + '   <ExtendedAttribute Name="warnTimeiFrequency"/>'
+          + '   <ExtendedAttribute Name="warnTime"/>'
+          + '   <ExtendedAttribute Name="warnAgentClassName"/>'
+          + '   <ExtendedAttribute Name="LimitAgentClassName"/>'
+          + '   <ExtendedAttribute Name="ParticipantID"/>'
+          + '   <ExtendedAttribute Name="XOffset" Value="'+node_x+'"/>'
+          + '   <ExtendedAttribute Name="YOffset" Value="'+node_y+'"/>'
+          + '</ExtendedAttributes>';
+    return ExtendedAttributes;
+  }
+  //获取activity进出线的数量
+  GraphCreator.prototype.activityInOutNum = function(node){
     var thisGraph = this;
-    var text = $('#xmlContainer xmp').text(),
-      start = text.substring(0, text.lastIndexOf('<text-limit/>')),
-      end = '  '+text.substring(text.lastIndexOf('<text-limit/>')),
-      activity = '<activity Id="'+data.id+'" Name="'+data.title+'" form-id="" formdisplayschema="" hisformdisplayschema="">\n'+
-                 '    <operations/>\n'+
-                 '    <text-limit/>\n'+
-                 '  </activity>\n';
-    var curText = start + activity + end;
-    $('#xmlContainer xmp').empty().text(curText);
+
+    var numIn = 0,
+        numOut = 0,
+        transitionRefs = '',
+        activity_inOut = {};
+    var edges = thisGraph.edges;
+    
+    edges.forEach(function (edge) {
+      var source = edge.source.component;
+      var target = edge.target.component;
+      if( source != "startComponent" && target != "endComponent"){
+        if (edge.source == node){
+          numOut++;
+          transitionRefs += '<TransitionRef Id="'+edge.edgeId+'"/>'
+        }else if (edge.target == node){
+          numIn++;
+        }
+      }
+    });
+    activity_inOut.numIn = numIn;
+    activity_inOut.numOut = numOut;
+    activity_inOut.transitionRefs = transitionRefs;
+    return activity_inOut;
   }
   //生成所有activity xml添加至xmlContainer
   GraphCreator.prototype.emergeAllXmlContent = function(){
     var thisGraph = this;
-    $('#xmlContainer xmp').empty();
-
-    var start = '<WorkflowProcess Id="'+workflow_id+'" Name="'+workflow_name+'" endform-id="" endformschema="">\n',
-          end = '  <text-limit/>\n'+
+    var start = '<WorkflowProcess Id="'+workflow_id+'" Name="'+workflow_name+'" endform-id="" endformschema="">',
+          end = '  <text-limit/>'+
                 '</WorkflowProcess>';
 
     var nodes = thisGraph.nodes,
-      curText = '' + start,
+      curText = start,
       activity = '';
     for(var i in nodes){
-      if(nodes[i].component=='activityComponent'){
-        activity = '  <activity Id="'+nodes[i].id+'" Name="'+nodes[i].title+'" form-id="" formdisplayschema="" hisformdisplayschema="">\n'+
-                   '    <operations/>\n'+
-                   '    <text-limit/>\n'+
-                   '  </activity>\n';
+      if(nodes[i].type=='activity'){
+        activity = '<activity Id="'+nodes[i].id+'" Name="'+nodes[i].title+'" form-id="" formdisplayschema="" hisformdisplayschema="">'+
+                   '  <operations/>'+
+                   '  <text-limit/>'+
+                   '</activity>';
         curText += activity;
       }
     }
     curText += end;
-    $('#xmlContainer xmp').empty().text(curText);
+    curText = vkbeautify.xml(curText);
+    return curText;
   }
   //生成所有activity xml添加至xpdlContainer
   GraphCreator.prototype.emergeAllxpdlContent = function(){
     var thisGraph = this;
-    var start = 
-      '<WorkflowProcesses>\n'+
-      '  <WorkflowProcess AccessLevel="PUBLIC" Id="'+workflow_id+'" Name="'+workflow_name+'">\n'+
-      '    <ProcessHeader DurationUnit="D">\n'+
-      '      <Created>'+creat_time+'</Created>\n'+
-      '      <Priority/>\n'+
-      '    </ProcessHeader>\n'+
-      '    <RedefinableHeader PublicationStatus="UNDER_TEST">\n'+
-      '      <Author>管理员</Author>\n'+
-      '      <Version>1.0</Version>\n'+
-      '    </RedefinableHeader>\n'+
-      '    <Applications>\n'+
-      '      <Application Id="workflow_DefaultToolAgent" Name="执行其他的toolagent">\n'+
-      '        <Description>执行其他的toolagent</Description>\n'+
-      '        <FormalParameters>\n'+
-      '          <FormalParameter Id="ToolAgentClass" Index="0" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <ExternalReference location="java.lang.String"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>其他组件名称</Description>\n'+
-      '          </FormalParameter>\n'+
-      '        </FormalParameters>\n'+
-      '        <ExtendedAttributes>\n'+
-      '          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.DefaultToolAgent"/>\n'+
-      '          <ExtendedAttribute Name="ToolAgentClass"/>\n'+
-      '        </ExtendedAttributes>\n'+
-      '      </Application>\n'+
-      '      <Application Id="workflow_sendMailToolAgent" Name="发送邮件">\n'+
-      '        <Description>发送电子邮件</Description>\n'+
-      '        <FormalParameters>\n'+
-      '          <FormalParameter Id="body" Index="body" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <BasicType Type="STRING"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>邮件正文</Description>\n'+
-      '          </FormalParameter>\n'+
-      '          <FormalParameter Id="subject" Index="subject" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <BasicType Type="STRING"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>邮件标题</Description>\n'+
-      '          </FormalParameter>\n'+
-      '          <FormalParameter Id="to" Index="to" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <BasicType Type="STRING"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>邮件地址,多个使用 , 分割</Description>\n'+
-      '          </FormalParameter>\n'+
-      '        </FormalParameters>\n'+
-      '        <ExtendedAttributes>\n'+
-      '          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.sendMailToolAgent"/>\n'+
-      '        </ExtendedAttributes>\n'+
-      '      </Application>\n'+
-      '      <Application Id="workflow_dbToolAgent" Name="修改数据">\n'+
-      '        <Description>修改数据库数据</Description>\n'+
-      '        <FormalParameters>\n'+
-      '          <FormalParameter Id="tableName" Index="0" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <ExternalReference location="java.lang.String"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>数据表名称</Description>\n'+
-      '          </FormalParameter>\n'+
-      '          <FormalParameter Id="dbdata" Index="1" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <ExternalReference location="java.lang.Object"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>需要操作的数据可以是一个String,pojo或者Map</Description>\n'+
-      '          </FormalParameter>\n'+
-      '          <FormalParameter Id="DbActionType" Index="2" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <BasicType Type="INTEGER"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>对数据库的操作类型，取值：1 增加 2 修改 3 删除</Description>\n'+
-      '          </FormalParameter>\n'+
-      '          <FormalParameter Id="Condition" Index="3" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <ExternalReference location="java.lang.Object"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>\n'+
-      '          </FormalParameter>\n'+
-      '        </FormalParameters>\n'+
-      '        <ExtendedAttributes>\n'+
-      '          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.dbToolAgent"/>\n'+
-      '          <ExtendedAttribute Name="DataTableName"/>\n'+
-      '        </ExtendedAttributes>\n'+
-      '      </Application>\n'+
-      '      <Application Id="workflow_fetchDataAgent" Name="获取数据">\n'+
-      '        <Description>获取数据库数据</Description>\n'+
-      '        <FormalParameters>\n'+
-      '          <FormalParameter Id="Condition" Index="1" Mode="IN">\n'+
-      '            <DataType>\n'+
-      '              <ExternalReference location="java.lang.Object"/>\n'+
-      '            </DataType>\n'+
-      '            <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>\n'+
-      '          </FormalParameter>\n'+
-      '        </FormalParameters>\n'+
-      '        <ExtendedAttributes>\n'+
-      '          <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.fetchDataAgent"/>\n'+
-      '          <ExtendedAttribute Name="DataTableName"/>\n'+
-      '        </ExtendedAttributes>\n'+
-      '      </Application>\n'+
-      '    </Applications>\n';    
-
-    var end = 
-      '    <ExtendedAttributes>\n'+
-      '      <ExtendedAttribute Name="IsMain" Value="true"/>\n'+
-      '      <ExtendedAttribute Name="warnTimeiFrequency"/>\n'+
-      '      <ExtendedAttribute Name="warnTime"/>\n'+
-      '      <ExtendedAttribute Name="warnAgentClassName"/>\n'+
-      '      <ExtendedAttribute Name="LimitAgentClassName"/>\n'+
-      '      <ExtendedAttribute Name="initFormPlugin" Value="wfd_form.xml"/>\n'+
-      '      <ExtendedAttribute Name="initReserve"/>\n'+
-      '      <ExtendedAttribute Name="initType" Value="money"/>\n'+
-      '      <ExtendedAttribute Name="initAuthor" Value="管理员"/>\n'+
-      '    </ExtendedAttributes>\n'+
-      '  </WorkflowProcess>\n'+
-      '</WorkflowProcesses>';
     var nodes = thisGraph.nodes;
-    var activity = '';
+    var activitySets = '';
     if(nodes.length>0){
-      start = start + 
-      '    <ActivitySets>\n'+
-      '      <ActivitySet Id="Package_8VRAH3EM_Wor1_Ase1"/>\n'+
-      '    </ActivitySets>\n';
-      end = '    </Activities>\n'+end;
+      activitySets = //不清楚什么时候设置??
+          '<ActivitySets>'+
+          '   <ActivitySet Id="Package_8VRAH3EM_Wor1_Ase1"/>'+
+          '</ActivitySets>';
     }
-    var curText = '' + start;
-    for(var i in nodes){
-      if(nodes[i].component=='activityComponent'){
-        activity = '    <Activity Id="'+nodes[i].id+'" Name="'+nodes[i].title+'">\n'+
-                   '      <Implementation>\n'+
-                   '        <No/>\n'+
-                   '      </Implementation>\n'+
-                   '      <StartMode>\n'+
-                   '        <Manual/>\n'+
-                   '      </StartMode>\n'+
-                   '      <FinishMode>\n'+
-                   '        <Manual/>\n'+
-                   '      </FinishMode>\n'+
-                   '      <Priority/>\n'+
-                   '      <ExtendedAttributes>\n'+
-                   '        <ExtendedAttribute Name="isMulInstance" Value="false"/>\n'+
-                   '        <ExtendedAttribute Name="isResponsibleTem" Value="true"/>\n'+
-                   '        <ExtendedAttribute Name="responsible"/>\n'+
-                   '        <ExtendedAttribute Name="MustActivity" Value="true"/>\n'+
-                   '        <ExtendedAttribute Name="taskAssignMode" Value="taskAutoMode"/>\n'+
-                   '        <ExtendedAttribute Name="assignmentsOrder" Value="false"/>\n'+
-                   '        <ExtendedAttribute Name="completeAllAssignments" Value="false"/>\n'+
-                   '        <ExtendedAttribute Name="autoAcceptAllAssignments" Value="true"/>\n'+
-                   '        <ExtendedAttribute Name="isResponsible" Value="true"/>\n'+
-                   '        <ExtendedAttribute Name="deadline"/>\n'+
-                   '        <ExtendedAttribute Name="FinishRule"/>\n'+
-                   '        <ExtendedAttribute Name="warnTimeiFrequency"/>\n'+
-                   '        <ExtendedAttribute Name="warnTime"/>\n'+
-                   '        <ExtendedAttribute Name="warnAgentClassName"/>\n'+
-                   '        <ExtendedAttribute Name="LimitAgentClassName"/>\n'+
-                   '        <ExtendedAttribute Name="ParticipantID"/>\n'+
-                   '        <ExtendedAttribute Name="XOffset" Value="'+nodes[i].x+'"/>\n'+
-                   '        <ExtendedAttribute Name="YOffset" Value="'+nodes[i].y+'"/>\n'+
-                   '      </ExtendedAttributes>\n'+
-                   '    </Activity>\n'
-        curText += activity;
-      }
+
+    var error = {
+      messages: []
+    };
+    var activities = "";
+    var nodes_act =[];
+    nodes.forEach(function(node){
+        if(node.type == 'activity'){
+            nodes_act.push(node);
+        }
+    })
+    nodes_act.forEach(function (node) {
+      switch (node.component) {
+        case "activityComponent"://普通活动
+          var activity_inOut = thisGraph.activityInOutNum(node);
+          activities 
+             += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
+              + '    <Implementation>'
+              + '        <No/>'
+              + '    </Implementation>'
+              + '    <StartMode>'
+              + '        <Manual/>'
+              + '    </StartMode>'
+              + '    <FinishMode>'
+              + '        <Manual/>'
+              + '    </FinishMode>'
+              + '    <Priority/>'
+          if (activity_inOut.numIn > 1 || activity_inOut.numOut > 1) {
+            activities
+               += '    <TransitionRestrictions>'
+                + '        <TransitionRestriction>'
+            if(activity_inOut.numIn > 1){  
+                activities   
+                    += '       <Join Type="XOR"/>'
+            }
+            if(activity_inOut.numOut > 1){
+                activities
+                   += '        <Split Type="XOR">'
+                    + '            <TransitionRefs>'
+                    +                  activity_inOut.transitionRefs
+                    + '            </TransitionRefs>'
+                    + '        </Split>'
+            }
+            activities    
+               += '        </TransitionRestriction>'
+                + '    </TransitionRestrictions>'
+          }
+          activities
+             += thisGraph.getExtendedAttributes(node.x, node.y)
+              + '</Activity>';
+          break;
+        case "blockActivity": //块活动
+          var activity_inOut = thisGraph.activityInOutNum(node);
+          activities
+             += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
+              + '    <BlockActivity BlockId="Package_H00387DJ_Wor1_Ase2"/>'
+              + '    <StartMode>'
+              + '        <Manual/>'
+              + '    </StartMode>'
+              + '    <FinishMode>'
+              + '        <Manual/>'
+              + '    </FinishMode>'
+              + '    <Priority/>'
+          if (activity_inOut.numIn > 1 || activity_inOut.numOut > 1) {
+            activities
+               += '    <TransitionRestrictions>'
+                + '        <TransitionRestriction>'
+            if(activity_inOut.numIn > 1){  
+                activities   
+                    += '       <Join Type="XOR"/>'
+            }
+            if(activity_inOut.numOut > 1){
+                activities
+                   += '        <Split Type="XOR">'
+                    + '            <TransitionRefs>'
+                    +                  activity_inOut.transitionRefs
+                    + '            </TransitionRefs>'
+                    + '        </Split>'
+            }
+            activities    
+               += '        </TransitionRestriction>'
+                + '    </TransitionRestrictions>'
+          }
+          activities
+             += thisGraph.getExtendedAttributes(node.x, node.y)
+              + '</Activity>';    
+          break;
+        case "subFlowActivity": //子活动
+          var activity_inOut = thisGraph.activityInOutNum(node);
+          activities
+             += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
+              + '    <Implementation>'
+              + '        <SubFlow Execution="SYNCHR" Id="Package_6MT7F8C0_Wor4"/>'//subFlowId是什么东西??
+              + '    </Implementation>'
+              + '    <StartMode>'
+              + '        <Manual/>'
+              + '    </StartMode>'
+              + '    <FinishMode>'
+              + '        <Manual/>'
+              + '    </FinishMode>'
+              + '    <Priority/>'
+          if (activity_inOut.numIn > 1 || activity_inOut.numOut > 1) {
+            activities
+               += '    <TransitionRestrictions>'
+                + '        <TransitionRestriction>'
+            if(activity_inOut.numIn > 1){  
+                activities   
+                    += '       <Join Type="XOR"/>'
+            }
+            if(activity_inOut.numOut > 1){
+                activities
+                   += '        <Split Type="XOR">'
+                    + '            <TransitionRefs>'
+                    +                  activity_inOut.transitionRefs
+                    + '            </TransitionRefs>'
+                    + '        </Split>'
+            }
+            activities    
+               += '        </TransitionRestriction>'
+                + '    </TransitionRestrictions>'
+          }
+          activities
+             += thisGraph.getExtendedAttributes(node.x, node.y)
+              + '</Activity>'; 
+          break;
+        case "routeActivity": //路径活动
+          var activity_inOut = thisGraph.activityInOutNum(node);
+          activities
+             += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
+              + '    <Route/>'
+              + '    <StartMode>'
+              + '        <Automatic/>'
+              + '    </StartMode>'
+              + '    <FinishMode>'
+              + '        <Automatic/>'
+              + '    </FinishMode>'
+              + '    <Priority/>'
+          if (activity_inOut.numIn > 1 || activity_inOut.numOut > 1) {
+            activities
+               += '    <TransitionRestrictions>'
+                + '        <TransitionRestriction>'
+            if(activity_inOut.numIn > 1){  
+                activities   
+                    += '       <Join Type="XOR"/>'
+            }
+            if(activity_inOut.numOut > 1){
+                activities
+                   += '        <Split Type="XOR">'
+                    + '            <TransitionRefs>'
+                    +                  activity_inOut.transitionRefs
+                    + '            </TransitionRefs>'
+                    + '        </Split>'
+            }
+            activities    
+               += '        </TransitionRestriction>'
+                + '    </TransitionRestrictions>'
+          }
+          activities
+             += thisGraph.getExtendedAttributes(node.x, node.y)
+              + '</Activity>';
+          break;
+        }
+    });
+    var transitions = "";
+    var edges = thisGraph.edges;
+    edges.forEach(function (edge) {
+        transitions
+          += '<Transition From="'+edge.source.id+'" Id="'+edge.edgeId+'" To="'+edge.target.id+'">'
+           + '    <Condition/>'
+           + '    <ExtendedAttributes>'
+           + '        <ExtendedAttribute Name="TransitionRuleType"/>'
+           + '        <ExtendedAttribute Name="TransitionEventType" Value="transitionClass"/>'
+           + '        <ExtendedAttribute Name="conditype"/>'
+           + '        <ExtendedAttribute Name="RoutingType" Value="NOROUTING"/>'
+           + '    </ExtendedAttributes>'
+           + '</Transition>'
+    });
+    var str
+        = '<WorkflowProcesses>'
+        + '   <WorkflowProcess AccessLevel="PUBLIC" Id="'+workflow_id+'" Name="'+workflow_name+'">'
+        + '       <ProcessHeader DurationUnit="D">'
+        + '           <Created>'+creat_time+'</Created>'
+        + '           <Priority/>'
+        + '       </ProcessHeader>'
+        + '       <RedefinableHeader PublicationStatus="UNDER_TEST">'
+        + '           <Author>管理员</Author>'
+        + '           <Version>1.0</Version>'
+        + '       </RedefinableHeader>'
+        + '       <Applications>'
+        + '           <Application Id="workflow_DefaultToolAgent" Name="执行其他的toolagent">'
+        + '               <Description>执行其他的toolagent</Description>'
+        + '               <FormalParameters>'
+        + '                   <FormalParameter Id="ToolAgentClass" Index="0" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <ExternalReference location="java.lang.String"/>'
+        + '                       </DataType>'
+        + '                       <Description>其他组件名称</Description>'
+        + '                   </FormalParameter>'
+        + '               </FormalParameters>'
+        + '               <ExtendedAttributes>'
+        + '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.DefaultToolAgent"/>'
+        + '                   <ExtendedAttribute Name="ToolAgentClass"/>'
+        + '               </ExtendedAttributes>'
+        + '           </Application>'
+        + '           <Application Id="workflow_sendMailToolAgent" Name="发送邮件">'
+        + '               <Description>发送电子邮件</Description>'
+        + '               <FormalParameters>'
+        + '                   <FormalParameter Id="body" Index="body" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <BasicType Type="STRING"/>'
+        + '                       </DataType>'
+        + '                       <Description>邮件正文</Description>'
+        + '                   </FormalParameter>'
+        + '                   <FormalParameter Id="subject" Index="subject" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <BasicType Type="STRING"/>'
+        + '                       </DataType>'
+        + '                       <Description>邮件标题</Description>'
+        + '                   </FormalParameter>'
+        + '                   <FormalParameter Id="to" Index="to" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <BasicType Type="STRING"/>'
+        + '                       </DataType>'
+        + '                       <Description>邮件地址,多个使用 , 分割</Description>'
+        + '                   </FormalParameter>'
+        + '               </FormalParameters>'
+        + '               <ExtendedAttributes>'
+        + '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.sendMailToolAgent"/>'
+        + '               </ExtendedAttributes>'
+        + '           </Application>'
+        + '           <Application Id="workflow_dbToolAgent" Name="修改数据">'
+        + '               <Description>修改数据库数据</Description>'
+        + '               <FormalParameters>'
+        + '                   <FormalParameter Id="tableName" Index="0" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <ExternalReference location="java.lang.String"/>'
+        + '                       </DataType>'
+        + '                       <Description>数据表名称</Description>'
+        + '                   </FormalParameter>'
+        + '                   <FormalParameter Id="dbdata" Index="1" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <ExternalReference location="java.lang.Object"/>'
+        + '                       </DataType>'
+        + '                       <Description>需要操作的数据可以是一个String,pojo或者Map</Description>'
+        + '                   </FormalParameter>'
+        + '                   <FormalParameter Id="DbActionType" Index="2" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <BasicType Type="INTEGER"/>'
+        + '                       </DataType>'
+        + '                       <Description>对数据库的操作类型，取值：1 增加 2 修改 3 删除</Description>'
+        + '                   </FormalParameter>'
+        + '                   <FormalParameter Id="Condition" Index="3" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <ExternalReference location="java.lang.Object"/>'
+        + '                       </DataType>'
+        + '                       <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>'
+        + '                   </FormalParameter>'
+        + '               </FormalParameters>'
+        + '               <ExtendedAttributes>'
+        + '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.dbToolAgent"/>'
+        + '                   <ExtendedAttribute Name="DataTableName"/>'
+        + '               </ExtendedAttributes>'
+        + '           </Application>'
+        + '           <Application Id="workflow_fetchDataAgent" Name="获取数据">'
+        + '               <Description>获取数据库数据</Description>'
+        + '               <FormalParameters>'
+        + '                   <FormalParameter Id="Condition" Index="1" Mode="IN">'
+        + '                       <DataType>'
+        + '                           <ExternalReference location="java.lang.Object"/>'
+        + '                       </DataType>'
+        + '                       <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>'
+        + '                   </FormalParameter>'
+        + '               </FormalParameters>'
+        + '               <ExtendedAttributes>'
+        + '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.fetchDataAgent"/>'
+        + '                   <ExtendedAttribute Name="DataTableName"/>'
+        + '               </ExtendedAttributes>'
+        + '           </Application>'
+        + '       </Applications>'
+    if(nodes_act.length>0){
+      str
+       += '       <Activities>'
+        +             activities
+        + '       </Activities>'
     }
-    curText += end;
-    $('#xpdlContainer xmp').empty().text(curText);
+    if(edges.length>0){
+      str
+       += '       <Transitions>'
+        +             transitions     
+        + '       </Transitions>'
+    }
+    str
+       += '       <ExtendedAttributes>'
+        + '           <ExtendedAttribute Name="IsMain" Value="true"/>'
+        + '           <ExtendedAttribute Name="warnTimeiFrequency"/>'
+        + '           <ExtendedAttribute Name="warnTime"/>'
+        + '           <ExtendedAttribute Name="warnAgentClassName"/>'
+        + '           <ExtendedAttribute Name="LimitAgentClassName"/>'
+        + '           <ExtendedAttribute Name="initFormPlugin" Value="wfd_form.xml"/>'
+        + '           <ExtendedAttribute Name="initReserve"/>'
+        + '           <ExtendedAttribute Name="initType" Value="money"/>'
+        + '           <ExtendedAttribute Name="initAuthor" Value="管理员"/>'
+        + '           <ExtendedAttribute Name="StartOfWorkflow" Value="none;Package_8LRKX8RP_Wor1_Act2;99;50;NOROUTING"/>'
+        + '           <ExtendedAttribute Name="EndOfWorkflow" Value="none;Package_8LRKX8RP_Wor1_Act2;559;54;NOROUTING"/>'
+        + '       </ExtendedAttributes>'
+        + '   </WorkflowProcess>'
+        + '</WorkflowProcesses>'
+    str = vkbeautify.xml(str);
+    return str;
   }
 
   GraphCreator.prototype.setIdCt = function(idct) {
@@ -543,11 +740,10 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     BACKSPACE_KEY: 8,
     DELETE_KEY: 46,
     ENTER_KEY: 13,
-    nodeRadius: 50
+    nodeRadius: 40
   };
 
   /* PROTOTYPE FUNCTIONS */
-
   GraphCreator.prototype.dragmove = function(d) {
     var thisGraph = this;
     if (thisGraph.state.shiftNodeDrag||thisGraph.state.drawLine) {
@@ -597,7 +793,6 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     }
   };
 
-
   // remove edges associated with a node
   GraphCreator.prototype.spliceLinksForNode = function(node) {
     var thisGraph = this,
@@ -620,53 +815,12 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
 
   GraphCreator.prototype.replaceSelectNode = function(d3Node, nodeData) {
     // A circle node has been selected.
-
     var thisGraph = this;
     d3Node.classed(this.consts.selectedClass, true);
     if (thisGraph.state.selectedNode) {
       thisGraph.removeSelectFromNode();
     }
     thisGraph.state.selectedNode = nodeData;
-
-    /*d3.json("js/processes.json", function(error, json){
-
-      json = _.sortBy(json, function(d){ return d.Value })
-
-      if(error){
-        alert("Error occured while getting processes. Check console for details.");
-        console.log(error);
-        return;
-      }
-
-      var inspector = d3.select("div#container").append("div").attr({ id: "inspector"});
-      var sel = inspector.append("select")
-          .on("change", function(d){
-            // Update thisGraph.nodes and graph text with selected option.
-            var selectedOption = this.options[this.selectedIndex];
-            // selectedOption.value & selectedOption.text
-
-            d3Node.select("text").remove();
-            thisGraph.insertTitleLinebreaks(d3Node, selectedOption.text);
-            nodeData.eventTypeId = parseInt(selectedOption.value);
-            nodeData.title = selectedOption.text;
-
-            // console.log('thisGraph.nodes');
-            // console.log(thisGraph.nodes);
-
-          });
-
-
-      var options = sel.selectAll("option");
-
-      options.data(json).enter()
-          .append("option")
-              .attr({value: function(d){ return d.Key }})
-              .text(function(d){ return d.Value })
-          .property("selected", function(d, i){
-                return d.Key === nodeData.eventTypeId;
-          });
-
-    });*/
   };
 
   GraphCreator.prototype.removeSelectFromNode = function() {
@@ -728,16 +882,16 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
   GraphCreator.prototype.changePropDiv = function(d){
     var thisGraph = this;
     $('.component-prop').empty().append(
-          '<div>'+
-          '  <div name="id" class="prop-value"><span>id:</span><span>'+d.id+'</span></div>'+
-          '  <div name="name" class="prop-value"><span>名称:</span><span>'+d.title+'</span></div>'+
-          '</div>'+
-          '<div class="clearfix"></div>'+
-          '<div> '+
-          '  <div name="type" class="prop-value"><span>类型:</span><span>null</span></div>'+
-          '  <div name="" class="prop-value"><span>执行者:</span><span>无</span></div>'+
-          '</div>'+
-          '<div class="clearfix"></div>');
+        '<div>'+
+        '  <div name="id" class="prop-value"><span>id:</span><span>'+d.id+'</span></div>'+
+        '  <div name="name" class="prop-value"><span>名称:</span><span>'+d.title+'</span></div>'+
+        '</div>'+
+        '<div class="clearfix"></div>'+
+        '<div> '+
+        '  <div name="type" class="prop-value"><span>类型:</span><span>null</span></div>'+
+        '  <div name="" class="prop-value"><span>执行者:</span><span>无</span></div>'+
+        '</div>'+
+        '<div class="clearfix"></div>');
 
   }
 
@@ -760,6 +914,7 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     if (mouseDownNode !== d) {
       // we're in a different node: create new edge for mousedown edge and add to graph
       var newEdge = {
+        edgeId: workflow_id + '_Tra' + thisGraph.edgeNum++,
         source: mouseDownNode,
         target: d
       };
@@ -1017,13 +1172,10 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
     .attr("width", "100%")
     .attr("height", "100%");
   var graph = new GraphCreator(svg, [], []);
-  graph.setIdCt(2);
+  // graph.setIdCt(0);
   graph.updateGraph();
-  /*var graph = new GraphCreator(svg, [], []);
-  // graph.setIdCt(2);
-  graph.updateGraph();*/
 
-})(window.d3, window.saveAs, window.Blob);
+})(window.d3, window.saveAs, window.Blob, vkbeautify);
 
 function generateUUID() {
     var d = new Date().getTime();
