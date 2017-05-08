@@ -23,7 +23,7 @@
 		<div class="divider"></div>
 		<div class="column pop-btn" data-content="放大" data-position="bottom center" data-variation="mini"><i class="zoom icon"></i></div>
 		<div class="column pop-btn" data-content="缩小" data-position="bottom center" data-variation="mini"><i class="zoom out icon"></i></div>
-		<div class="column pop-btn" id="reset-zoom" data-content="最大化" data-position="bottom center" data-variation="mini"><i class="maximize icon"></i></div>
+		<div class="column pop-btn" id="reset-zoom" data-content="归位" data-position="bottom center" data-variation="mini"><i class="maximize icon"></i></div>
 		<div class="divider"></div>
 		<div class="column pop-btn" data-content="导入json" data-position="bottom center" data-variation="mini"><i class="sign in icon"></i></div>
 		<div class="column pop-btn small popup" data-content="导出json" data-position="bottom center" data-variation="mini"><i class="sign out icon"></i></div>
@@ -34,11 +34,11 @@
 				<img src="icons/activity/list/type.manual.png"><span>选择</span>
 			</div>
 			<div class="clearfix"></div>
-			<div class="components-btn" name="startComponent" type="" for-name="circle">
+			<div class="components-btn" name="startComponent" type="start" for-name="circle">
 				<img id="img" src="icons/startevent/none.png"/><span>开始</span>
 			</div>
 			<div class="clearfix"></div>
-			<div class="components-btn" name="endComponent" type="" for-name="circle">
+			<div class="components-btn" name="endComponent" type="end" for-name="circle">
 				<img src="icons/endevent/none.png"><span>结束</span>
 			</div>
 			<div class="clearfix"></div>
@@ -65,15 +65,16 @@
 			
 		</div>
 		<div class="full-right tab">
+		<form id="containerForm" method="post" action="http://localhost:8088/platform/wfdman/insert.do">
 			<div id="container" class="ui top attached tab active full-right-top view" data-tab="first"></div>
 			<div id="xpdlContainer" class="ui top attached tab view content-div" data-tab="second">
 				<xmp>
-					
+					<!-- xpdl -->
 				</xmp>
 			</div>
 			<div id="xmlContainer" class="ui top attached tab view content-div" data-tab="third">
 				<xmp>
-					
+					<!-- xml -->
 				</xmp>
 			</div>
 			<div class="full-right-btn ui bottom attached tabular menu">
@@ -84,9 +85,28 @@
 			<div id="propertiesWrapper" class="full-right-bottom">
 				<div class="component-name"><i class="angle double down icon"></i><span>普通活动</span></div>
 				<div class="component-prop content-div">
-					
+					<!-- activity属性 -->
 				</div>
 			</div>
+
+			<input name="xpdlcontent" type="hidden" value="">
+			<input name="xmlcontent" type="hidden" value="">
+
+			<input type="hidden" id="wFID" name="wFID" value="">
+			<input type="hidden" id="wFType" name="wFType" value="money">
+			<input type="hidden" id="subType" name="subType" value="">
+			<input type="hidden" id="depart" name="depart" value="">
+			<input type="hidden" id="departID" name="departID" value="">
+			<input type="hidden" id="formName" name="formName" value="">
+			<input type="hidden" id="formId" name="formId" value="">
+			<input type="hidden" id="formType" name="formType" value="wfd_form">
+			<input type="hidden" id="mode" name="mode" value="">
+			<input type="hidden" id="dt" name="dt" onFocus="WdatePicker({dateFmt:'dd HH:mm',skin:'blue'});" value="">
+			<input type="hidden" id="dataObjectID" name="dataObjectID" value="">
+			<input type="hidden" id="securityID" name="securityID" value="">
+			<input type="hidden" id="securityName" name="securityName" value="">
+			<input type="hidden" id="orderNo" name="orderNo" value="">
+		</form>
 		</div>
 		<div class="clearfix"></div>
 	</div>
@@ -123,18 +143,18 @@
 		});  
 	</script>
 
-	<script id="tpl" type="text/template">
+	<script id="tpl" type="text/template"><!-- 可以通过模板生成activity，暂时没用 -->
 	    <activity Id="{{=activity.id}}" Name="{{=activity.title}}" form-id="" formdisplayschema="" hisformdisplayschema="">
 	        <operations/>
 	        <text-limit/>
 	    </activity>
-	       
 	</script>
 
 	<script>
 		var Word = randomWord(false, 8);
 		var workflow_name = '过程';
 		var workflow_id = 'Package_'+Word+'_Wor1';
+		var package_id = workflow_id.substring(0, workflow_id.lastIndexOf('_'));
 		var creat_time = new Date().pattern("yyyy-MM-dd hh:mm:ss");
 		var svg_ns = "http://www.w3.org/2000/svg";
 		var mySvg;
@@ -146,19 +166,82 @@
 		var commonParameter = 'stroke:#AA99FF,stroke-width:2,fill:none'; //shape共同参数
 	
 		$(function(){
-			// mySvg = mySvg||createSVG();
-			/*// 点击生成svg图形
-			$('.components-btn img,span').on('click', function(){
-				var shape_name  = $(this).parents('.components-btn').attr('for-name');
-				createShape(shape_name);
-	            // mySvg.appendChild(shape);
-			});*/
 			$('#container').on('click', '.component span', function(){
 				alert("component被点击");
 			});
-			//编辑工具
+			
+			//编辑工具(保存)
 			$('.editor-toolbar .icon.save').on('click', function(){
-				alert('保存');
+				var dataTab = $('.menu .item.active').attr('data-tab');
+				$('.menu .item').not($('.menu .item.active')).trigger('click');//触发点击事件获取xpdl和xml
+				$('.menu .item[data-tab="'+dataTab+'"]').trigger('click');
+				var xpdl = $('#xpdlContainer xmp').text();
+				var xml = $('#xmlContainer xmp').text();
+				var xpdl_top =
+					'<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'+
+				    '<Package xmlns="http://www.wfmc.org/2002/XPDL1.0" xmlns:xpdl="http://www.wfmc.org/2002/XPDL1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Id="'+package_id+'" Name="新包" xsi:schemaLocation="http://www.wfmc.org/2002/XPDL1.0 http://wfmc.org/standards/dtd/TC-1025_schema_10_xpdl.xsd">\n'+
+				    '    <PackageHeader>'+
+				    '        <XPDLVersion>1.0</XPDLVersion>'+
+				    '        <Vendor>GENTLESOFT</Vendor>'+
+				    '        <Created>'+creat_time+'</Created>'+
+				    '    </PackageHeader>'+
+				    '    <RedefinableHeader PublicationStatus="UNDER_TEST">'+
+				    '        <Author>管理员</Author>'+
+				    '        <Version>1.0</Version>'+
+				    '    </RedefinableHeader>'+
+				    '    <ConformanceClass GraphConformance="NON_BLOCKED"/>'+
+				    '    <Script Type="text/javascript"/>'+
+				    '    <DataFields>'+
+				    '        <DataField Id="sourceReferenceId" IsArray="FALSE" Name="sourceReferenceId">'+
+				    '            <DataType>'+
+				    '                <BasicType Type="STRING"/>'+
+				    '            </DataType>'+
+				    '            <InitialValue>null</InitialValue>'+
+				    '        </DataField>'+
+				    '        <DataField Id="formId" IsArray="FALSE" Name="formId">'+
+				    '            <DataType>'+
+				    '                <BasicType Type="STRING"/>'+
+				    '            </DataType>'+
+				    '            <InitialValue>null</InitialValue>'+
+				    '        </DataField>'+
+				    '        <DataField Id="nextActivityInfo" IsArray="FALSE" Name="nextActivityInfo">'+
+				    '            <DataType>'+
+				    '                <ExternalReference location="org.gentlesoft.wf.NextActivitiesParty"/>'+
+				    '            </DataType>'+
+				    '            <InitialValue>null</InitialValue>'+
+				    '        </DataField>'+
+				    '        <DataField Id="nextActivityName" IsArray="FALSE" Name="nextActivityName">'+
+				    '            <DataType>'+
+				    '                <ExternalReference location="java.util.ArrayList"/>'+
+				    '            </DataType>'+
+				    '            <InitialValue>null</InitialValue>'+
+				    '        </DataField>'+
+				    '        <DataField Id="formType" IsArray="FALSE" Name="formType">'+
+				    '            <DataType>'+
+				    '                <BasicType Type="STRING"/>'+
+				    '            </DataType>'+
+				    '            <InitialValue>null</InitialValue>'+
+				    '        </DataField>'+
+				    '    </DataFields>';
+				var xpdl_end = 
+					'    <ExtendedAttributes>'+
+				    '        <ExtendedAttribute Name="MadeBy" Value="com.gentlesoft.tools.wfd"/>'+
+				    '        <ExtendedAttribute Name="Version" Value="1.4.2"/>'+
+				    '    </ExtendedAttributes>'+
+				    '</Package>';
+				var xml_top = '<?xml version="1.0" encoding="UTF-8"?><pkg-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Id="'+package_id+'" Name="新包" Version="" xsi:noNamespaceSchemaLocation="../dtd/flowactconfig.xsd">';
+				var xml_end = '</pkg-config>';
+				xpdl = vkbeautify.xml(xpdl_top + xpdl + xpdl_end);
+				xml = vkbeautify.xml(xml_top + xml + xml_end);
+				$('input[name="xpdlcontent"]').val(xpdl);
+				$('input[name="xmlcontent"]').val(xpdl);
+				/*
+				console.log('xpdl:');
+				console.log(xpdl);
+				console.log('xml:');
+				console.log(xml);*/
+				$('#containerForm').submit();
+				
 			});
 			//控制属性显示
 			$('.component-name').on('click', function(){
@@ -184,54 +267,18 @@
 	     				}else if(event.type == 'mouseout'){
 	        				this.style.cursor = 'default';
 	      				}
-						
 					});
 				}else{
 					$('#container').off('mouseover mouseout', '.conceptG');
 				}
 			});
+			//右击点击
+			$('#container svg').on('contextmenu', function(){
+				$('#flowComponents div[name="selectBtn"]').trigger('click');
+				$('#container .conceptG').css('cursor', 'default');//防止在活动块上右击存在问题
+				return false;
+			})
 		})
-	
-		// 创建 svg 对象
-		function createSVG(){
-			var svg = d3.select('#container')
-				.append('svg:svg')
-				.attr('width', '100%')
-				.attr('height', '100%');
-	            return svg;
-		}
-		// 创建 shape（流程图形块）
-		function createShape(shape_name, shapeId, position, shapeLabel){
-	        if (position) {
-	        	initParameter = { //初始化shape参数
-					circle:'cx:'+position.x+',cy:'+position.y+',r:20',
-					rect:'x:'+ (position.x-40)+',y:'+(position.y-25)+',width:80,height:50',
-					line:'x1:'+(position.x-50)+',y1:'+position.y+',x2:'+(position.x+50)+',y2:'+position.y+''
-				};
-	        };
-			var attrs = initParameter[shape_name].split(',');
-	        var g = mySvg.append('g')
-	        	.attr('id', shapeId);
-	        var shape = g.append(shape_name);
-	        var text = g.append("text")
-			    .attr("text-anchor", "middle")
-			    .attr("dy", "-" + 7.5)
-			    .append('tspan').text(shapeLabel)
-			    .attr('x', position.x).attr('dy', position.y);
-	        for (var i=0,j=attrs.length;i<j;i++) { //遍历初始化shape参数
-	            var attr_single = attrs[i].split(":");
-	            var name = attr_single[0], 
-	            	value = attr_single[1];
-	            shape.attr(name, value);
-	        }
-	        var com_attrs = commonParameter.split(',');
-	        for (var i=0,j=com_attrs.length;i<j;i++) { //遍历shape共同参数
-	            var com_single = com_attrs[i].split(':');
-	            shape.attr(com_single[0], com_single[1]);
-	        }
-	        return shape;
-		}
-		
 	    
 	</script>
 	<script>
@@ -245,30 +292,29 @@
 			$('.component-name span').text(workflow_name);
 			$('.menu .item').tab();//标签显示必须放updateScrollbar之前
 
-			function updateScrollbar(){
-				var dataTab = $(this).attr('data-tab');
-				if(dataTab=='third'){ //xml视图
-					var customScrollbar=$("#xmlContainer").find(".mCSB_scrollTools");
-					// customScrollbar.css({"opacity":0});
-					$("#xmlContainer").mCustomScrollbar("update");
-					// customScrollbar.animate({opacity:1},"slow");
-				}
-				if(dataTab=='second'){ //xml视图
-					var customScrollbar=$("#xpdlContainer").find(".mCSB_scrollTools");
-					$("#xpdlContainer").mCustomScrollbar("update");
-				}
-			}
 			$('.menu .item').on('click', updateScrollbar);
 		})
-		//semantic初始化
+		
 		$(function(){
+			//semantic初始化
 			$('.pop-btn').popup();
-
+			//jquery插件滚动条
+			$(".content-div").mCustomScrollbar();
 		})
-		//jquery插件滚动条
-		$(window).load(function(){
-            $(".content-div").mCustomScrollbar();
-        });
+
+		function updateScrollbar(){
+			var dataTab = $(this).attr('data-tab');
+			if(dataTab=='third'){ //xml视图
+				var customScrollbar=$("#xmlContainer").find(".mCSB_scrollTools");
+				// customScrollbar.css({"opacity":0});
+				$("#xmlContainer").mCustomScrollbar("update");
+				// customScrollbar.animate({opacity:1},"slow");
+			}
+			if(dataTab=='second'){ //xml视图
+				var customScrollbar=$("#xpdlContainer").find(".mCSB_scrollTools");
+				$("#xpdlContainer").mCustomScrollbar("update");
+			}
+		}
 	</script>
 </body>
 </html

@@ -23,6 +23,7 @@ html {overflow-y: scroll}
 .full-left,.full-right { height:574px; float:left }
 .full-left { width:8%; padding:5px;}
 .full-right { width:92% }
+.full-right form { height:574px}
 .full-right-top { background-image: url(../images/gooflow_blank2.gif)!important; }
 .view { height:65%;border-left:1px solid #c7cacd;}
 .full-right-btn { border-top:1px solid #D4D4D5!important;border-left:1px solid #D4D4D5!important;margin-bottom:0px!important }

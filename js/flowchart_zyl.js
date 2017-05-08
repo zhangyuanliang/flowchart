@@ -225,8 +225,19 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         shapename = ev.originalEvent.dataTransfer.getData('shapename'),
         component = ev.originalEvent.dataTransfer.getData('component'),
         type = ev.originalEvent.dataTransfer.getData('type'),
-        shapeId = shapename + new Date().getTime();
-
+        shapeId = shapename + new Date().getTime(),
+        isCreate = true;
+     /* 
+     if(type == 'start'||type == 'end'){
+        thisGraph.nodes.forEach(function(node){
+          if(node.type == type){
+            isCreate = false;
+          }
+        })
+      }
+      if(!isCreate){
+        return false;
+      }*/
       var d = {
           id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
           title: shapeLabel,
@@ -409,6 +420,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
   GraphCreator.prototype.emergeAllxpdlContent = function(){
     var thisGraph = this;
     var nodes = thisGraph.nodes;
+    var edges = thisGraph.edges;
     var activitySets = '';
     if(nodes.length>0){
       activitySets = //不清楚什么时候设置??
@@ -421,10 +433,27 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       messages: []
     };
     var activities = "";
-    var nodes_act =[];
+    var nodes_act = [],
+        nodes_start = '',
+        nodes_end = '';
+
     nodes.forEach(function(node){
         if(node.type == 'activity'){
-            nodes_act.push(node);
+          nodes_act.push(node);
+        }
+        if(node.type == 'start'){
+          for(var i in edges){
+            if(edges[i].source == node){
+               nodes_start += '<ExtendedAttribute Name="StartOfWorkflow" Value="none;'+edges[i].target.id+';'+node.x+';'+node.y+';NOROUTING"/>'
+            }
+          }
+        }
+        if(node.type == 'end'){
+          for(var i in edges){
+            if(edges[i].target == node){
+               nodes_end += '<ExtendedAttribute Name="EndOfWorkflow" Value="none;'+edges[i].source.id+';'+node.x+';'+node.y+';NOROUTING"/>'
+            }
+          }
         }
     })
     nodes_act.forEach(function (node) {
@@ -580,7 +609,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         }
     });
     var transitions = "";
-    var edges = thisGraph.edges;
     edges.forEach(function (edge) {
         transitions
           += '<Transition From="'+edge.source.id+'" Id="'+edge.edgeId+'" To="'+edge.target.id+'">'
@@ -718,8 +746,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         + '           <ExtendedAttribute Name="initReserve"/>'
         + '           <ExtendedAttribute Name="initType" Value="money"/>'
         + '           <ExtendedAttribute Name="initAuthor" Value="管理员"/>'
-        + '           <ExtendedAttribute Name="StartOfWorkflow" Value="none;Package_8LRKX8RP_Wor1_Act2;99;50;NOROUTING"/>'
-        + '           <ExtendedAttribute Name="EndOfWorkflow" Value="none;Package_8LRKX8RP_Wor1_Act2;559;54;NOROUTING"/>'
+        +             nodes_start
+        +             nodes_end
         + '       </ExtendedAttributes>'
         + '   </WorkflowProcess>'
         + '</WorkflowProcesses>'
@@ -759,7 +787,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var thisGraph = this,
       doDelete = true;
     if (!skipPrompt) {
-      doDelete = window.confirm("Press OK to delete this graph");
+      doDelete = window.confirm("确认清空？");
     }
     if (doDelete) {
       thisGraph.nodes = [];
@@ -1093,7 +1121,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         d3.select(this).classed(consts.connectClass, false);
       })
       .on("mousedown", function(d) {
-        console.log('on mouse down d:');
+        console.log('on mousedown d:');
         console.log(d);
         thisGraph.circleMouseDown.call(thisGraph, d3.select(this), d);
       })
