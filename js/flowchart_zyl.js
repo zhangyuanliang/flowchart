@@ -6,7 +6,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var thisGraph = this;
     console.log('thisGraph:');
     console.log(thisGraph);
-    console.log(vkbeautify);
 
     thisGraph.idct = 0;
     thisGraph.edgeNum = 1;
@@ -208,13 +207,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       thisGraph.deleteGraph(false);
     });
 
-    $('#flowComponents .components-btn').not('.noComponent').attr('draggable','true').on('dragstart', function(ev){
+    $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable','true').on('dragstart', function(ev){
+      $(this).siblings().removeClass('active').end().addClass('active');
       ev.originalEvent.dataTransfer.setData('text', $(this).children('span').text());
       ev.originalEvent.dataTransfer.setData('shapename', $(this).attr('for-name'));
       ev.originalEvent.dataTransfer.setData('component', $(this).attr('name'));
       ev.originalEvent.dataTransfer.setData('type', $(this).attr('type'));
-      console.log('drag start');
-      console.log('shapename:'+$(this).attr('for-name')+';shapeLabel:'+$(this).children('span').text());
       // $('#reset-zoom').trigger("click");
     });
     $('#container').on('drop', function(ev){
@@ -254,7 +252,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       // thisGraph.emergeXmlContent(d);
     }).on('dragover', function(ev){
       ev.preventDefault();
-      console.log('drag over');
     });
     //选择左侧工具
     $('#flowComponents .components-btn').on('click', function(){
@@ -336,10 +333,32 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         var json = {};
         json.nodes = thisGraph.nodes;
         json.edges = thisGraph.edges;
-        console.log(JSON.stringify(json));
         $('div.json_data textarea').val(JSON.stringify(json));
       }
     });
+    $('#rMenu .item').on('click', function(){
+      var item = $(this).attr('name');
+      var selectedNode = thisGraph.state.selectedNode,
+      selectedEdge = thisGraph.state.selectedEdge;
+      if(item == 'removeMenu'){
+        if (selectedNode) {
+          thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
+          thisGraph.spliceLinksForNode(selectedNode);
+          thisGraph.state.selectedNode = null;
+          thisGraph.updateGraph();
+          // thisGraph.
+        } else if (selectedEdge) {
+          thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
+          thisGraph.state.selectedEdge = null;
+          thisGraph.updateGraph();
+        }
+      }
+      if(item == 'toFront'){
+        alert('前置');
+      }
+      $('#rMenu').hide();
+    });
+    
     
   };
   GraphCreator.prototype.getExtendedAttributes = function(node_x, node_y){
@@ -925,7 +944,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
   // mouseup on nodes
   GraphCreator.prototype.circleMouseUp = function(d3node, d) {
-    console.log('circle mouse up');
     var thisGraph = this,
       state = thisGraph.state,
       consts = thisGraph.consts;
@@ -961,6 +979,17 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       if (state.justDragged) {
         // dragged, not clicked
         state.justDragged = false;
+        if (state.selectedEdge) {
+          thisGraph.removeSelectFromEdge();
+        }
+        var prevNode = state.selectedNode;
+        if (!prevNode || prevNode.id !== d.id) {
+          thisGraph.replaceSelectNode(d3node, d);
+          thisGraph.changePropDiv(d);//添加更改属性div
+        } else {
+          // thisGraph.removeSelectFromNode();
+        }
+      
       } else {
         // clicked, not dragged
         if (d3.event.shiftKey) {
@@ -980,7 +1009,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             thisGraph.replaceSelectNode(d3node, d);
             thisGraph.changePropDiv(d);//添加更改属性div
           } else {
-            thisGraph.removeSelectFromNode();
+            if(d3.event.button != '2'){
+              thisGraph.removeSelectFromNode();
+            }
           }
         }
       }
@@ -1006,8 +1037,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       // clicked not dragged from svg
       var xycoords = d3.mouse(thisGraph.svgG.node()),
         d = {
-          id: thisGraph.idct++,
-          title: "",
+          id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
+          title: '普通活动',
+          component: 'activityComponent',
+          type: 'activity',
           x: xycoords[0],
           y: xycoords[1],
           eventTypeId: null
@@ -1121,8 +1154,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         d3.select(this).classed(consts.connectClass, false);
       })
       .on("mousedown", function(d) {
-        console.log('on mousedown d:');
-        console.log(d);
         thisGraph.circleMouseDown.call(thisGraph, d3.select(this), d);
       })
       .on("mouseup", function(d) {

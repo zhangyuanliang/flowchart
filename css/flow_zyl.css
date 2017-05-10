@@ -35,6 +35,8 @@ html {overflow-y: scroll}
 .components-btn img,span{ cursor:pointer }
 .components-btn img{ float:left;margin:4px 0 4px 3px }
 .components-btn span{ float:left;padding-left:5px;display:block; }
+.selectBtn{ padding-left: 2px }
+.selectBtn img{ margin:4px 3px 4px 3px }
 
 .startComponent{ height:50px;width:100px;border:2px solid #938f8e;background: url('../icons/startevent/none.png') no-repeat; }
 .activityComponent{ height:50px;width:100px;border:2px solid #938f8e;background: url('../icons/activity/list/type.user.png') no-repeat; }
@@ -84,3 +86,4 @@ html {overflow-y: scroll}
 #xmlContainer script{ display:block; }
 .content-div{overflow:auto;}
 .modal textarea{ width: 100%!important;height: 100px;padding: 7px}
+.vertical.menu{ position:absolute;display:none;width:82px!important }

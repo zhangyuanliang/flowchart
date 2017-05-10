@@ -30,8 +30,8 @@
 	</div>
 	<div class="full">
 		<div id="flowComponents" class="full-left">
-			<div class="components-btn noComponent" name="selectBtn">
-				<img src="icons/activity/list/type.manual.png"><span>选择</span>
+			<div class="components-btn noComponent selectBtn" name="selectBtn">
+				<img src="icons/activity/select.png"><span>选择</span>
 			</div>
 			<div class="clearfix"></div>
 			<div class="components-btn" name="startComponent" type="start" for-name="circle">
@@ -66,7 +66,9 @@
 		</div>
 		<div class="full-right tab">
 		<form id="containerForm" method="post" action="http://localhost:8088/platform/wfdman/insert.do">
-			<div id="container" class="ui top attached tab active full-right-top view" data-tab="first"></div>
+			<div id="container" class="ui top attached tab active full-right-top view" data-tab="first">
+				<!-- svg -->
+			</div>
 			<div id="xpdlContainer" class="ui top attached tab view content-div" data-tab="second">
 				<xmp>
 					<!-- xpdl -->
@@ -124,6 +126,11 @@
 	      	<div class="ui positive right labeled icon button">Yes <i class="checkmark icon"></i> </div>
 	    </div>
 	</div>
+	<!-- 右键菜单 -->
+	<div id="rMenu" class="ui vertical mini menu">
+		<a class="item" name="removeMenu">删除<i class="remove icon"></i></a>
+		<a class="item" name="toFront">置前<i class="object ungroup icon"></i></a>
+	</div>
 
 	<script type="text/javascript" src="js/jquery.min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/common.js" charset="utf-8"></script>
@@ -132,6 +139,7 @@
 	<script type="text/javascript" src="js/semantic/semantic.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/vkbeautify.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/svg.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/flowchart_zyl.js" charset="utf-8"></script>
 	
 	<script>
@@ -153,9 +161,10 @@
 	<script>
 		var Word = randomWord(false, 8);
 		var workflow_name = '过程';
-		var workflow_id = 'Package_'+Word+'_Wor1';
+		var workflow_id = 'Package_' + Word + '_Wor1';
+		var activitySets = workflow_id + 'Ase1';
 		var package_id = workflow_id.substring(0, workflow_id.lastIndexOf('_'));
-		var creat_time = new Date().pattern("yyyy-MM-dd hh:mm:ss");
+		var creat_time = new Date().pattern("yyyy-MM-dd HH:mm:ss");
 		var svg_ns = "http://www.w3.org/2000/svg";
 		var mySvg;
 		var initParameter = { //初始化shape参数
@@ -172,9 +181,9 @@
 			
 			//编辑工具(保存)
 			$('.editor-toolbar .icon.save').on('click', function(){
-				var dataTab = $('.menu .item.active').attr('data-tab');
-				$('.menu .item').not($('.menu .item.active')).trigger('click');//触发点击事件获取xpdl和xml
-				$('.menu .item[data-tab="'+dataTab+'"]').trigger('click');
+				var dataTab = $('.full-right-btn .item.active').attr('data-tab');
+				$('.full-right-btn .item').not($('.full-right-btn .item.active')).trigger('click');//触发点击事件获取xpdl和xml
+				$('.full-right-btn .item[data-tab="'+dataTab+'"]').trigger('click');
 				var xpdl = $('#xpdlContainer xmp').text();
 				var xml = $('#xmlContainer xmp').text();
 				var xpdl_top =
@@ -273,11 +282,20 @@
 				}
 			});
 			//右击点击
-			$('#container svg').on('contextmenu', function(){
+			$('#container svg .graph').on('contextmenu', function(){
 				$('#flowComponents div[name="selectBtn"]').trigger('click');
 				$('#container .conceptG').css('cursor', 'default');//防止在活动块上右击存在问题
+				$("#rMenu").css({"top":(event.clientY-13)+"px", "left":event.clientX+"px"});
+				$("#rMenu").show();
 				return false;
 			})
+			$('svg').on('click', function(){
+				$('#rMenu').hide();
+			});
+			$('svg').on('contextmenu', function(){
+				$('#flowComponents div[name="selectBtn"]').trigger('click');
+				return false;
+			});
 		})
 	    
 	</script>
@@ -317,4 +335,4 @@
 		}
 	</script>
 </body>
-</html
+</html>
