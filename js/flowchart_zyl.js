@@ -225,17 +225,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         type = ev.originalEvent.dataTransfer.getData('type'),
         shapeId = shapename + new Date().getTime(),
         isCreate = true;
-     /* 
-     if(type == 'start'||type == 'end'){
-        thisGraph.nodes.forEach(function(node){
-          if(node.type == type){
-            isCreate = false;
-          }
-        })
-      }
-      if(!isCreate){
-        return false;
-      }*/
       var d = {
           id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
           title: shapeLabel,
@@ -247,9 +236,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         };
       thisGraph.nodes.push(d);
       thisGraph.updateGraph();
-      //生成xml文件
-      // var data = {activity: d};
-      // thisGraph.emergeXmlContent(d);
     }).on('dragover', function(ev){
       ev.preventDefault();
     });
@@ -285,7 +271,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     //点击导入导出按钮
     $('.editor-toolbar').on('click', '.sign.in,.sign.out', function(event) {
       var isImport = $(this).hasClass('in');
-      $('.ui.modal').modal({
+      $('.ui.modal.json_data').modal({
         onDeny: function(){
           // window.alert('取消!');
         },
@@ -304,12 +290,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                 edge.edgeId = json.edges[i].edgeId;
                 for(var j in json.nodes){
                   var node = json.nodes[j].id
-                  if(source==node){
-                    edge.source = nodes[j];
-                  }
-                  if(target==node){
-                    edge.target = nodes[j];
-                  }
+                  if(source==node) edge.source = nodes[j];
+                  if(target==node) edge.target = nodes[j];
                 }
                 edges.push(edge);
               }
@@ -336,6 +318,22 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $('div.json_data textarea').val(JSON.stringify(json));
       }
     });
+    //删除单个元素
+    $('.editor-toolbar #delete-ele').on('click', function(){
+      var selectedNode = thisGraph.state.selectedNode,
+      selectedEdge = thisGraph.state.selectedEdge;
+        if (selectedNode) {
+          thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
+          thisGraph.spliceLinksForNode(selectedNode);
+          thisGraph.state.selectedNode = null;
+          thisGraph.updateGraph();
+        } else if (selectedEdge) {
+          thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
+          thisGraph.state.selectedEdge = null;
+          thisGraph.updateGraph();
+        }
+    });
+    //右击菜单
     $('#rMenu .item').on('click', function(){
       var item = $(this).attr('name');
       var selectedNode = thisGraph.state.selectedNode,
@@ -346,7 +344,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           thisGraph.spliceLinksForNode(selectedNode);
           thisGraph.state.selectedNode = null;
           thisGraph.updateGraph();
-          // thisGraph.
         } else if (selectedEdge) {
           thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
           thisGraph.state.selectedEdge = null;
@@ -356,7 +353,32 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       if(item == 'toFront'){
         alert('前置');
       }
+      if(item == 'propMenu'){
+        $('.ui.modal.prop_layer').modal('show');
+      }
       $('#rMenu').hide();
+    });
+    //右击点击
+    $('#container svg .graph').on('contextmenu', function(e){
+      $('#flowComponents div[name="selectBtn"]').trigger('click');
+      $('#container .conceptG').css('cursor', 'default');//防止在活动块上右击存在问题
+      $("#rMenu").css({"top":(event.clientY-13)+"px", "left":event.clientX+"px"});
+      var type = thisGraph.state.selectedNode.type;
+      if(type != 'activity'){
+        $('#rMenu a[name="propMenu"]').hide();
+      } else{
+        $('#rMenu a[name="propMenu"]').show();
+      }
+      $("#rMenu").show();
+      return false;
+    })
+    $('#rMenu').on();
+    $('svg').on('click', function(){
+      $('#rMenu').hide();
+    });
+    $('svg').on('contextmenu', function(){
+      $('#flowComponents div[name="selectBtn"]').trigger('click');
+      return false;
     });
     
     
@@ -905,7 +927,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     if (!prevEdge || prevEdge !== d) {
       thisGraph.replaceSelectEdge(d3path, d);
     } else {
-      thisGraph.removeSelectFromEdge();
+      if(d3.event.button != 2){
+        thisGraph.removeSelectFromEdge();
+      }
     }
   };
 
@@ -952,7 +976,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     d3node.classed(consts.connectClass, false);
 
     var mouseDownNode = state.mouseDownNode;
-
     if (!mouseDownNode) return;
 
     thisGraph.dragLine.classed("hidden", true);

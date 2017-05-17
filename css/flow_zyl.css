@@ -85,5 +85,9 @@ html {overflow-y: scroll}
 #xmlContainer xmp{ margin:0px;color:#736c6c;padding:8px; }
 #xmlContainer script{ display:block; }
 .content-div{overflow:auto;}
-.modal textarea{ width: 100%!important;height: 100px;padding: 7px}
-.vertical.menu{ position:absolute;display:none;width:82px!important }
+.json_data.modal textarea{ width: 100%!important;height: 100px;padding: 7px}
+.vertical.menu{ position:absolute;width:82px!important }
+.prop_layer.modal {height:535px;}
+.prop_layer.model .ui.checkbox label{ font-size:0.8em!important }
+
+.second.modal{ height:410px }
