@@ -8,6 +8,9 @@
 	<link type="text/css" href="css/graph-creator.css" rel="stylesheet" />
 	<link type="text/css" href="css/flow_zyl.css"  rel="stylesheet"/>
 	<link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet">
+	<style>
+		html,body{overflow:hidden;}
+	</style>
 </head>
 <body>
 	<div class="subheader editor-toolbar">
@@ -28,6 +31,8 @@
 		<div class="divider"></div>
 		<div class="column pop-btn" data-content="导入json" data-position="bottom center" data-variation="mini"><i class="sign in icon"></i></div>
 		<div class="column pop-btn small popup" data-content="导出json" data-position="bottom center" data-variation="mini"><i class="sign out icon"></i></div>
+		<div class="divider"></div>
+		<div class="column pop-btn" data-content="将左侧活动拖至编辑区" data-position="bottom center" data-variation="mini"><i class="help circle outline icon"></i></div>
 	</div>
 	<div class="full">
 		<div id="flowComponents" class="full-left">
@@ -133,11 +138,14 @@
 		<a class="item" name="propMenu">属性<i class="book icon"></i></a>
 		<a class="item" name="toFront">置前<i class="object ungroup icon"></i></a>
 	</div>
-	<!-- 属性弹出层 -->
+	<!-- 属性弹出层 start -->
 	<div class="ui coupled modal prop_layer">
+		<i class="close icon"></i>
 	  	<div class="ui pointing secondary menu">
 		  <a class="item active" data-tab="one">常规</a>
-		  <a class="item" data-tab="two">工具</a>
+		  <a class="item" data-tab="two_1">工具</a>
+		  <a class="item hideitem" data-tab="two_2">块活动</a>
+		  <a class="item hideitem" data-tab="two_3">子工作流</a>
 		  <a class="item" data-tab="three">前置条件</a>
 		  <a class="item" data-tab="four">后置条件</a>
 		  <a class="item" data-tab="five">扩展属性集</a>
@@ -147,15 +155,15 @@
 		</div>
 		<!-- 常规item start -->
 		<div class="ui tab segment active" data-tab="one">
-			<div class="ui mini form">
+			<div class="ui mini form conventional">
 				<div class="fields">
 				    <div class="five wide field">
 				      <label>ID:</label>
-				      <input type="text" placeholder="ID">
+				      <input name="ID" type="text" placeholder="ID">
 				    </div>
 				    <div class="five wide field">
 				      <label>名称:</label>
-				      <input type="text" placeholder="名称">
+				      <input name="name" type="text" placeholder="名称">
 				    </div>
 				    <div class="five wide field">
 					    <label>类型:</label>
@@ -198,22 +206,22 @@
 					<div class="five wide field">
 					    <label>开始模式:</label>
 					    <select class="ui search dropdown">
-					      <option value="">选择</option>
-					      <option value="1">模式1</option>
-					      <option value="2">模式2</option>
+					      	<option value="">选择</option>
+					      	<option value="1">手动</option>
+					      	<option value="2">自动</option>
 					    </select>
 					</div>
 					<div class="five wide field">
 					    <label>完成模式:</label>
 					    <select class="ui search dropdown">
-					      <option value="">选择</option>
-					      <option value="1">模式1</option>
-					      <option value="2">模式2</option>
+					      	<option value="">选择</option>
+					      	<option value="1">手动</option>
+					      	<option value="2">自动</option>
 					    </select>
 					</div>
 				    <div class="five wide field">
-				      <label>优先级:</label>
-				      <input type="text" placeholder="名称">
+				      	<label>优先级:</label>
+				      	<input type="text" placeholder="名称">
 				    </div>
 				</div>
 				<div class="fields">
@@ -244,111 +252,481 @@
 					<div class="five wide field">
 					    <label>任务委派规则:</label>
 					    <select class="ui search dropdown">
-					      <option value="">选择</option>
-					      <option value="1">模式1</option>
-					      <option value="2">模式2</option>
+					      	<option value="">选择</option>
+					      	<option value="1">模式1</option>
+					      	<option value="2">模式2</option>
 					    </select>
 					</div>
 					<div class="five wide field">
 					    <label>必须结束环节:</label>
 					    <select class="ui search dropdown">
-					      <option value="">选择</option>
-					      <option value="1">模式1</option>
-					      <option value="2">模式2</option>
+					      	<option value="">选择</option>
+					      	<option value="1">模式1</option>
+					      	<option value="2">模式2</option>
 					    </select>
 					</div>
 				</div>
 			</div>
 		</div><!-- 常规item end -->
-		<!-- 工具item start -->
-		<div class="ui tab segment" data-tab="two">
-			<div class="fields" >
-				<button class="ui green mini button showDialog"><i class="icon plus"></i> 添 加</button>
-				<button class="ui facebook mini button showDialog"><i class="icon write"></i> 编 辑</button>
-				<button class="ui youtube mini button"><i class="icon remove"></i> 删 除</button>
+		<!-- 活动属性-工具item start -->
+		<div class="ui tab segment" data-tab="two_1">
+			<div class="ui mini form grid toolgrid">
+			  	<div class="computer only row">
+			  		<div class="twelve wide tablet computer column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+							<thead>
+								<tr>
+									<th class="one wide">选择</th>
+									<th class="two wide">应用</th>
+									<th class="two wide">类型</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>1111111</td>
+									<td>Aell</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>2222222</td>
+									<td>Bell</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>3333333</td>
+									<td>Cell</td>
+								</tr>
+							</tbody>
+						</table>
+			  		</div>
+			    	<div class="three wide column">
+			    		<div class="ui vertical">
+					    	<button class="ui positive basic mini button toolAddBtn"><i class="icon plus"></i> 添 加</button>
+							<button class="ui primary basic mini button showDialog"><i class="icon write"></i> 编 辑</button>
+							<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+					  	</div>
+			    	</div>
+			  	</div>
 			</div>
-			<div class="ui divider"></div>
-			<div class="fields">
-				<table class="ui blue sortable selectable celled striped compact table">
-					<thead>
-						<tr>
-							<th class="one wide">选择</th>
-							<th class="five wide">标题1</th>
-							<th class="five wide">标题2</th>
-							<th class="five wide">标题3</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr id="tr1">
-							<td>
-								<div class="ui radio checkbox">
-									<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
-								</div>
-							</td>
-							<td>1111111</td>
-							<td>bell</td>
-							<td>Cell</td>
-						</tr>
-						<tr>
-							<td>
-								<div class="ui radio checkbox">
-									<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
-								</div>
-							</td>
-							<td>aell</td>
-							<td>Cell</td>
-							<td>tell</td>
-						</tr>
-					</tbody>
-					<tfoot>
-						<tr><th colspan="4">
-							<div class="ui right floated pagination menu">
-								<a class="icon item">
-									<i class="left chevron icon"></i>
-								</a>
-								<a class="item">1</a>
-								<a class="item">2</a>
-								<a class="item">3</a>
-								<a class="item">4</a>
-								<a class="icon item">
-									<i class="right chevron icon"></i>
-								</a>
-							</div>
-						</th></tr>
-					</tfoot>
-				</table>
+		</div><!-- 活动属性-工具item end -->
+		<!-- 活动属性-块活动item start -->
+		<div class="ui tab segment" data-tab="two_2">
+			<div class="ui mini form front_condition">
+				<div class="five wide field">
+				  	<label>块标识:</label>
+				  	<input type="text" placeholder="块标识">
+				</div>
 			</div>
-		</div><!-- 工具item end -->
+		</div><!-- 活动属性-块活动item end -->
+		<!-- 活动属性-子活动item start -->
+		<div class="ui tab segment" data-tab="two_3">
+			<div class="ui mini form">
+				<div class="five wide field">
+				    <label>工作流过程:</label>
+				    <select class="ui search dropdown">
+				      	<option value="">选择</option>
+				      	<option value="1">过程</option>
+				    </select>
+				</div>
+				<div class="five wide field">
+				    <label>执行:</label>
+				    <select class="ui search dropdown">
+				      	<option value="">选择</option>
+				      	<option value="0">(空)</option>
+				      	<option value="1">同步</option>
+				      	<option value="2">异步</option>
+				    </select>
+				</div>
+			
+				<div class="ui divider"></div>
+				<div class="ui grid toolgrid">
+				  	<div class="computer only row">
+				  		<div class="twelve wide tablet computer column">
+				  			<table class="ui blue sortable selectable celled striped compact table">
+								<thead>
+									<tr>
+										<th class="one wide">选择</th>
+										<th class="two wide">应用</th>
+										<th class="two wide">类型</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr id="tr1">
+										<td>
+											<div class="ui radio checkbox">
+												<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+											</div>
+										</td>
+										<td>1111111</td>
+										<td>Aell</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="ui radio checkbox">
+												<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+											</div>
+										</td>
+										<td>2222222</td>
+										<td>Bell</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="ui radio checkbox">
+												<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+											</div>
+										</td>
+										<td>3333333</td>
+										<td>Cell</td>
+									</tr>
+								</tbody>
+							</table>
+				  		</div>
+				    	<div class="three wide column">
+				    		<div class="ui vertical">
+						    	<button class="ui positive basic mini button toolAddBtn"><i class="icon plus"></i> 添 加</button>
+								<button class="ui primary basic mini button showDialog"><i class="icon write"></i> 编 辑</button>
+								<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+						  	</div>
+				    	</div>
+				  	</div>
+				</div>
+			</div>
+		</div><!-- 活动属性-子活动item end -->
+		<!-- 前置条件 start -->
 		<div class="ui tab segment" data-tab="three">
-			third
-		</div>
+			<div class="ui mini form front_condition">
+				<div class="five wide field">
+				    <label>汇聚类型:</label>
+				    <select class="ui search dropdown convergeType">
+				      	<option value="">选择</option>
+				      	<option value="0">(空)</option>
+				      	<option value="1">And</option>
+				      	<option value="2">Xor</option>
+				    </select>
+				</div>
+				<div class="hideDiv">
+					<div class="fourteen wide two fields">
+						<div class="four wide field">
+	                	  	<select class="ui search dropdown voteMode">
+	      						<option value="">请选择</option>
+	      						<option value="0">(空)</option>
+	      						<option value="1">投票模式</option>
+							</select>	      				
+	                	</div>
+	                	<div class="five wide field">
+						    <input type="text" placeholder="">
+						</div>
+					</div>
+				</div>
+				<div class="hideDiv">
+					<div class="inline fields">
+		              	<label for="fruit">多次进入:</label>
+		              	<div class="field">
+		              	  	<div class="ui radio checkbox">
+		              	  	  	<input type="radio" name="fruit" checked="" tabindex="0" class="hidden">
+		              	  	  	<label>是</label>
+		              	  	</div>
+		              	</div>
+		              	<div class="field">
+		              	  	<div class="ui radio checkbox">
+		              	  	  	<input type="radio" name="fruit" tabindex="0" class="hidden">
+		              	  	  	<label>否</label>
+		              	  	</div>
+		              	</div>
+		              	
+		            </div>
+	            </div>
+			</div>
+		</div><!-- 前置条件 end -->
+		<!-- 后置条件 start -->
 		<div class="ui tab segment" data-tab="four">
-			four
-		</div>
+			<div class="ui mini form post_condition">
+				<div class="five wide field">
+				    <label>转出类型:</label>
+				    <select class="ui search dropdown">
+				      	<option value="">选择</option>
+				      	<option value="1">类型1</option>
+				      	<option value="2">类型2</option>
+				    </select>
+				</div>
+				<div class="ui horizontal divider">选择目标活动</div>
+				<div class="ui middle aligned list">
+				    <div class="item active">
+				        <div class="content">
+				          	<div class="">普通</div>
+				        </div>
+				    </div>
+				    <div class="item">
+				      	<div class="content">
+				      	  	<div class="">普通活动</div>
+				      	</div>
+				    </div>
+				    <div class="item">
+				      	<div class="content">
+				      	  	<div class="">块活动</div>
+				      	</div>
+				    </div>
+				</div>
+				<div class="ui top attached tabular menu">
+		    	  	<a class="active item" data-tab="four/a">转移信息</a>
+		    	  	<a class="item" data-tab="four/b">条件设置</a>
+		    	  	<a class="item" data-tab="four/c">事件</a>
+		    	</div>
+		    	<div class="ui bottom attached active tab segment" data-tab="four/a">
+					<div class="ui mini form">
+						<div class="fields">
+						    <div class="four wide field">
+						      <label>ID:</label>
+						      <input type="text" placeholder="ID">
+						    </div>
+						    <div class="four wide field">
+						      <label>名称:</label>
+						      <input type="text" placeholder="名称">
+						    </div>
+						    <div class="four wide field">
+							    <label>来自:</label>
+							    <input type="text" placeholder="来自">
+							</div>
+							<div class="four wide field">
+							    <label>到:</label>
+							    <input type="text" placeholder="到">
+							</div>
+						</div>
+						
+						<div class="ui divider"></div>
+						
+						<div class="field">
+		    			  	<label>描述：</label>
+		    			  	<textarea rows="2"></textarea>
+		    			</div>
+		    			
+					</div>
+		    	</div>
+		    	<div class="ui bottom attached tab segment" data-tab="four/b">
+		    		<div class="ui mini form">
+						<div class="five wide field">
+						    <label>类型:</label>
+						    <select class="ui search dropdown">
+						      	<option value="">选择</option>
+						      	<option value="1">类型1</option>
+						      	<option value="2">类型2</option>
+						    </select>
+						</div>
+					</div>
+		    	</div>
+		    	<div class="ui bottom attached tab segment" data-tab="four/c">
+		    		<div class="ui mini form">
+						<div class="five wide field">
+						    <label>任务委派规则:</label>
+						    <select class="ui search dropdown">
+						      	<option value="">选择</option>
+						      	<option value="1">规则1</option>
+						      	<option value="2">规则2</option>
+						    </select>
+						</div>
+						<div class="five wide field">
+						    <label>转移事件:</label>
+						    <input type="text" placeholder="转移事件">
+						</div>
+					</div>
+		    	</div>
+			</div>
+		</div><!-- 后置条件 end -->
+		<!-- 扩展属性集 start -->
 		<div class="ui tab segment" data-tab="five">
-			five
-		</div>
+			<div class="ui mini form grid extended_attr">
+			  	<div class="computer only row">
+			  		<div class="twelve wide tablet computer column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+							<thead>
+								<tr>
+									<th class="one wide">选择</th>
+									<th class="two wide">名</th>
+									<th class="two wide">值</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>1111111</td>
+									<td>Aell</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>2222222</td>
+									<td>Bell</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>3333333</td>
+									<td>Cell</td>
+								</tr>
+							</tbody>
+						</table>
+			  		</div>
+			    	<div class="three wide column">
+			    		<div class="ui vertical">
+					    	<button class="ui positive basic mini button extendAttrAddBtn"><i class="icon plus"></i> 添 加</button>
+							<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
+							<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+					  	</div>
+			    	</div>
+			  	</div>
+			</div>
+		</div><!-- 扩展属性集 end -->
+		<!-- 超时限制 start-->
 		<div class="ui tab segment" data-tab="six">
-			six
-		</div>
+			<div class="ui mini form timeout_limit">
+				<div class="five wide field">
+				    <label>限制时间:</label>
+				    <input type="text" placeholder="限制时间">
+				</div>
+				<div class="five wide field">
+    				<label>到达限制时间执行代理:</label>
+                	<select class="ui search dropdown">
+      					<option value="">请选择</option>
+      					<option value="1">代理1</option>
+      					<option value="2">代理2</option>
+					</select>      					
+                </div>
+                <div class="five wide field">
+				    <label>警告时间:</label>
+				    <input type="text" placeholder="警告时间">
+				</div>
+				<div class="five wide field">
+    				<label>到达警告时间执行代理:</label>
+                	<select class="ui search dropdown">
+      					<option value="">请选择</option>
+      					<option value="1">代理1</option>
+      					<option value="2">代理2</option>
+					</select>      					
+                </div>
+                <div class="ui horizontal divider">最终期限集</div>
+                <div class="ui grid">
+				  	<div class="computer only row">
+				  		<div class="twelve wide tablet computer column">
+				  			<table class="ui blue sortable selectable celled striped compact table">
+								<tbody>
+									<tr id="tr1">
+										<td>1111111</td>
+									</tr>
+									<tr>
+										<td>2222222</td>
+									</tr>
+									<tr>
+										<td>3333333</td>
+									</tr>
+								</tbody>
+							</table>
+				  		</div>
+				    	<div class="three wide column">
+				    		<div class="ui vertical">
+						    	<button class="ui positive basic mini button timeoutLimitAddBtn"><i class="icon plus"></i> 增 加</button>
+								<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
+								<button class="ui negative basic mini button"><i class="icon remove"></i> 移 走</button>
+						  	</div>
+				    	</div>
+				  	</div>
+				</div>
+			</div>
+		</div><!-- 超时限制 end-->
+		<!-- 高级 start-->
 		<div class="ui tab segment" data-tab="seven">
-			seven
-		</div>
+			<div class="ui mini form">
+				<div class="five wide field">
+				    <label>结束规则:</label>
+				    <input type="text" placeholder="结束规则">
+				</div>
+				<div class="five wide field">
+				    <label>建立事件:</label>
+				    <input type="text" placeholder="建立事件">
+				</div>
+				<div class="five wide field">
+				    <label>结束事件:</label>
+				    <input type="text" placeholder="结束事件">
+				</div>
+			</div>
+		</div><!-- 高级 end-->
+		<!-- 监控信息 start -->
 		<div class="ui tab segment" data-tab="eight">
-			eight
+			<div class="ui mini form monitorinf">
+				<div class="five wide field">
+    				<label>是否为临时监控:</label>
+                	<select class="ui search dropdown">
+      					<option value="">请选择</option>
+      					<option value="1">是</option>
+      					<option value="2">否</option>
+					</select>      					
+                </div>
+                <div class="ui grid">
+				  	<div class="computer only row">
+				  		<div class="twelve wide tablet computer column">
+				  			<table class="ui blue sortable selectable celled striped compact table">
+								<tbody>
+									<tr id="tr1">
+										<td>1111111</td>
+									</tr>
+									<tr>
+										<td>2222222</td>
+									</tr>
+									<tr>
+										<td>3333333</td>
+									</tr>
+								</tbody>
+							</table>
+				  		</div>
+				    	<div class="three wide column">
+				    		<div class="ui vertical">
+						    	<button class="ui positive basic mini button monitorinfAddBtn"><i class="icon plus"></i> 增 加</button>
+								<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
+								<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+						  	</div>
+				    	</div>
+				  	</div>
+				</div>
+			</div>
+		</div><!-- 监控信息 end -->
+	  	<div class="actions inverted segment">
+			<button class="ui right floated green inverted ok button">
+				<i class="checkmark icon"></i>确定
+			</button>
+			<button class="ui right floated red inverted cancel button">
+				<i class="remove icon"></i>取消
+			</button>
 		</div>
-	  	<div class="actions">
-	      	<div class="ui negative right labeled icon button">No <i class="remove icon"></i></div>
-	      	<div class="ui positive right labeled icon button">Yes <i class="checkmark icon"></i> </div>
-	    </div>
-	</div>
-	<!-- 活动属性-定义参与者集 -->
-	<div class="ui small second coupled modal">
+	</div><!-- 属性弹出层 end -->
+	<!-- 活动属性-常规-定义 -->
+	<div class="ui coupled grey small modal tab segment prop_layer_second">
   	  	<div class="ui pointing secondary menu">
 		  	<a class="item active" data-tab="definition_1">常规</a>
 		  	<a class="item" data-tab="definition_2">高级</a>
 		</div>
-		<div class="ui tab segment active" data-tab="definition_1">
+		<div class="ui tab active" data-tab="definition_1">
 			<div class="ui mini form">
 			    <div class="five wide field">
 			      	<label>ID:</label>
@@ -368,8 +746,8 @@
 				</div>
 			</div>
 		</div>
-		<div class="ui tab segment" data-tab="definition_2">
-			<div class="ui top attached tabular menu">
+		<div class="ui tab" data-tab="definition_2">
+			<div class="ui top attached tabular mini menu">
 	    	  	<a class="active item" data-tab="definition_2/a">一般</a>
 	    	  	<a class="item" data-tab="definition_2/b">创建人</a>
 	    	  	<a class="item" data-tab="definition_2/c">发送人</a>
@@ -377,12 +755,173 @@
 	    	  	<a class="item" data-tab="definition_2/e">历史环节处理人</a>
 	    	</div>
 	    	<div class="ui bottom attached active tab segment" data-tab="definition_2/a">
-				1A
+				<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">人</option>
+		      					<option value="2">部门【部门】</option>
+		      					<option value="3">部门【人】</option>
+		      					<option value="3">部门【默认】</option>
+		      					<option value="3">部门【领导】</option>
+		      					<option value="3">角色【人】</option>
+		      					<option value="3">角色【角色】</option>
+		      					<option value="3">所有人【人】</option>
+							</select>      					
+		                </div>
+		                <div class="five wide field">
+					      	<label>类型:</label>
+					      	<input type="text" placeholder="类型">
+					    </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
 	    	</div>
-	    	<div class="ui bottom attached tab segment" data-tab="definition_2/b">1B</div>
-	    	<div class="ui bottom attached tab segment" data-tab="definition_2/c">1C</div>
-	    	<div class="ui bottom attached tab segment" data-tab="definition_2/d">1D</div>
-	    	<div class="ui bottom attached tab segment" data-tab="definition_2/e">1E</div>
+	    	<div class="ui bottom attached tab segment" data-tab="definition_2/b">
+	    		<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">创建人本人</option>
+		      					<option value="2">创建人领导</option>
+		      					<option value="3">创建人下属</option>
+		      					<option value="3">创建人部门人员</option>
+		      					<option value="3">创建人部门领导</option>
+							</select>      					
+		                </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<div class="ui bottom attached tab segment" data-tab="definition_2/c">
+	    		<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">发送人本人</option>
+		      					<option value="2">发送人领导</option>
+		      					<option value="3">发送人下属</option>
+		      					<option value="3">发送人部门人员</option>
+		      					<option value="3">发送人部门领导</option>
+							</select>      					
+		                </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<div class="ui bottom attached tab segment" data-tab="definition_2/d">
+	    		<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">前一环节创建人本人</option>
+		      					<option value="2">前一环节创建人上级</option>
+							</select>      					
+		                </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<div class="ui bottom attached tab segment" data-tab="definition_2/e">
+	    		<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">处理人本人</option>
+		      					<option value="2">处理人上级</option>
+		      					<option value="3">处理人下属</option>
+		      					<option value="3">处理人部门人员</option>
+		      					<option value="3">处理人部门领导</option>
+							</select>      					
+		                </div>
+		                <div class="five wide field">
+		    				<label>名称:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">普通活动</option>
+							</select>      					
+		                </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<button class="ui positive basic mini button monitorinfAddBtn"><i class="icon plus"></i> 增 加 条 件</button>
+			<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除 条 件</button>
+			<div class="ui divider"></div>
+	        <div class="ui grid">
+			  	<div class="computer only row">
+			  		<div class="tablet computer column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+			  				<thead>
+								<tr>
+									<th class="two wide">类别</th>
+									<th class="two wide">类型</th>
+									<th class="two wide">名称</th>
+									<th class="two wide">参数1</th>
+									<th class="two wide">参数2</th>
+									<th class="two wide">条件</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>部门【领导】</td>
+									<td>1111111</td>
+									<td>1111111</td>
+									<td>1111111</td>
+									<td>1111111</td>
+									<td>1111111</td>
+								</tr>
+								
+							</tbody>
+						</table>
+			  		</div>
+			  	</div>
+			</div>
 		</div>
 		<div class="actions inverted segment">
 			<button class="ui right floated green inverted ok button">
@@ -392,7 +931,859 @@
 				<i class="remove icon"></i>取消
 			</button>
 		</div>
+  	</div>
+  	<!-- 活动属性-工具-添加 -->
+	<div class="ui coupled small grey modal tab segment tool_add">
+  	  	<div class="ui mini form">
+  	  		<div class="fields">
+  	  			<div class="five wide field">
+	               	<label>类型:</label>
+	                <select class="ui search dropdown">
+		      			<option value="">请选择</option>
+		      			<option value="1">应用</option>
+		      			<option value="2">程序</option>
+					</select>      					
+	            </div>
+	            <div class="ten wide field">
+	    			<label>应用:</label>
+					<div class="two fields">
+						<div class="field">
+	               		  	<select class="ui search dropdown">
+	      						<option value="">请选择</option>
+	      						<option value="1">修改数据</option>
+	      						<option value="2">发送邮件</option>
+	      						<option value="3">执行其它toolagent</option>
+	      						<option value="4">获取数据</option>
+							</select>      					
+	               		</div>
+	               		<div class="five wide field">
+							<button class="ui facebook mini button definitionBtn"><i class="write icon"></i>定义</button>
+	               		</div>
+	               	</div>
+	            </div>
+  	  		</div>
+            <div class="ui horizontal divider">实际参数集</div>
+            <div class="ui grid">
+    		  	<div class="row">
+			  		<div class="ten wide tablet column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+							<thead>
+								<tr>
+									<th class="one wide">选择</th>
+									<th class="two wide">应用</th>
+									<th class="two wide">类型</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>1111111</td>
+									<td>Aell</td>
+								</tr>
+							</tbody>
+						</table>
+			  		</div>
+			    	<div class="three wide column">
+			    		<div class="ui vertical">
+					    	<button class="ui positive basic mini button actualParametersAdd1"><i class="icon plus"></i> 添 加</button>
+							<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
+							<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+					  	</div>
+			    	</div>
+			  	</div>
+    		</div>
+            <div class="ui divider"></div>
+			<div class="field">
+    		  	<label>描述：</label>
+    		  	<textarea rows="2"></textarea>
+    		</div>
+			<div class="ui horizontal divider">扩展属性集</div>
+			<div class="ui grid">
+    		  	<div class="row">
+			  		<div class="ten wide tablet computer column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+							<thead>
+								<tr>
+									<th class="one wide">选择</th>
+									<th class="two wide">应用</th>
+									<th class="two wide">类型</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>1111111</td>
+									<td>Aell</td>
+								</tr>
+							</tbody>
+						</table>
+			  		</div>
+			    	<div class="three wide column">
+			    		<div class="ui vertical">
+					    	<button class="ui positive basic mini button toolAddBtn actualParametersAdd2"><i class="icon plus"></i> 添 加</button>
+							<button class="ui primary basic mini button showDialog"><i class="icon write"></i> 编 辑</button>
+							<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+					  	</div>
+			    	</div>
+			  	</div>
+    		</div>
+			<div class="ui divider"></div>
+    		<div class="actions inverted segment">
+				<button class="ui right floated green inverted ok button">
+					<i class="checkmark icon"></i>确定
+				</button>
+				<button class="ui right floated red inverted cancel button">
+					<i class="remove icon"></i>取消
+				</button>
+			</div>		
+		</div>
+  	</div>
+  	<!-- 工具-添加-添加 -->
+	<div class="ui coupled small grey modal tab segment actualParametersDiv">
+  	  	<div class="ui mini form">
+  	  		<div class="field">
+    			<label>实际参数:</label>
+				<div class="two fields">
+					<div class="five wide field">
+            	   		<select class="ui search dropdown">
+      						<option value="">请选择</option>
+      						<option value="1">sourceReferenceld</option>
+      						<option value="2">formId</option>
+      						<option value="2">nextActivityInfo</option>
+      						<option value="2">nextActivityName</option>
+      						<option value="2">formType</option>
+						</select>      					
+            	   	</div>
+            	   	<div class="five wide field">
+						<button class="ui facebook mini button definitionBtn"><i class="write icon"></i>定义</button>
+            	   	</div>
+            	</div>
+            </div>
+  	  	</div>
+    	<div class="actions inverted segment">
+			<button class="ui right floated green inverted ok button">
+				<i class="checkmark icon"></i>确定
+			</button>
+			<button class="ui right floated red inverted cancel button">
+				<i class="remove icon"></i>取消
+			</button>
+		</div>		
+  	</div>
+  	<!-- 工具-添加-添加-定义 -->
+	<div class="ui coupled small grey modal tab segment toolAddDefinition">
+  		<div class="header">工作流相关数据集</div>
+  		<div class="ui mini form grid">
+		  	<div class="computer only row">
+		  		<div class="twelve wide tablet computer column">
+		  			<table class="ui blue sortable selectable celled striped compact table">
+						<thead>
+							<tr>
+								<th class="one wide">选择</th>
+								<th class="two wide">ID</th>
+								<th class="two wide">名称</th>
+								<th class="two wide">数据类型</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr id="tr1">
+								<td>
+									<div class="ui radio checkbox">
+										<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+									</div>
+								</td>
+								<td>1111111</td>
+								<td>Aell</td>
+								<td>Aell</td>
+							</tr>
+							<tr>
+								<td>
+									<div class="ui radio checkbox">
+										<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+									</div>
+								</td>
+								<td>3333333</td>
+								<td>Cell</td>
+								<td>Cell</td>
+							</tr>
+						</tbody>
+					</table>
+		  		</div>
+		    	<div class="three wide column">
+		    		<div class="ui vertical">
+				    	<button class="ui positive basic mini button toolAddDefinitionAddBtn"><i class="icon plus"></i> 添 加</button>
+						<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
+						<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+				  	</div>
+		    	</div>
+		  	</div>
+		</div>
+		<div class="ui divider"></div>
+    	<div class="actions inverted segment">
+			<button class="ui right floated green inverted ok button">
+				<i class="checkmark icon"></i>确定
+			</button>
+			<button class="ui right floated red inverted cancel button">
+				<i class="remove icon"></i>取消
+			</button>
+		</div>		
+	</div>
+	<!-- 工具-添加-添加-定义-添加 -->
+	<div class="ui coupled grey large modal tab segment toolAddDefinitionAdd">
+		<i class="close icon"></i>
+		<div class="ui mini form">
+  	  		<div class="fields">
+  	  			<div class="five wide field">
+				  	<label>ID:</label>
+				  	<input type="text" placeholder="ID">
+				</div>
+	            <div class="five wide field">
+				  	<label>名称:</label>
+				  	<input type="text" placeholder="名称">
+				</div>
+				 <div class="five wide field">
+				  	<label>初始值:</label>
+				  	<input type="text" placeholder="初始值">
+				</div>
+				 <div class="five wide field">
+				  	<label>长度:</label>
+				  	<input type="text" placeholder="长度">
+				</div>
+  	  		</div>
+  	  		<div class="five wide inline field">
+	            <label>是排列:</label>
+	            <select class="ui search dropdown">
+		      		<option value="">请选择</option>
+		      		<option value="0">(空)</option>
+		      		<option value="1">是</option>
+		      		<option value="2">否</option>
+				</select>      					
+	        </div>
+            <div class="ui horizontal divider">类型</div>
+            <div class="five wide inline field">
+	            <label>类型:</label>
+	            <select class="ui search dropdown">
+		      		<option value="">请选择</option>
+		     		<option value="1">Declared type</option>
+		     		<option value="2">Enumeration type</option>
+		     		<option value="3">List type</option>
+		     		<option value="4">Record type</option>
+		     		<option value="5">Schema type</option>
+		     		<option value="6">Union type</option>
+		     		<option value="7">基本类型</option>
+		     		<option value="8">外部参考</option>
+		     		<option value="9">数组类型</option>
+				</select>      					
+	        </div>
 
+    		<div class="field">
+    		  	<label>描述：</label>
+    		  	<textarea rows="1"></textarea>
+    		</div>
+			<div class="ui horizontal divider">扩展属性集</div>
+			<div class="ui grid">
+    		  	<div class="row">
+			  		<div class="ten wide tablet computer column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+							<thead>
+								<tr>
+									<th class="one wide">选择</th>
+									<th class="two wide">应用</th>
+									<th class="two wide">类型</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>1111111</td>
+									<td>Aell</td>
+								</tr>
+							</tbody>
+						</table>
+			  		</div>
+			    	<div class="three wide column">
+			    		<div class="ui vertical">
+					    	<button class="ui positive basic mini button"><i class="icon plus"></i> 添 加</button>
+							<button class="ui primary basic mini button showDialog"><i class="icon write"></i> 编 辑</button>
+							<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+					  	</div>
+			    	</div>
+			  	</div>
+    		</div>
+
+			<div class="ui divider"></div>
+    		<div class="actions inverted segment">
+				<button class="ui right floated green inverted ok button">
+					<i class="checkmark icon"></i>确定
+				</button>
+				<button class="ui right floated red inverted cancel button">
+					<i class="remove icon"></i>取消
+				</button>
+			</div>		
+		</div>
+	</div>
+
+  	<!-- 工具-添加-定义 -->
+  	<div class="ui coupled small grey modal tab segment tooldefinition">
+  		<div class="header">应用集-定义</div>
+  		<div class="ui mini form grid">
+		  	<div class="computer only row">
+		  		<div class="twelve wide tablet computer column">
+		  			<table class="ui blue sortable selectable celled striped compact table">
+						<thead>
+							<tr>
+								<th class="one wide">选择</th>
+								<th class="two wide">ID</th>
+								<th class="two wide">名称</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr id="tr1">
+								<td>
+									<div class="ui radio checkbox">
+										<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+									</div>
+								</td>
+								<td>1111111</td>
+								<td>Aell</td>
+							</tr>
+							<tr>
+								<td>
+									<div class="ui radio checkbox">
+										<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+									</div>
+								</td>
+								<td>2222222</td>
+								<td>Bell</td>
+							</tr>
+							<tr>
+								<td>
+									<div class="ui radio checkbox">
+										<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+									</div>
+								</td>
+								<td>3333333</td>
+								<td>Cell</td>
+							</tr>
+						</tbody>
+					</table>
+		  		</div>
+		    	<div class="three wide column">
+		    		<div class="ui vertical">
+				    	<button class="ui positive basic mini button tooldefinitionAddBtn"><i class="icon plus"></i> 添 加</button>
+						<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
+						<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+				  	</div>
+		    	</div>
+		  	</div>
+		</div>
+		<div class="ui divider"></div>
+    	<div class="actions inverted segment">
+			<button class="ui right floated green inverted ok button">
+				<i class="checkmark icon"></i>确定
+			</button>
+			<button class="ui right floated red inverted cancel button">
+				<i class="remove icon"></i>取消
+			</button>
+		</div>		
+	</div>
+	<!-- 工具-添加-定义-添加 -->
+	<div class="ui coupled grey large modal tab segment tooldefinition_add">
+		<i class="close icon"></i>
+		<div class="ui mini form">
+  	  		<div class="fields">
+  	  			<div class="five wide field">
+				  	<label>ID:</label>
+				  	<input type="text" placeholder="ID">
+				</div>
+	            <div class="five wide field">
+				  	<label>名称:</label>
+				  	<input type="text" placeholder="名称">
+				</div>
+  	  		</div>
+  	  		<div class="field">
+    		  	<label>描述：</label>
+    		  	<textarea rows="1"></textarea>
+    		</div>
+            <div class="ui horizontal divider">选择</div>
+            <div class="five wide inline field">
+	            <label>类型:</label>
+	            <select class="ui search dropdown">
+		      		<option value="">请选择</option>
+		      		<option value="1">外部参考</option>
+		      		<option value="2">形势参数集</option>
+				</select>      					
+	        </div>
+            <div class="ui grid">
+    		  	<div class="row">
+			  		<div class="ten wide tablet column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+							<thead>
+								<tr>
+									<th class="one wide">ID</th>
+									<th class="two wide">索引</th>
+									<th class="two wide">方式</th>
+									<th class="two wide">数据类型</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>1111111</td>
+									<td>2222222</td>
+									<td>3333333</td>
+									<td>4444444</td>
+								</tr>
+							</tbody>
+						</table>
+			  		</div>
+			    	<div class="three wide column">
+			    		<div class="ui vertical">
+					    	<button class="ui positive basic mini button tooldefinitionAddAddBtn"><i class="icon plus"></i> 添 加</button>
+							<button class="ui primary basic mini button showDialog"><i class="icon write"></i> 编 辑</button>
+							<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+					  	</div>
+			    	</div>
+			  	</div>
+    		</div>
+            <div class="ui divider"></div>
+			<div class="ui horizontal divider">扩展属性集</div>
+			<div class="ui grid">
+    		  	<div class="row">
+			  		<div class="ten wide tablet computer column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+							<thead>
+								<tr>
+									<th class="one wide">选择</th>
+									<th class="two wide">应用</th>
+									<th class="two wide">类型</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>
+										<div class="ui radio checkbox">
+											<input type="radio" name="selectAnswer" tabindex="0" class="hidden">
+										</div>
+									</td>
+									<td>1111111</td>
+									<td>Aell</td>
+								</tr>
+							</tbody>
+						</table>
+			  		</div>
+			    	<div class="three wide column">
+			    		<div class="ui vertical">
+					    	<button class="ui positive basic mini button"><i class="icon plus"></i> 添 加</button>
+							<button class="ui primary basic mini button showDialog"><i class="icon write"></i> 编 辑</button>
+							<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+					  	</div>
+			    	</div>
+			  	</div>
+    		</div>
+			<div class="ui divider"></div>
+    		<div class="actions inverted segment">
+				<button class="ui right floated green inverted ok button">
+					<i class="checkmark icon"></i>确定
+				</button>
+				<button class="ui right floated red inverted cancel button">
+					<i class="remove icon"></i>取消
+				</button>
+			</div>		
+		</div>
+	</div>
+	<!-- 工具-添加-定义-添加-添加 -->
+	<div class="ui coupled small grey modal tab segment tooldefinition_add_add">
+		<div class="ui mini form">
+			<div class="five wide field">
+		      	<label>ID:</label>
+		      	<input type="text" placeholder="ID">
+		    </div>
+		    <div class="five wide field">
+		      	<label>索引:</label>
+		      	<input type="text" placeholder="索引">
+		    </div>
+		    <div class="five wide field">
+	            <label>方式:</label>
+	            <select class="ui search dropdown">
+		     		<option value="">请选择</option>
+		     		<option value="1">In</option>
+		     		<option value="2">In and Out</option>
+		     		<option value="3">Out</option>
+				</select>      					
+	        </div>
+	        <div class="ui horizontal divider">类型</div>
+	        <div class="five wide field">
+	            <label>类型:</label>
+	            <select class="ui search dropdown">
+		     		<option value="">请选择</option>
+		     		<option value="1">Declared type</option>
+		     		<option value="2">Enumeration type</option>
+		     		<option value="3">List type</option>
+		     		<option value="4">Record type</option>
+		     		<option value="5">Schema type</option>
+		     		<option value="6">Union type</option>
+		     		<option value="7">基本类型</option>
+		     		<option value="8">外部参考</option>
+		     		<option value="9">数组类型</option>
+				</select>      					
+	        </div>
+		</div>
+		<div class="ui divider"></div>
+    	<div class="actions inverted segment">
+			<button class="ui right floated green inverted ok button">
+				<i class="checkmark icon"></i>确定
+			</button>
+			<button class="ui right floated red inverted cancel button">
+				<i class="remove icon"></i>取消
+			</button>
+		</div>		
+	</div>
+  	<!-- 活动属性-扩展属性-添加 -->
+	<div class="ui extendAttr_add coupled small grey modal tab segment">
+  	  	<div class="ui mini form">
+  	  		<div class="fields">
+  	  			<div class="five wide field">
+			      	<label>名称:</label>
+			      	<input type="text" placeholder="名称">
+			    </div>
+			    <div class="five wide field">
+			      	<label>值:</label>
+			      	<input type="text" placeholder="值">
+			    </div>
+  	  		</div>
+			<div class="ui divider"></div>
+    		<div class="actions inverted segment">
+				<button class="ui right floated green inverted ok button">
+					<i class="checkmark icon"></i>确定
+				</button>
+				<button class="ui right floated red inverted cancel button">
+					<i class="remove icon"></i>取消
+				</button>
+			</div>		
+		</div>
+  	</div>
+  	<!-- 超时限制-增加 -->
+	<div class="ui timeoutLimit_add coupled small grey modal tab segment">
+  	  	<div class="ui mini form">
+  	  		<div class="five wide field">
+	            <label>执行:</label>
+	            <select class="ui search dropdown">
+		     		<option value="">请选择</option>
+		     		<option value="1">同步</option>
+		     		<option value="2">异步</option>
+				</select>      					
+	        </div>
+  	  		<div class="five wide field">
+		      	<label>持续时间:</label>
+		      	<input type="text" placeholder="持续时间">
+		    </div>
+		    <div class="five wide field">
+		      	<label>异常名称:</label>
+		      	<input type="text" placeholder="异常名称">
+		    </div>
+  	  	</div>
+		<div class="ui divider"></div>
+    	<div class="actions inverted segment">
+			<button class="ui right floated green inverted ok button">
+				<i class="checkmark icon"></i>确定
+			</button>
+			<button class="ui right floated red inverted cancel button">
+				<i class="remove icon"></i>取消
+			</button>
+		</div>		
+  	</div>
+  	<!-- 监控信息-增加 -->
+	<div class="ui coupled small grey modal tab segment monitorinf_add">
+  	  	<div class="ui mini form">
+  	  		<div class="field">
+    			<label>参与者集:</label>
+				<div class="two fields">
+					<div class="five wide field">
+            	   		<select class="ui search dropdown">
+      						<option value="">请选择</option>
+      						<option value="1">参与者1</option>
+      						<option value="2">参与者2</option>
+						</select>      					
+            	   	</div>
+            	   	<div class="five wide field">
+						<button class="ui facebook mini button definitionBtn"><i class="write icon"></i>定义</button>
+            	   	</div>
+            	</div>
+            </div>
+  	  	</div>
+    	<div class="actions inverted segment">
+			<button class="ui right floated green inverted ok button">
+				<i class="checkmark icon"></i>确定
+			</button>
+			<button class="ui right floated red inverted cancel button">
+				<i class="remove icon"></i>取消
+			</button>
+		</div>		
+  	</div>
+  	<!-- 监控信息-增加-定义 -->
+  	<div class="ui coupled grey small modal tab segment monitorinfAddDefinition">
+  	  	<div class="ui pointing secondary menu">
+		  	<a class="item active" data-tab="definition_1">常规</a>
+		  	<a class="item" data-tab="definition_2">高级</a>
+		</div>
+		<div class="ui tab active" data-tab="definition_1">
+			<div class="ui mini form">
+			    <div class="five wide field">
+			      	<label>ID:</label>
+			      	<input type="text" placeholder="ID">
+			    </div>
+			    <div class="five wide field">
+			      	<label>名称:</label>
+			      	<input type="text" placeholder="名称">
+			    </div>
+				<div class="field">
+    			  	<label>描述：</label>
+    			  	<textarea rows="2"></textarea>
+    			</div>
+			    <div class="five wide field">
+				    <label>自定义参与者:</label>
+				    <input type="text" placeholder="自定义参与者">
+				</div>
+				<div class="five wide field">
+		    		<label>自定义角色:</label>
+		            <select class="ui search dropdown">
+		      			<option value="">请选择</option>
+		      			<option value="1">历史参与者</option>
+		      			<option value="2">监控者</option>
+		      			<option value="3">共享</option>
+					</select>      					
+		        </div>
+			</div>
+		</div>
+		<div class="ui tab" data-tab="definition_2">
+			<div class="ui top attached tabular mini menu">
+	    	  	<a class="active item" data-tab="definition_2/a">一般</a>
+	    	  	<a class="item" data-tab="definition_2/b">创建人</a>
+	    	  	<a class="item" data-tab="definition_2/c">发送人</a>
+	    	  	<a class="item" data-tab="definition_2/d">前一环节创建人</a>
+	    	  	<a class="item" data-tab="definition_2/e">历史环节处理人</a>
+	    	</div>
+	    	<div class="ui bottom attached active tab segment" data-tab="definition_2/a">
+				<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">人</option>
+		      					<option value="2">部门【部门】</option>
+		      					<option value="3">部门【人】</option>
+		      					<option value="3">部门【默认】</option>
+		      					<option value="3">部门【领导】</option>
+		      					<option value="3">角色【人】</option>
+		      					<option value="3">角色【角色】</option>
+		      					<option value="3">所有人【人】</option>
+							</select>      					
+		                </div>
+		                <div class="five wide field">
+					      	<label>类型:</label>
+					      	<input type="text" placeholder="类型">
+					    </div>
+					    <div class="five wide field">
+				    		<label>角色:</label>
+				            <select class="ui search dropdown">
+				      			<option value="1">历史参与者</option>
+				      			<option value="2">监控者</option>
+				      			<option value="3">共享</option>
+							</select>      					
+				        </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<div class="ui bottom attached tab segment" data-tab="definition_2/b">
+	    		<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">创建人本人</option>
+		      					<option value="2">创建人领导</option>
+		      					<option value="3">创建人下属</option>
+		      					<option value="3">创建人部门人员</option>
+		      					<option value="3">创建人部门领导</option>
+							</select>      					
+		                </div>
+		                <div class="five wide field">
+				    		<label>角色:</label>
+				            <select class="ui search dropdown">
+				      			<option value="1">历史参与者</option>
+				      			<option value="2">监控者</option>
+				      			<option value="3">共享</option>
+							</select>      					
+				        </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<div class="ui bottom attached tab segment" data-tab="definition_2/c">
+	    		<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">发送人本人</option>
+		      					<option value="2">发送人领导</option>
+		      					<option value="3">发送人下属</option>
+		      					<option value="3">发送人部门人员</option>
+		      					<option value="3">发送人部门领导</option>
+							</select>      					
+		                </div>
+		                <div class="five wide field">
+				    		<label>角色:</label>
+				            <select class="ui search dropdown">
+				      			<option value="1">历史参与者</option>
+				      			<option value="2">监控者</option>
+				      			<option value="3">共享</option>
+							</select>      					
+				        </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<div class="ui bottom attached tab segment" data-tab="definition_2/d">
+	    		<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">前一环节创建人本人</option>
+		      					<option value="2">前一环节创建人上级</option>
+							</select>      					
+		                </div>
+		                <div class="five wide field">
+				    		<label>角色:</label>
+				            <select class="ui search dropdown">
+				      			<option value="1">历史参与者</option>
+				      			<option value="2">监控者</option>
+				      			<option value="3">共享</option>
+							</select>      					
+				        </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<div class="ui bottom attached tab segment" data-tab="definition_2/e">
+	    		<div class="ui mini form">
+					<div class="fields">
+						<div class="five wide field">
+		    				<label>类别:</label>
+		                	<select class="ui search dropdown">
+		      					<option value="">请选择</option>
+		      					<option value="1">处理人本人</option>
+		      					<option value="2">处理人上级</option>
+		      					<option value="3">处理人下属</option>
+		      					<option value="3">处理人部门人员</option>
+		      					<option value="3">处理人部门领导</option>
+							</select>      					
+		                </div>
+		                <div class="five wide field">
+				    		<label>角色:</label>
+				            <select class="ui search dropdown">
+				      			<option value="1">历史参与者</option>
+				      			<option value="2">监控者</option>
+				      			<option value="3">共享</option>
+							</select>      					
+				        </div>
+					    <div class="five wide field">
+					      	<label>附加参数1:</label>
+					      	<input type="text" placeholder="附加参数">
+					    </div>
+					    <div class="five wide field">
+					    	<label>附加参数2:</label>
+						    <input type="text" placeholder="附加参数">
+						</div>	
+		            </div>
+				</div>
+	    	</div>
+	    	<button class="ui positive basic mini button monitorinfAddBtn"><i class="icon plus"></i> 增 加 条 件</button>
+			<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除 条 件</button>
+			<div class="ui divider"></div>
+	        <div class="ui grid">
+			  	<div class="computer only row">
+			  		<div class="tablet computer column">
+			  			<table class="ui blue sortable selectable celled striped compact table">
+			  				<thead>
+								<tr>
+									<th class="two wide">类别</th>
+									<th class="two wide">类型</th>
+									<th class="two wide">名称</th>
+									<th class="two wide">参数1</th>
+									<th class="two wide">参数2</th>
+									<th class="two wide">条件</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tr1">
+									<td>部门【领导】</td>
+									<td>1111111</td>
+									<td>1111111</td>
+									<td>1111111</td>
+									<td>1111111</td>
+									<td>1111111</td>
+								</tr>
+								
+							</tbody>
+						</table>
+			  		</div>
+			  	</div>
+			</div>
+		</div>
+		<div class="actions inverted segment">
+			<button class="ui right floated green inverted ok button">
+				<i class="checkmark icon"></i>确定
+			</button>
+			<button class="ui right floated red inverted cancel button">
+				<i class="remove icon"></i>取消
+			</button>
+		</div>
   	</div>
 
 	<script type="text/javascript" src="js/jquery.min.js" charset="utf-8"></script>
@@ -429,7 +1820,41 @@
 		var package_id = workflow_id.substring(0, workflow_id.lastIndexOf('_'));
 		var creat_time = new Date().pattern("yyyy-MM-dd HH:mm:ss");
 	
-		$(function(){			
+		$(function(){
+			$('.toolgrid tbody tr').on('click',function(){
+				$(this).addClass('active').siblings().removeClass('active');
+				$(this).find('input:radio').prop('checked','checked');
+			});	
+			$('.extended_attr tbody tr').on('click',function(){
+				$(this).addClass('active').siblings().removeClass('active');
+				$(this).find('input:radio').prop('checked','checked');
+
+			});	
+			$('.post_condition .list .item').on('click', function(){
+				$(this).addClass('active').siblings().removeClass('active');
+			});	
+			$('.timeout_limit tbody tr').on('click', function(){
+				$(this).addClass('active').siblings().removeClass('active');
+			});	
+			$('.monitorinf tbody tr').on('click', function(){
+				$(this).addClass('active').siblings().removeClass('active');
+			});	
+			
+			$('.front_condition .dropdown.convergeType').on('change', function(e){
+				var convergeType = $(this).val();
+				if(convergeType	== '0'){//空
+					// $(this).parents('.field').siblings().show();
+					$(this).parents('.field').siblings().hide();
+				}
+				if(convergeType	== '1'){//And
+					$(this).parents('.field').siblings().eq(0).show();
+					$(this).parents('.field').siblings().eq(1).hide();
+				}
+				if(convergeType	== '2'){//Xor
+					$(this).parents('.field').siblings().eq(0).hide();
+					$(this).parents('.field').siblings().eq(1).show();
+				}
+			});
 			//编辑工具(保存)
 			$('.editor-toolbar .icon.save').on('click', function(){
 				var dataTab = $('.full-right-btn .item.active').attr('data-tab');
@@ -532,7 +1957,6 @@
 					$('#container').off('mouseover mouseout', '.conceptG');
 				}
 			});
-			
 		})
 	    
 	</script>
@@ -561,9 +1985,23 @@
 			$('select.dropdown').dropdown();
 			$('.ui.checkbox').checkbox();
 
-			$('.coupled.modal').modal({allowMultiple: true});
+			$('.coupled.modal').modal({allowMultiple: true,autofocus: false});
 			// open second modal on first modal buttons
-			$('.second.modal').modal('attach events', '.modal.prop_layer .definitionBtn');
+			$('.prop_layer_second.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.conventional .definitionBtn');
+			$('.monitorinfAddDefinition.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.monitorinf_add .definitionBtn');
+			
+			$('.tool_add.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.prop_layer .toolAddBtn');
+			$('.extendAttr_add.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.prop_layer .extendAttrAddBtn, .modal.tool_add .actualParametersAdd2');
+			$('.timeoutLimit_add.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.prop_layer .timeoutLimitAddBtn');
+			$('.monitorinf_add.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.prop_layer .monitorinfAddBtn');
+
+			$('.tooldefinition.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.tool_add .definitionBtn');
+			$('.tooldefinition_add.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.tooldefinition .tooldefinitionAddBtn');
+			$('.tooldefinition_add_add.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.tooldefinition_add .tooldefinitionAddAddBtn');
+			$('.actualParametersDiv.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.tool_add .actualParametersAdd1');
+			$('.toolAddDefinition.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.actualParametersDiv .definitionBtn');
+			$('.toolAddDefinitionAdd.modal').modal({allowMultiple: true,autofocus: false}).modal('attach events', '.modal.toolAddDefinition .toolAddDefinitionAddBtn');
+			
 		})
 
 		function updateScrollbar(){

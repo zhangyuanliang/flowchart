@@ -355,6 +355,18 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
       if(item == 'propMenu'){
         $('.ui.modal.prop_layer').modal('show');
+        $('.conventional input[name="ID"]').val(selectedNode.id);
+        $('.conventional input[name="name"]').val(selectedNode.title);
+        $('.prop_layer>.menu a[data-tab*="two"]').addClass('hideitem');debugger;
+        if(selectedNode.title == '普通活动'){
+          $('.prop_layer>.menu a[data-tab="two_1"]').removeClass('hideitem');
+        }
+        if(selectedNode.title == '块活动'){
+          $('.prop_layer>.menu a[data-tab="two_2"]').removeClass('hideitem');
+        }
+        if(selectedNode.title == '子活动'){
+          $('.prop_layer>.menu a[data-tab="two_3"]').removeClass('hideitem');
+        }
       }
       $('#rMenu').hide();
     });
