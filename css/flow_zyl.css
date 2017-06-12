@@ -10,7 +10,7 @@ img { border:none }
 ol,ul,li { list-style:none }
 input, textarea, select, button { font:14px Verdana,Helvetica,Arial,sans-serif }
 table { border-collapse:collapse }
-html {overflow-y: scroll} 
+/* html {overflow-y: scroll} */
 /* css 清除浮动*/
 .clearfix:after {content: "."; display: block; height:0; clear:both; visibility: hidden}
 .clearfix { *zoom:1 }
@@ -106,3 +106,14 @@ html {overflow-y: scroll}
 
 .prop_layer_second .bottom.tab{ height:90px }
 
+.conventional_definition{height: 493px}
+.conventional_definition>.tab{ height:360px }
+.definition_condition{
+    height: 129px;
+    overflow-y: auto;
+}
+
+.timeout_limit_grid .content-div {
+    height: 129px;width: 90%;
+    overflow-y: auto;
+}
