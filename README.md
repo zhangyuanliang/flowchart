@@ -4,7 +4,7 @@
   
   - [https://zhangyuanliang.github.io/flow-chart/flow_zyl.html](https://zhangyuanliang.github.io/flow-chart/flow_zyl.html)
   
-  简单的流程图绘制，前端页面，应用jquery.js、d3.js、semantic.css，功能包括：
+  svg实现流程图绘制，前端页面应用：jquery.js、d3.js、semantic.css，功能包括：
   - 流程图块生成、拖拽、连线
   - 放大缩小功能
   - 导入导出json数据
