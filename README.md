@@ -1,8 +1,10 @@
 # flow-chart
 
-  Demo演示：[https://zhangyuanliang.github.io/flow-chart/flow_zyl.html](https://zhangyuanliang.github.io/flow-chart/flow_zyl.html)
+  Demo演示（chrome浏览）：
   
-  简单的流程图绘制，前端页面，应用jquery.js、d3.js、semantic.css，功能包括（用chrome浏览）：
+  - [https://zhangyuanliang.github.io/flow-chart/flow_zyl.html](https://zhangyuanliang.github.io/flow-chart/flow_zyl.html)
+  
+  简单的流程图绘制，前端页面，应用jquery.js、d3.js、semantic.css，功能包括：
   - 流程图块生成、拖拽、连线
   - 放大缩小功能
   - 导入导出json数据
