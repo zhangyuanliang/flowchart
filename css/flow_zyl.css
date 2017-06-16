@@ -15,6 +15,9 @@ table { border-collapse:collapse }
 .clearfix:after {content: "."; display: block; height:0; clear:both; visibility: hidden}
 .clearfix { *zoom:1 }
 
+.ui.menu {margin:0;}
+.ui.modal>.header {padding:0 0 0.7rem 0;}
+
 .subheader { min-height:46px;border-bottom:1px solid #c7cacd;padding-top:18px;padding-left:10px;}
 .subheader .column { display:inline-block;height:19px;width:26px;font-size:20px;margin: 0 4px;}
 .subheader .column:hover { cursor:pointer}
@@ -117,3 +120,8 @@ table { border-collapse:collapse }
     height: 129px;width: 90%;
     overflow-y: auto;
 }
+.monitorinfAddDefinition{height: 493px}
+.monitorinfAddDefinition>.tab{ height: 360px }
+
+/* .tooldefinition_add.modal{ height: 553px } */
+.ui.standards{height: 560px;}
