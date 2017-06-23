@@ -120,8 +120,10 @@ table { border-collapse:collapse }
     height: 129px;width: 90%;
     overflow-y: auto;
 }
-.monitorinfAddDefinition{height: 493px}
+.monitorinfAddDefinition{ height: 493px }
 .monitorinfAddDefinition>.tab{ height: 360px }
 
 /* .tooldefinition_add.modal{ height: 553px } */
-.ui.standards{height: 560px;}
+.ui.standards{ height: 560px; }
+
+.monitorinf_grid{ height:370px; }

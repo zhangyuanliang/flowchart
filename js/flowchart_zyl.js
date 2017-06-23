@@ -126,12 +126,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     };
 
     // help icon click
-    d3.select("#help").on("click", function(){
+    d3.select("#help").on("click", function() {
       $('#helpbox').removeClass('hidden');
     });
 
     // reset zoom
-    d3.select("#reset-zoom").on("click", function(){
+    d3.select("#reset-zoom").on("click", function() {
       d3.select(".graph")
         .transition() // start a transition
               .duration(1000) // make it last 1 second
@@ -208,7 +208,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       thisGraph.deleteGraph(false);
     });
 
-    $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable','true').on('dragstart', function(ev){
+    $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable','true').on('dragstart', function(ev) {
       $(this).siblings().removeClass('active').end().addClass('active');
       ev.originalEvent.dataTransfer.setData('text', $(this).children('span').text());
       ev.originalEvent.dataTransfer.setData('shapename', $(this).attr('for-name'));
@@ -216,7 +216,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       ev.originalEvent.dataTransfer.setData('type', $(this).attr('type'));
       // $('#reset-zoom').trigger("click");
     });
-    $('#container').on('drop', function(ev){
+    $('#container').on('drop', function(ev) {
       var position ={};
       position.x = parseInt(ev.originalEvent.offsetX),
       position.y = parseInt(ev.originalEvent.offsetY);
@@ -237,19 +237,20 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           extendAttr: [],
           highLevel: {},
           timeoutLimit: {},
+          monitorinf: {isResponsibleTem: true},
           eventTypeId: null
         };
       thisGraph.nodes.push(d);
       thisGraph.updateGraph();
-    }).on('dragover', function(ev){
+    }).on('dragover', function(ev) {
       ev.preventDefault();
     });
     //选择左侧工具
-    $('#flowComponents .components-btn').on('click', function(){
+    $('#flowComponents .components-btn').on('click', function() {
       $(this).siblings().removeClass('active').end().addClass('active');
       if('drawLineBtn'==$(this).attr('name')){
         thisGraph.state.drawLine = true;
-        $('#container').on('mouseover mouseout', '.conceptG', function(){
+        $('#container').on('mouseover mouseout', '.conceptG', function() {
           if(event.type == 'mouseover'){
             this.style.cursor = 'crosshair';
           }else if(event.type == 'mouseout'){
@@ -262,7 +263,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     });
     //切换标签时获取xml和xpdl
-    $('.full-right-btn.menu .item').on('click', function () {
+    $('.full-right-btn.menu .item').on('click', function() {
       var dataTab = $(this).attr('data-tab');
       if(dataTab == 'third'){ //xml视图
         var XmlContent = thisGraph.emergeAllXmlContent();
@@ -356,30 +357,30 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           thisGraph.updateGraph();
         }
       }
-      if(item == 'toFront'){
+      if (item == 'toFront') {
         alert('前置');
       }
       //属性弹出层
-      if(item == 'propMenu'){
+      if (item == 'propMenu') {
         $('.ui.modal.prop_layer').modal({
           autofocus: false,
           closable: false,
           onApprove: function() {
             //更新-扩展属性
             thisGraph.state.selectedNode.extendAttr = [];
-            $('.extended_attr tbody tr').each(function(){
+            $('.extended_attr tbody tr').each(function() {
               var jsonstr = $(this).attr('jsonstr');
               thisGraph.state.selectedNode.extendAttr.push(jsonstr);
             })
             //更新-高级 属性
             thisGraph.state.selectedNode.highLevel = {};
             var highLevel = {};
-            $('.prop_layer .highLevel').find('input').each(function(){
+            $('.prop_layer .highLevel').find('input').each(function() {
               highLevel[$(this).attr('name')] = $(this).val();
             })
             thisGraph.state.selectedNode.highLevel = highLevel;
             //更新-超时限制
-            $('.timeout_limit').find('input[name], select[name]').each(function(){
+            $('.timeout_limit').find('input[name], select[name]').each(function() {
               thisGraph.state.selectedNode.timeoutLimit[$(this).attr('name')] = $(this).val();
             })
             thisGraph.state.selectedNode.timeoutLimit.deadline = [];
@@ -389,19 +390,92 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             })
             //更新-前置条件
             thisGraph.state.selectedNode.frontCondition = {};
-            $('.front_condition > div:not(".hideDiv")').find('input:not(:radio)[name], select').each(function(){
+            $('.front_condition > div:not(".hideDiv")').find('input:not(:radio)[name], select').each(function() {
               thisGraph.state.selectedNode.frontCondition[$(this).attr('name')] = $(this).val();
             })
             
 
           },
-          onShow: function(){
-            //alert('读取xpdl显示属性');
+          onShow: function() {
+            var node = thisGraph.state.selectedNode;
+            //展示-监控信息
+            var participants = thisGraph.participants;
+            $('.monitorinf select[name="isResponsibleTem"]').dropdown('set selected', node.monitorinf.isResponsibleTem);
+            var responsible = node.monitorinf.responsible;
+
+            if (responsible && responsible.length) {
+              var tr = '';
+              for (var i in responsible) {
+                for (var j in participants) {
+                  if (responsible[i] == participants[j].conventional_definition_id) {
+                    tr += participants[j].conventional_definition_name?'<tr><td>'+(participants[j].conventional_definition_name+'-rol')+'</td></tr>':'<tr><td>'+(responsible[i]+'-rol')+'</td></tr>';
+                  }
+                }
+              }
+              $('.monitorinf tbody').append(tr);
+            }
+            //展示-高级
+            $('.highLevel').find('input').each(function(){
+              for (var i in node.highLevel) {
+                if ($(this).attr('name') == i) {
+                  $(this).val(node.highLevel[i]);
+                }
+              }
+            })
+            //展示-超时限制
+            $('.timeout_limit').find('input').each(function(){
+              for (var i in node.timeoutLimit) {
+                if ($(this).attr('name') == i) {
+                  $(this).val(node.timeoutLimit[i]);
+                }
+              }
+            })
+            $('.timeout_limit').find('select').each(function(){
+              for (var i in node.timeoutLimit) {
+                if ($(this).attr('name') == i) {
+                  $(this).dropdown('set selected', node.timeoutLimit[i]);
+                }
+              }
+            })
+            var deadline_strs = node.timeoutLimit.deadline;
+            if (deadline_strs && deadline_strs.length) {
+              var tr = '';
+              for (var i in deadline_strs) {
+                var deadline_obj = JSON.parse(deadline_strs[i]);
+                tr += '<tr jsonstr= '+deadline_strs[i]+'><td>'+deadline_obj.deadlineCondition+'</td></tr>';
+              }
+              $('.timeout_limit tbody').append(tr);
+            }
+            //展示-扩展属性集
+            var extendAttr_strs = node.extendAttr;
+            if (extendAttr_strs && extendAttr_strs.length) {
+              var tr = '';
+              for (var i in extendAttr_strs) {
+                var extendAttr_obj = JSON.parse(extendAttr_strs[i]);
+                var data = {data: extendAttr_obj, jsonstr: extendAttr_strs[i]};
+                tr += juicer($('#extended_attr_tpl').html(), data);
+              }
+              $('.extended_attr tbody').append(tr).find('.ui.checkbox').checkbox();;
+            }
+            //监控信息-是否为临时监控
+            $('.monitorinf select[name="isResponsibleTem"]').on('change', function() {
+              var node = thisGraph.state.selectedNode;
+              node.monitorinf.isResponsibleTem = $(this).val();
+            });
+
+
           },
-          onHidden: function(){
+          onHidden: function() {
+            $('.monitorinf select[name="isResponsibleTem"]').off('change'); //弹窗关闭，避免清空表单时触发事件
             $(this).find('input, textarea').val('');
             $(this).find('.ui.dropdown').dropdown('clear');
             $(this).find('.ui.checkbox').checkbox('uncheck');
+
+            $('.monitorinf tbody').empty(); //清空监控信息
+            $('.timeout_limit tbody').empty(); //清空监控信息
+            $('.extended_attr tbody').empty(); //清空扩展属性集
+
+            $('.prop_layer .menu .item[data-tab="one"]').trigger('click');
           }
         }).modal('show');
         $('.conventional input[name="ID"]').val(selectedNode.id);
@@ -420,7 +494,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('#rMenu').hide();
     });
     //右击点击
-    $('#container svg .graph').on('contextmenu', function(e){
+    $('#container svg .graph').on('contextmenu', function(e) {
       $('#flowComponents div[name="selectBtn"]').trigger('click');
       $('#container .conceptG').css('cursor', 'default');//防止在活动块上右击存在问题
       $("#rMenu").css({"top":event.clientY+"px", "left":event.clientX+"px"});
@@ -434,15 +508,15 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       return false;
     })
 
-    $('svg').on('click', function(){
+    $('svg').on('click', function() {
       $('#rMenu').hide();
     });
-    $('svg').on('contextmenu', function(){
+    $('svg').on('contextmenu', function() {
       $('#flowComponents div[name="selectBtn"]').trigger('click');
       return false;
     });
     //扩展属性集-添加
-    $('.extendAttr_add .green.button').on('click', function(){
+    $('.extendAttr_add .green.button').on('click', function() {
       var name = $('.extendAttr_add.modal input[name="extendAttr_add_name"]').val();
       var value = $('.extendAttr_add.modal input[name="extendAttr_add_value"]').val();
       if (!name) {
@@ -468,7 +542,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.extendAttr_add.modal input').val("");
     })
     //扩展属性集-编辑
-    $('.extendAttrEditBtn').on('click', function(){
+    $('.extendAttrEditBtn').on('click', function() {
       var selectedTr = $(this).parents('.grid').find('tbody tr.active');
       if(selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0});return false}
       var jsonstr = $(this).parents('.grid').find('tbody tr.active').attr('jsonstr');
@@ -480,7 +554,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       // $('.extendAttr_add.modal').modal('show'); //会关闭一级弹窗
     })
     //扩展属性集-删除
-    $('.extendAttrDelBtn').on('click', function(){
+    $('.extendAttrDelBtn').on('click', function() {
       var tr = $(this).parents('.grid').find('tbody tr.active');
       if(tr.length > 0) {
         tr.remove();
@@ -489,9 +563,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     })
     //超时限制-增加-确定
-    $('.timeoutLimit_add .green.button').on('click', function(){
+    $('.timeoutLimit_add .green.button').on('click', function() {
       var deadline = {};
-      $('.timeoutLimit_add').find('input[name], select').each(function(){
+      $('.timeoutLimit_add').find('input[name], select').each(function() {
         deadline[$(this).attr('name')] =$(this).val();
       })
       if(!deadline.deadlineCondition){
@@ -514,7 +588,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     })
     //超时限制-删除
-    $('.timeoutLimitRemoveBtn').on('click', function(){
+    $('.timeoutLimitRemoveBtn').on('click', function() {
       var tr = $(this).parents('.grid').find('tbody tr.active');
       if(tr.length > 0) {
         tr.remove();
@@ -539,13 +613,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.timeoutLimitAddBtn').trigger('click');
     })
     //常规-定义-高级-增加条件
-    $('.conventional_definition .definition_addBtn').on('click', function(){
+    $('.conventional_definition .definition_addBtn').on('click', function() {
       var typeName = $('.conventional_definition [data-tab="definition_2"]>.menu>.item.active').text(),
         data_tab = $('.conventional_definition [data-tab="definition_2"] .tab.active').attr('data-tab'),
         type = $('.conventional_definition div[data-tab="'+data_tab+'"] select[name="definition_type"]').val(),
         name = $('.conventional_definition div[data-tab="'+data_tab+'"] input[name="definition_name"]').val();
       var params = {};
-      $('.conventional_definition div[data-tab="'+data_tab+'"]').find('input[name],select').each(function(){
+      $('.conventional_definition div[data-tab="'+data_tab+'"]').find('input[name],select').each(function() {
         params[$(this).attr('name')] = $(this).val();
       })
       if (data_tab == 'definition_2/a') {//类型--一般
@@ -588,7 +662,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       });
     });
     //常规-定义-高级-删除条件
-    $('.conventional_definition .definition_removeBtn').on('click', function(){
+    $('.conventional_definition .definition_removeBtn').on('click', function() {
       var select = $('.conventional_definition .definition_condition tbody tr.active');
       if (select.length>0) {
         select.remove();
@@ -598,32 +672,97 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     });
     //常规-定义-确定
-    $('.conventional_definition .green.button').on('click', function(){
+    $('.conventional_definition .green.button').on('click', function() {
       var participant = {};
-      $('.conventional_definition div[data-tab="definition_1"]').find('input[name],select').each(function(){
+      $('.conventional_definition div[data-tab="definition_1"]').find('input[name], select').each(function() {
         participant[$(this).attr('name')] = $(this).val();
       });
-      $('.conventional_definition div[data-tab="definition_2"] tbody').find('tr').each(function(){
+      $('.conventional_definition div[data-tab="definition_2"] tbody').find('tr').each(function() {
         $(this).find('td').each(function(){
           participant[$(this).attr('name')] = participant[$(this).attr('name')] || [];
           participant[$(this).attr('name')].push($(this).text());
         });
+        participant['roleName'] = participant['roleName'] || []
+        participant['roleName'].push('party');//常规定义参与者 角色默认是party
       });
-      thisGraph.participants = [];
+      //thisGraph.participants = [];
       thisGraph.participants.push(participant);
     });
-    //监控信息-高级-增加条件
-    $('.monitorinfAddDefinition .monitorinfDefintionAddBtn').on('click', function(){
-      var typeName = $('.monitorinfAddDefinition [data-tab="definition_2"]>.menu>.item.active').text(),
-        data_tab = $('.monitorinfAddDefinition [data-tab="definition_2"] .tab.active').attr('data-tab'),
+    
+    //监控信息-删除
+    $('.monitorinf .monitorinfRemoveBtn').on('click', function() {
+      var selected = $('.monitorinf').find('tbody tr.active');
+      if (selected.length) {
+        var definition_id = selected.attr('definition_id');
+        var responsible = thisGraph.state.selectedNode.monitorinf.responsible;
+        for (var i in responsible) {
+          if (responsible[i] == definition_id) responsible.splice(i, 1);
+        }
+        selected.remove();
+        $(".monitorinf_grid .content-div").mCustomScrollbar("update");
+      } else {
+        layer.msg('请选择一行', {time: 2000, icon: 2});
+      }
+    });
+    //监控信息-编辑
+    $('.monitorinf .monitorinfEditBtn').on('click', function() {
+      var selected = $('.monitorinf').find('tbody tr.active');
+      if (selected.length) {
+        var rol = selected.find('td').text()
+        $('.monitorinf_add input[name="monitorinf_add_operate"]').val(1);
+        $('.monitorinf_add select[name="definition_role"]').dropdown('set text', rol);
+        $(this).siblings('.monitorinfAddBtn').trigger('click');
+      } else {
+        layer.msg('请选择一行', {time: 2000, icon: 2});
+      }
+    })
+    //监控信息-增加-定义
+    $('.monitorinf_add .definitionBtn').on('click', function() {
+      var operate = $('.monitorinf_add input[name="monitorinf_add_operate"]').val();
+      if (operate) { // 编辑
+        var rol = $('.monitorinf_add .dropdown .text').attr('definition_id').replace('-rol', '');
+        $('.monitorinfAddDefinition input[name="monitorinf_add_operate"]').val(operate);//隐藏域：1代表编辑 空代表增加
+        var monitorinf = thisGraph.state.selectedNode.monitorinf;
+        var participants = thisGraph.participants;
+        for (var i in participants) {
+          if (participants[i].conventional_definition_id == rol) {
+            var participant = participants[i];
+            $('.monitorinfAddDefinition div[data-tab="definition_one"]').find('input[name]:not(".hidden"),textarea').each(function() {
+              $(this).val(participant[$(this).attr('name')]);
+            });
+            $('.monitorinfAddDefinition div[data-tab="definition_one"]').find('select').each(function() {
+              $(this).dropdown('set selected', participant[$(this).attr('name')]);
+            });
+            for(var j in participant.typeName){
+              $('.monitorinfAddDefinition .definition_condition tbody').append(
+                  '<tr>'+
+                  '  <td name="typeName">'+participant.typeName[j]+'</td>'+
+                  '  <td name="itemName">'+participant.itemName[j]+'</td>'+
+                  '  <td name="itemValue">'+participant.itemValue[j]+'</td>'+
+                  '  <td name="secLevelS">'+participant.secLevelS[j]+'</td>'+
+                  '  <td name="secLevelE">'+participant.secLevelE[j]+'</td>'+
+                  '  <td name="roleName">'+participant.roleName[j]+'</td>'+
+                  '</tr>');
+            }
+          }
+        }
+      } else { //增加
+        $('.monitorinfAddDefinition input[name="conventional_definition_id"]').val(workflow_id +"_Par"+ conventional_par);
+        conventional_par++;
+      }
+    })
+    //监控信息-增加-定义-高级-增加条件
+    $('.monitorinfAddDefinition .monitorinfDefintionAddBtn').on('click', function() {
+      var typeName = $('.monitorinfAddDefinition [data-tab="definition_two"]>.menu>.item.active').text(),
+        data_tab = $('.monitorinfAddDefinition [data-tab="definition_two"] .tab.active').attr('data-tab'),
         type = $('.monitorinfAddDefinition div[data-tab="'+data_tab+'"] select[name="definition_type"]').val(),
         name = $('.monitorinfAddDefinition div[data-tab="'+data_tab+'"] input[name="definition_name"]').val();
       var params = {};
       $('.monitorinfAddDefinition div[data-tab="'+data_tab+'"]').find('input[name],select').each(function(){
         params[$(this).attr('name')] = $(this).val();
       })
-      if (data_tab == 'definition_2/a') {//类型--一般
-        if (!type||!name) {
+      if (data_tab == 'definition_two/a') {//类型--一般
+        if (!type || !name) {
           layer.msg('请选择类型和名称!', {time: 2000, icon: 2});
           return false;
         }
@@ -633,20 +772,17 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           return false;
         }
       }
-
       var definition_type = '';
-      if (data_tab == 'definition_2/a') {
+      if (data_tab == 'definition_two/a') {
         definition_type = params.definition_type==1? "部门【部门】":params.definition_type==2? "部门【人】":params.definition_type==3? "部门【默认】":params.definition_type==4? "部门【领导】":params.definition_type==5? "角色【人】":params.definition_type==6? "角色【角色】":params.definition_type==7? "所有人【人】":"";
-      } else if (data_tab == 'definition_2/b') {
-        definition_type = params.definition_type==1? "创建人本人":params.definition_type==2? "创建人领导":params.definition_type==3? "创建人下属":params.definition_type==4? "创建人部门人员":params.definition_type==5? "创建人部门领导":"";
-      } else if (data_tab == 'definition_2/c') {
+      } else if (data_tab == 'definition_two/b') {
+        definition_type = params.definition_type==1? "当前处理人领导":params.definition_type==2? "当前处理人部门领导":"";
+      } else if (data_tab == 'definition_two/c') {
         definition_type = params.definition_type==1? "发送人本人":params.definition_type==2? "发送人领导":params.definition_type==3? "发送人下属":params.definition_type==4? "发送人部门人员":params.definition_type==5? "发送人部门领导":"";
-      } else if (data_tab == 'definition_2/d') {
+      } else if (data_tab == 'definition_two/d') {
         definition_type = params.definition_type==1? "前一环节创建人本人":params.definition_type==2? "前一环节创建人上级":"";
-      } else if (data_tab == 'definition_2/e') {
-        definition_type = params.definition_type==1? "处理人本人":params.definition_type==2? "处理人上级":params.definition_type==3? "处理人下属":params.definition_type==4? "处理人部门人员":params.definition_type==5? "处理人部门领导":"";
-      }
-      $('.monitorinfAddDefinition [name="monitorinfAddDefinition_participant"]').val("");//清除-自定义参数者
+      } 
+      $('.monitorinfAddDefinition [name="conventional_definition_participant"]').val("");//清除-自定义参数者
       $('.monitorinfAddDefinition .definition_condition tbody').append(
                 '<tr>'+
                 '  <td name="typeName">'+typeName+'</td>'+
@@ -654,32 +790,79 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                 '  <td name="itemValue">'+(params.definition_name? params.definition_name:"")+'</td>'+
                 '  <td name="secLevelS">'+params.definition_param1+'</td>'+
                 '  <td name="secLevelE">'+params.definition_param2+'</td>'+
-                '  <td name="condition"></td>'+
+                '  <td name="roleName">'+params.definition_role+'</td>'+
                 '</tr>');
       $(".monitorinfAddDefinition .definition_condition").mCustomScrollbar("update");
       $(".monitorinfAddDefinition .definition_condition").mCustomScrollbar("scrollTo", "bottom", {
         scrollInertia:1500
       });
     });
-    //监控信息-高级-删除条件
-    $('.monitorinfAddDefinition .monitorinfDefintionRemoveBtn').on('click', function(){
+    //监控信息-增加-定义-高级-删除条件
+    $('.monitorinfAddDefinition .monitorinfDefintionRemoveBtn').on('click', function() {
       var select = $('.monitorinfAddDefinition .definition_condition tbody tr.active');
-      if (select.length>0) {
+      if (select.length > 0) {
         select.remove();
         $(".monitorinfAddDefinition  .definition_condition").mCustomScrollbar("update");
       } else {
         layer.msg('请选择一行!', {time: 2000, icon: 2});
       }
     });
+    //监控信息-增加-定义-确定
+    $('.monitorinfAddDefinition .green.button').on('click', function() {
+      var operate = $('.monitorinfAddDefinition input[name="monitorinf_add_operate"]').val(),
+        currentId = $('.monitorinfAddDefinition input[name="conventional_definition_id"]').val(),
+        participant = {};
+      $('.monitorinfAddDefinition div[data-tab="definition_one"]').find('input[name],textarea,select').each(function() {
+        participant[$(this).attr('name')] = $(this).val();
+      });
+      $('.monitorinfAddDefinition div[data-tab="definition_two"] tbody').find('tr').each(function() {
+        $(this).find('td').each(function(){
+          participant[$(this).attr('name')] = participant[$(this).attr('name')] || [];
+          participant[$(this).attr('name')].push($(this).text());
+        });
+      });
+      
+      if (operate) {// 1：编辑
+        for (var i in thisGraph.participants) {
+          var p = thisGraph.participants[i];
+          if (p.conventional_definition_id == currentId) {
+            thisGraph.participants[i] = participant;
+          }
+        }
+      } else {
+        thisGraph.participants.push(participant);
+      }
+
+      var rol = participant.conventional_definition_name?participant.conventional_definition_name + "-rol":participant.conventional_definition_id + "-rol";
+      $('.monitorinf_add select[name="definition_role"]').dropdown('set text', rol);
+      $('.monitorinf_add .dropdown .text').attr('definition_id', participant.conventional_definition_id);
+    });
+    //监控信息-增加-确定
+    $('.monitorinf_add .green.button').on('click', function() {
+      var operate = $('.monitorinf_add input[name="monitorinf_add_operate"]').val();//operate:1为编辑
+      var definition_rol = $('.monitorinf_add .dropdown .text').text(),
+          definition_id = $('.monitorinf_add .dropdown .text').attr('definition_id');
+      if (operate) {//编辑
+        $('.monitorinf').find('tbody').find('tr.active td').text(definition_rol);
+      } else {//增加
+        if (!definition_rol) return;
+        $('.monitorinf').find('tbody').append('<tr definition_id="'+definition_id+'"><td>'+definition_rol+'</td></tr>');
+        $(".monitorinf_grid .content-div").mCustomScrollbar("update");
+        var node = thisGraph.state.selectedNode;
+        node.monitorinf.responsible = node.monitorinf.responsible || [];
+        node.monitorinf.responsible.push(definition_id);
+      }
+    })
 
   };
 
-  GraphCreator.prototype.getExtendedAttributes = function(node, deadlineXpdl){
+  GraphCreator.prototype.getExtendedAttributes = function(node, deadlineXpdl) {
     var extendAttr = node.extendAttr;
     var highLevel = node.highLevel;
     var highLevelXpdl = '',
       isCreateNew = '',
-      voteModel = '';
+      voteModel = '',
+      responsible = '';
     if (highLevel) {
       highLevelXpdl += highLevel.activityEndEvent?'<ExtendedAttribute Name="ActivityEndEvent" Value="'+highLevel.activityEndEvent+'"/>':'';
       highLevelXpdl += highLevel.activityCreateEvent?'<ExtendedAttribute Name="ActivityCreateEvent" Value="'+highLevel.activityCreateEvent+'"/>':'';
@@ -689,12 +872,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     }
     isCreateNew = node.frontCondition.isCreateNew?'<ExtendedAttribute Name="isCreateNew" Value="'+node.frontCondition.isCreateNew+'"/>':'';
     voteModel = node.frontCondition.voteModel&&node.frontCondition.voteText?'<ExtendedAttribute Name="syncType" Value="'+node.frontCondition.voteModel+'|'+node.frontCondition.voteText+'"/>':'';
+    responsible = node.monitorinf.responsible?'<ExtendedAttribute Name="responsible" Value="'+node.monitorinf.responsible.join(',')+'"/>':'<ExtendedAttribute Name="responsible"/>'
 
     var ExtendedAttributes = 
             '<ExtendedAttributes>'
           + '   <ExtendedAttribute Name="isMulInstance" Value="false"/>'
-          + '   <ExtendedAttribute Name="isResponsibleTem" Value="true"/>'
-          + '   <ExtendedAttribute Name="responsible"/>'
+          + '   <ExtendedAttribute Name="isResponsibleTem" Value="'+node.monitorinf.isResponsibleTem+'"/>'
+          +     responsible
           + '   <ExtendedAttribute Name="MustActivity" Value="true"/>'
           +     isCreateNew
           +     voteModel
@@ -791,54 +975,58 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var join = node.frontCondition.convergeType?'<Join Type="'+node.frontCondition.convergeType+'"/>':'<Join Type="XOR"/>';
     var TransitionRestrictions = '';
     if (activity_inOut.numIn > 1 || activity_inOut.numOut > 1 || node.frontCondition.convergeType) {
-      TransitionRestrictions += '    <TransitionRestrictions>'
-                              + '        <TransitionRestriction>'
+      TransitionRestrictions += '  <TransitionRestrictions>'
+                              + '      <TransitionRestriction>'
       if (activity_inOut.numIn > 1 || node.frontCondition.convergeType) {  
-        TransitionRestrictions +=          join
+        TransitionRestrictions +=        join
       }
       if (activity_inOut.numOut > 1) {
-        TransitionRestrictions += '        <Split Type="XOR">'
-                                + '            <TransitionRefs>'
-                                +                  activity_inOut.transitionRefs
-                                + '            </TransitionRefs>'
-                                + '        </Split>'
+        TransitionRestrictions += '      <Split Type="XOR">'
+                                + '          <TransitionRefs>'
+                                +                activity_inOut.transitionRefs
+                                + '          </TransitionRefs>'
+                                + '      </Split>'
       }
-      TransitionRestrictions += '        </TransitionRestriction>'
-                              + '    </TransitionRestrictions>'
+      TransitionRestrictions += '      </TransitionRestriction>'
+                              + '  </TransitionRestrictions>'
     }
     return TransitionRestrictions;
   }
   //生成参与者相应的xpdl
-  GraphCreator.prototype.getParticipants = function() {//??细节还有问题：1.isAppData; 2.condition,conditionXml; 3.roleName
+  GraphCreator.prototype.getParticipants = function() {//??细节还有问题：1.isAppData; 2.condition,conditionXml;
     var thisGraph = this;
-    var participants = thisGraph.participants[0];
-    var participantsXpdl = '',
-      extendedAttr = '';
-    if (participants) {
-      if (participants.conventional_definition_participant) {
-        extendedAttr =    '<ExtendedAttribute Name="PartyBeanld" Value="'+participants.conventional_definition_participant+'"/>'
+    if (thisGraph.participants.length == 0) return false;
+
+    var xpdl = '',
+      participantsXpdl = '';
+    for (var i in thisGraph.participants) {
+      var participant = thisGraph.participants[i],
+        extendedAttr = '';
+      if (participant && participant.conventional_definition_participant) {
+        extendedAttr  = '<ExtendedAttribute Name="PartyBeanld" Value="'+participant.conventional_definition_participant+'"/>'
       } else {
-        extendedAttr +=   '<ExtendedAttribute Name="typeName" Value="'+participants.typeName.join(',')+'"/>'
-                        + '<ExtendedAttribute Name="isAppData" Value="false"/>'
-                        + '<ExtendedAttribute Name="itemName" Value="'+participants.itemName.join(',')+'"/>'
-                        + '<ExtendedAttribute Name="itemValue" Value="'+participants.itemValue.join(',')+'"/>'
-                        + '<ExtendedAttribute Name="secLevelS" Value="'+participants.secLevelS.join(',')+'"/>'
-                        + '<ExtendedAttribute Name="secLevelE" Value="'+participants.secLevelE.join(',')+'"/>'
-                        + '<ExtendedAttribute Name="condition"><![CDATA['+participants.condition.join(',')+'fw==]]></ExtendedAttribute>'
-                        + '<ExtendedAttribute Name="conditionXml"/>'
-                        + '<ExtendedAttribute Name="roleName" Value="party"/>'
+        extendedAttr += '<ExtendedAttribute Name="typeName" Value="'+(participant.typeName?participant.typeName.join(','):"")+'"/>'
+                      + '<ExtendedAttribute Name="isAppData" Value="false"/>'
+                      + '<ExtendedAttribute Name="itemName" Value="'+(participant.itemName?participant.itemName.join(','):"")+'"/>'
+                      + '<ExtendedAttribute Name="itemValue" Value="'+(participant.itemValue?participant.itemValue.join(','):"")+'"/>'
+                      + '<ExtendedAttribute Name="secLevelS" Value="'+(participant.secLevelS?participant.secLevelS.join(','):"")+'"/>'
+                      + '<ExtendedAttribute Name="secLevelE" Value="'+(participant.secLevelE?participant.secLevelE.join(','):"")+'"/>'
+                      + (participant.condition?'<ExtendedAttribute Name="condition"><![CDATA['+participant.condition.join(',')+'fw==]]></ExtendedAttribute>':'<ExtendedAttribute Name="condition"/>')
+                      + '<ExtendedAttribute Name="conditionXml"/>'
+                      + '<ExtendedAttribute Name="roleName" Value="'+(participant.roleName?participant.roleName.join(','):"")+'"/>'
       }
-      participantsXpdl += '<Participants>'
-                        + '    <Participant Id="'+participants.conventional_definition_id+'" Name="'+participants.conventional_definition_name+'">'
+      participantsXpdl += '<Participant Id="'+participant.conventional_definition_id+'" Name="'+(participant.conventional_definition_name || "")+'">'
                         + '    <ParticipantType Type="ROLE"/>'
-                        + '    <Description>'+participants.conventional_definition_participant+'</Description>'
+                        + '    <Description>'+participant.conventional_definition_participant+'</Description>'
                         + '    <ExtendedAttributes>'
                         +         extendedAttr
                         + '    </ExtendedAttributes>'
-                        + '  </Participant>'
-                        + '</Participants>'
+                        + '</Participant>'
     }
-    return participantsXpdl;
+    xpdl += '<Participants>'
+          +     participantsXpdl
+          + '</Participants>'
+    return xpdl;
   }
   //生成所有activity xml添加至xmlContainer
   GraphCreator.prototype.emergeAllXmlContent = function() {

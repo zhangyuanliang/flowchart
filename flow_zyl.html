@@ -649,33 +649,30 @@
 			<div class="ui mini form monitorinf">
 				<div class="five wide field">
     				<label>是否为临时监控:</label>
-                	<select class="ui search dropdown">
-      					<option value="1">是</option>
-      					<option value="2">否</option>
+                	<select name="isResponsibleTem" class="ui search dropdown">
+      					<option value="true">是</option>
+      					<option value="false">否</option>
 					</select>      					
                 </div>
-                <div class="ui grid">
+                <div class="ui grid monitorinf_grid">
 				  	<div class="computer only row">
-				  		<div class="twelve wide tablet computer column">
+				  		<div class="twelve wide tablet computer column content-div">
 				  			<table class="ui blue sortable selectable celled striped compact table">
+				  				<thead>
+				  					<tr>
+				  						<th>监控者</th>
+				  					</tr>
+				  				</thead>
 								<tbody>
-									<tr id="tr1">
-										<td>1111111</td>
-									</tr>
-									<tr>
-										<td>2222222</td>
-									</tr>
-									<tr>
-										<td>3333333</td>
-									</tr>
+									
 								</tbody>
 							</table>
 				  		</div>
 				    	<div class="three wide column">
 				    		<div class="ui vertical">
 						    	<button class="ui positive basic mini button monitorinfAddBtn"><i class="icon plus"></i> 增 加</button>
-								<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
-								<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
+								<button class="ui primary basic mini button monitorinfEditBtn"><i class="icon write"></i> 编 辑</button>
+								<button class="ui negative basic mini button monitorinfRemoveBtn"><i class="icon remove"></i> 删 除</button>
 						  	</div>
 				    	</div>
 				  	</div>
@@ -877,14 +874,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
-									<td name="typeName">一般</td>
-									<td name="itemName">部门【领导】</td>
-									<td name="itemValue">演示组织</td>
-									<td name="secLevelS">参数1</td>
-									<td name="secLevelE">参数2</td>
-									<td name="condition">条件</td>
-								</tr>
+								
 							</tbody>
 						</table>
 			  		</div>
@@ -1505,12 +1495,11 @@
   	  		<div class="field">
     			<label>参与者集:</label>
 				<div class="two fields">
-					<div class="five wide field">
-            	   		<select class="ui search dropdown">
-      						<option value="">请选择</option>
-      						<option value="1">参与者1</option>
-      						<option value="2">参与者2</option>
-						</select>      					
+					<div class="seven wide field">
+            	   		<select name="definition_role" class="ui search disabled dropdown">
+      						
+						</select>   
+						<input type="hidden" name="monitorinf_add_operate" value="">				
             	   	</div>
             	   	<div class="five wide field">
 						<button class="ui facebook mini button definitionBtn"><i class="write icon"></i>定义</button>
@@ -1530,47 +1519,47 @@
   	<!-- 监控信息-增加-定义 -->
   	<div class="ui coupled small modal tab monitorinfAddDefinition">
   	  	<div class="ui pointing secondary menu">
-		  	<a class="item active" data-tab="definition_1">常规</a>
-		  	<a class="item" data-tab="definition_2">高级</a>
+		  	<a class="item active" data-tab="definition_one">常规</a>
+		  	<a class="item" data-tab="definition_two">高级</a>
 		</div>
-		<div class="ui tab segment active" data-tab="definition_1">
+		<div class="ui tab segment active" data-tab="definition_one">
 			<div class="ui mini form">
 			    <div class="five wide field">
 			      	<label>ID:</label>
-			      	<input type="text" name="monitorinfAddDefinition_id" placeholder="ID">
+			      	<input type="text" name="conventional_definition_id" placeholder="ID">
 			    </div>
 			    <div class="five wide field">
 			      	<label>名称:</label>
-			      	<input type="text" name="monitorinfAddDefinition_name" placeholder="名称">
+			      	<input type="text" name="conventional_definition_name" placeholder="名称">
 			    </div>
 				<div class="field">
     			  	<label>描述：</label>
-    			  	<textarea name="monitorinfAddDefinition_description" rows="2"></textarea>
+    			  	<textarea name="conventional_definition_description" rows="2"></textarea>
     			</div>
 			    <div class="five wide field">
 				    <label>自定义参与者:</label>
-				    <input type="text" name="monitorinfAddDefinition_participant" placeholder="自定义参与者">
+				    <input type="text" name="conventional_definition_participant" placeholder="自定义参与者">
 				</div>
 				<div class="five wide field">
 		    		<label>自定义角色:</label>
-		            <select name="monitorinfAddDefinition_role" class="ui search dropdown">
+		            <select name="conventional_definition_role" class="ui search dropdown">
 		      			<option value="">请选择</option>
 		      			<option value="history">历史参与者</option>
 		      			<option value="responsible">监控者</option>
 		      			<option value="share">共享</option>
 					</select>      					
 		        </div>
+		        <input type="hidden" class="hidden" name="monitorinf_add_operate" value="">
 			</div>
 		</div>
-		<div class="ui tab segment" data-tab="definition_2">
+		<div class="ui tab segment" data-tab="definition_two">
 			<div class="ui top attached tabular mini menu">
-	    	  	<a class="active item" data-tab="definition_2/a">一般</a>
-	    	  	<a class="item" data-tab="definition_2/b">创建人</a>
-	    	  	<a class="item" data-tab="definition_2/c">发送人</a>
-	    	  	<a class="item" data-tab="definition_2/d">前一环节创建人</a>
-	    	  	<a class="item" data-tab="definition_2/e">历史环节处理人</a>
+	    	  	<a class="active item" data-tab="definition_two/a">一般</a>
+	    	  	<a class="item" data-tab="definition_two/b">当前处理人</a>
+	    	  	<a class="item" data-tab="definition_two/c">发送人</a>
+	    	  	<a class="item" data-tab="definition_two/d">前一环节创建人</a>
 	    	</div>
-	    	<div class="ui bottom attached active tab segment" data-tab="definition_2/a">
+	    	<div class="ui bottom attached active tab segment" data-tab="definition_two/a">
 				<div class="ui mini form">
 					<div class="fields">
 						<div class="five wide field">
@@ -1610,18 +1599,15 @@
 		            </div>
 				</div>
 	    	</div>
-	    	<div class="ui bottom attached tab segment" data-tab="definition_2/b">
+	    	<div class="ui bottom attached tab segment" data-tab="definition_two/b">
 	    		<div class="ui mini form">
 					<div class="fields">
 						<div class="five wide field">
 		    				<label>类型:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">创建人本人</option>
-		      					<option value="2">创建人领导</option>
-		      					<option value="3">创建人下属</option>
-		      					<option value="4">创建人部门人员</option>
-		      					<option value="5">创建人部门领导</option>
+		      					<option value="1">当前处理人领导</option>
+		      					<option value="2">当前处理人部门领导</option>
 							</select>      					
 		                </div>
 		                <div class="five wide field">
@@ -1644,7 +1630,7 @@
 		            </div>
 				</div>
 	    	</div>
-	    	<div class="ui bottom attached tab segment" data-tab="definition_2/c">
+	    	<div class="ui bottom attached tab segment" data-tab="definition_two/c">
 	    		<div class="ui mini form">
 					<div class="fields">
 						<div class="five wide field">
@@ -1678,7 +1664,7 @@
 		            </div>
 				</div>
 	    	</div>
-	    	<div class="ui bottom attached tab segment" data-tab="definition_2/d">
+	    	<div class="ui bottom attached tab segment" data-tab="definition_two/d">
 	    		<div class="ui mini form">
 					<div class="fields">
 						<div class="five wide field">
@@ -1692,40 +1678,6 @@
 		                <div class="five wide field">
 				    		<label>角色:</label>
 				            <select name="definition_role" class="ui search dropdown">
-				      			<option value="">请选择</option>
-		      					<option value="history">历史参与者</option>
-		      					<option value="responsible">监控者</option>
-		      					<option value="share">共享</option>
-							</select>      					
-				        </div>
-					    <div class="five wide field">
-					      	<label>附加参数1:</label>
-					      	<input type="text" name="definition_param1" placeholder="附加参数">
-					    </div>
-					    <div class="five wide field">
-					    	<label>附加参数2:</label>
-						    <input type="text" name="definition_param2" placeholder="附加参数">
-						</div>	
-		            </div>
-				</div>
-	    	</div>
-	    	<div class="ui bottom attached tab segment" data-tab="definition_2/e">
-	    		<div class="ui mini form">
-					<div class="fields">
-						<div class="five wide field">
-		    				<label>类别:</label>
-		                	<select name="definition_type" class="ui search dropdown">
-		      					<option value="">请选择</option>
-		      					<option value="1">处理人本人</option>
-		      					<option value="2">处理人上级</option>
-		      					<option value="3">处理人下属</option>
-		      					<option value="4">处理人部门人员</option>
-		      					<option value="5">处理人部门领导</option>
-							</select>      					
-		                </div>
-		                <div class="five wide field">
-				    		<label>角色:</label>
-				            <select name="definition_role" class="ui search dropdown definition_2e_role">
 				      			<option value="">请选择</option>
 		      					<option value="history">历史参与者</option>
 		      					<option value="responsible">监控者</option>
@@ -1757,18 +1709,11 @@
 									<th class="three wide">名称</th>
 									<th class="three wide">参数1</th>
 									<th class="three wide">参数2</th>
-									<th class="three wide">条件</th>
+									<th class="three wide">角色</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
-									<td name="typeName">一般</td>
-									<td name="itemName">部门【领导】</td>
-									<td name="itemValue">演示组织</td>
-									<td name="secLevelS">参数1</td>
-									<td name="secLevelE">参数2</td>
-									<td name="condition">条件</td>
-								</tr>
+
 							</tbody>
 						</table>
 			  		</div>
@@ -1898,13 +1843,10 @@
 	
 		$(function(){
 			$('.conventional .definitionBtn').on('click', function(){
-				$('input[name="conventional_definition_id"]').val(workflow_id +"_Par"+ conventional_par);
+				$('.conventional_definition input[name="conventional_definition_id"]').val(workflow_id +"_Par"+ conventional_par);
 				conventional_par++;
 			})
-			$('.monitorinf_add .definitionBtn').on('click', function(){
-				$('input[name="monitorinfAddDefinition_id"]').val(workflow_id +"_Par"+ conventional_par);
-				conventional_par++;
-			})
+			
 			//数据表格添加点击选中行
 			$('.toolgrid,.extended_attr tbody').on('click', 'tr', function(){
 				$(this).addClass('active').siblings().removeClass('active');
@@ -2059,6 +2001,10 @@
 			$(".content-div").mCustomScrollbar();
 			//活动属性semantic初始化
 			$('.prop_layer .menu .item').tab();
+			$('.prop_layer .menu .item').on('click', function() {
+				var item = $(this).attr('data-tab');
+				$('.prop_layer [data-tab="'+item+'"]').find('.content-div').mCustomScrollbar("update");
+			})
 			$('select.dropdown').dropdown();
 			// $('.dropdown.definition_2e_role').dropdown('set selected(value)', 2);
 			$('.ui.checkbox').checkbox();
@@ -2080,6 +2026,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.prop_layer').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
@@ -2092,6 +2039,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.prop_layer').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
@@ -2104,6 +2052,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.tool_add').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
@@ -2116,6 +2065,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.prop_layer').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
@@ -2128,6 +2078,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.prop_layer').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
@@ -2140,6 +2091,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.prop_layer').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
@@ -2152,6 +2104,8 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.monitorinf_add').dimmer('hide');
+          			clearModal(this);
+          			$(this).find('tbody').empty();
           		},
 				onShow: function () {
           			$('.modal.monitorinf_add').dimmer({closable: false}).dimmer('show');
@@ -2164,6 +2118,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.tool_add').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
@@ -2176,6 +2131,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.tooldefinition').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.tooldefinition').dimmer({closable: false}).dimmer('show');
@@ -2188,6 +2144,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.tooldefinition_add').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.tooldefinition_add').dimmer({closable: false}).dimmer('show');
@@ -2200,6 +2157,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.tool_add').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
@@ -2212,6 +2170,7 @@
 				duration: {},
 				onHidden: function(){
           			$('.modal.actualParametersDiv').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.actualParametersDiv').dimmer({closable: false}).dimmer('show');
@@ -2222,56 +2181,44 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.toolAddDefinition').dimmer('hide');
+          			clearModal(this);
           		},
 				onShow: function () {
           			$('.modal.toolAddDefinition').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.toolAddDefinition .toolAddDefinitionAddBtn');
-
-			//清空弹出层
-			/*$('.modal').modal({//与上边方法有冲突
-    		  	onHidden: function(){
-    		    	$(this).find('input, textarea').val('');
-    		    	$(this).find('.ui.dropdown').dropdown('clear');
-    		    	var parents = $(this).attr('parentsModal');
-    		    	if(parents){
-    		    		$('.modal.'+parents).dimmer('hide');
-    		    	}
-    		  	},
-				onShow: function () {alert();
-					var parents = $(this).attr('parentsModal');
-    		    	if(parents){
-    		    		$('.modal.'+parents).dimmer({closable: false}).dimmer('show');
-    		    	}
-          		}
-    		});*/
     		//点击显示树形结构div
-			$('input[name="definition_name"]').on('click', function(){
+			$('input[name="definition_name"]').on('click', function() {
 				treelayer = layer.open({
 				  	type: 1,
 				  	title: 'PersonTree',
-				  	skin: 'layui-layer-rim', //加上边框
+				  	skin: 'layui-layer-rim', //边框
 				  	area: ['300px', '350px'], //宽高
 				  	content: '<div><ul id="treeDemo" class="ztree"></ul></div>'
 				});
-				<!--ztree-->
+				/* ztree */
 				$.fn.zTree.init($("#treeDemo"), setting);
 				zTree = $.fn.zTree.getZTreeObj("treeDemo");
 			});
 		})
-
-		function updateScrollbar(){
+		//清空表单
+		function clearModal(selector) {
+			$(selector).find('input, textarea').val('');
+    		$(selector).find('.ui.dropdown').dropdown('clear');
+		}
+		//刷新显示滚动条
+		function updateScrollbar() {
 			var dataTab = $(this).attr('data-tab');
-			if(dataTab=='third'){ //xml视图
-				var customScrollbar=$("#xmlContainer").find(".mCSB_scrollTools");
+			if (dataTab == 'third') { //xml视图
+				var customScrollbar = $("#xmlContainer").find(".mCSB_scrollTools");
 				// customScrollbar.css({"opacity":0});
 				$("#xmlContainer").mCustomScrollbar("update");
 				// customScrollbar.animate({opacity:1},"slow");
 			}
-			if(dataTab=='second'){ //xml视图
-				var customScrollbar=$("#xpdlContainer").find(".mCSB_scrollTools");
+			if (dataTab == 'second') { //xpdl视图
+				var customScrollbar = $("#xpdlContainer").find(".mCSB_scrollTools");
 				$("#xpdlContainer").mCustomScrollbar("update");
 			}
 		}
