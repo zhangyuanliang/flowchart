@@ -100,7 +100,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       .on("zoom", function() {
         console.log('zoom triggered');
         if (d3.event.sourceEvent.shiftKey) {
-          // TODO  the internal d3 state is still changing
+          // the internal d3 state is still changing
           return false;
         } else {
           thisGraph.zoomed.call(thisGraph);
@@ -171,7 +171,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
         filereader.onload = function() {
           var txtRes = filereader.result;
-          // TODO better error handling
+          // better error handling
           try {
             var jsonObj = JSON.parse(txtRes);
             thisGraph.deleteGraph(true);
@@ -208,7 +208,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       thisGraph.deleteGraph(false);
     });
 
-    $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable','true').on('dragstart', function(ev) {
+    $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable', 'true').on('dragstart', function(ev) {
       $(this).siblings().removeClass('active').end().addClass('active');
       ev.originalEvent.dataTransfer.setData('text', $(this).children('span').text());
       ev.originalEvent.dataTransfer.setData('shapename', $(this).attr('for-name'));
@@ -220,6 +220,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       var position ={};
       position.x = parseInt(ev.originalEvent.offsetX),
       position.y = parseInt(ev.originalEvent.offsetY);
+      // var xycoords = d3.mouse(thisGraph.svgG.node());
       var shapeLabel = ev.originalEvent.dataTransfer.getData('text'),
         shapename = ev.originalEvent.dataTransfer.getData('shapename'),
         component = ev.originalEvent.dataTransfer.getData('component'),
@@ -227,12 +228,20 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         shapeId = shapename + new Date().getTime(),
         isCreate = true;
       var d = {
-          id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
+          id: Word+'_node_'+randomWord(false, 4)+thisGraph.idct++,
           title: shapeLabel,
           component: component,
           type: type,
           x: position.x,
           y: position.y,
+          conventional: {
+            mustActivity: true, 
+            taskAssignMode: 'taskAutoMode', 
+            autoAcceptAllAssignments: true, 
+            isResponsible: true,
+            startMode: 'manual',
+            finishMode: 'manual'
+          },
           frontCondition: {},
           extendAttr: [],
           highLevel: {},
@@ -384,16 +393,35 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               thisGraph.state.selectedNode.timeoutLimit[$(this).attr('name')] = $(this).val();
             })
             thisGraph.state.selectedNode.timeoutLimit.deadline = [];
-            $('.timeout_limit tbody tr').each(function(){
+            $('.timeout_limit tbody tr').each(function() {
               var jsonstr = $(this).attr('jsonstr');
               thisGraph.state.selectedNode.timeoutLimit.deadline.push(jsonstr);
             })
+            //更新-后置条件
+            
             //更新-前置条件
             thisGraph.state.selectedNode.frontCondition = {};
             $('.front_condition > div:not(".hideDiv")').find('input:not(:radio)[name], select').each(function() {
               thisGraph.state.selectedNode.frontCondition[$(this).attr('name')] = $(this).val();
             })
-            
+            //更新-工具
+
+            //更新-常规
+            thisGraph.state.selectedNode.conventional = {};
+            var conventional = {};
+            $('.prop_layer .conventional').find('input[name], textarea, select').each(function() {
+              conventional[$(this).attr('name')] = $(this).val();
+            })
+            var $role = $('.conventional select[name="definition_role"]');
+            if ($role.dropdown('get text')[0] != '(空)') {
+              conventional.performer = $role.siblings('.text').attr('definition_id');
+              conventional.participantID = $role.dropdown('get text')[0];
+            } else {
+              conventional.performer = '';
+              conventional.participantID = '';
+            }
+
+            thisGraph.state.selectedNode.conventional = conventional;
 
           },
           onShow: function() {
@@ -415,7 +443,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               $('.monitorinf tbody').append(tr);
             }
             //展示-高级
-            $('.highLevel').find('input').each(function(){
+            $('.highLevel').find('input').each(function() {
               for (var i in node.highLevel) {
                 if ($(this).attr('name') == i) {
                   $(this).val(node.highLevel[i]);
@@ -423,14 +451,14 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               }
             })
             //展示-超时限制
-            $('.timeout_limit').find('input').each(function(){
+            $('.timeout_limit').find('input').each(function() {
               for (var i in node.timeoutLimit) {
                 if ($(this).attr('name') == i) {
                   $(this).val(node.timeoutLimit[i]);
                 }
               }
             })
-            $('.timeout_limit').find('select').each(function(){
+            $('.timeout_limit').find('select').each(function() {
               for (var i in node.timeoutLimit) {
                 if ($(this).attr('name') == i) {
                   $(this).dropdown('set selected', node.timeoutLimit[i]);
@@ -452,17 +480,78 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               var tr = '';
               for (var i in extendAttr_strs) {
                 var extendAttr_obj = JSON.parse(extendAttr_strs[i]);
-                var data = {data: extendAttr_obj, jsonstr: extendAttr_strs[i]};
+                var data = {
+                  data: extendAttr_obj, 
+                  jsonstr: extendAttr_strs[i]
+                };
                 tr += juicer($('#extended_attr_tpl').html(), data);
               }
-              $('.extended_attr tbody').append(tr).find('.ui.checkbox').checkbox();;
+              $('.extended_attr tbody').append(tr).find('.ui.checkbox').checkbox();
             }
+            //展示-后置条件
+            
+            //展示-前置条件
+            var frontCondition = node.frontCondition;
+            if (frontCondition.convergeType) {
+              $('.front_condition .dropdown.convergeType').dropdown('set selected', frontCondition.convergeType);
+              $('.front_condition select[name="voteModel"]').dropdown('set selected', frontCondition.voteModel || "");
+              $('.front_condition input[name="voteText"]').val(frontCondition.voteText || "");
+              if (frontCondition.isCreateNew == "true") {
+                $('.front_condition input[tabindex="true"]').parent().checkbox('check');
+              } else if (frontCondition.isCreateNew == "false") {
+                $('.front_condition input[tabindex="false"]').parent().checkbox('check');
+              }
+            }
+            //展示-工具
+            
+            //展示-常规
+            var conventional = node.conventional;
+            $('.conventional').find('input[name], textarea').each(function() {
+              for (var key in conventional) {
+                if (key == $(this).attr('name')) {
+                  $(this).val(conventional[key]);
+                }
+              }
+            });
+            $('.conventional').find('select').not($('input[name="definition_role"]')).each(function() {
+              for (var key in conventional) {
+                if (key == $(this).attr('name')) {
+                  $(this).dropdown('set selected', conventional[key])
+                }
+              }
+            });
+            $('.conventional').find('.checkbox').each(function() {
+              var value = $(this).find('input[name]').val();
+              if (value && value !="false") $(this).checkbox('check');
+            })
+            $('.conventional input[name="ID"]').val(node.id);
+            $('.conventional input[name="name"]').val(node.title);
+            if (conventional.performer) {
+              $('.conventional select[name="definition_role"]').dropdown('set text', conventional.participantID || '');
+              $('.conventional .dropdown .text').attr('definition_id', conventional.performer);
+            }
+
+
             //监控信息-是否为临时监控
             $('.monitorinf select[name="isResponsibleTem"]').on('change', function() {
               var node = thisGraph.state.selectedNode;
               node.monitorinf.isResponsibleTem = $(this).val();
             });
-
+            //常规-参与者集
+            $('.conventional .definition_field').on('click', function() {
+              var participants = thisGraph.participants;
+              var options ='<option value="">请选择</option><option value="0">(空)</option>';
+              participants.forEach(function(participant) {
+                var rol = participant.conventional_definition_name ? participant.conventional_definition_name + "-rol" : participant.conventional_definition_id + "-rol";
+                options += '<option value="' + participant.conventional_definition_id + '">' + rol + '</option>';
+              });
+              $('.conventional select[name="definition_role"]').empty().append(options);
+            });
+            //常规-参与者集-下拉菜单
+            $('.conventional .definition_field').on('click', '.item', function() {
+              var definition_id = $(this).attr('data-value') != "0" ? $(this).attr('data-value') : '';
+              $('.conventional select[name="definition_role"]').siblings('.text').attr('definition_id', definition_id);
+            })
 
           },
           onHidden: function() {
@@ -475,11 +564,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             $('.timeout_limit tbody').empty(); //清空监控信息
             $('.extended_attr tbody').empty(); //清空扩展属性集
 
+            $('.conventional select[name="definition_role"]').siblings('.text').removeAttr('definition_id');
+
             $('.prop_layer .menu .item[data-tab="one"]').trigger('click');
           }
         }).modal('show');
-        $('.conventional input[name="ID"]').val(selectedNode.id);
-        $('.conventional input[name="name"]').val(selectedNode.title);
+        
         $('.prop_layer>.menu a[data-tab*="two"]').addClass('hideitem');
         if (selectedNode.title == '普通活动') {
           $('.prop_layer>.menu a[data-tab="two_1"]').removeClass('hideitem');
@@ -544,7 +634,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     //扩展属性集-编辑
     $('.extendAttrEditBtn').on('click', function() {
       var selectedTr = $(this).parents('.grid').find('tbody tr.active');
-      if(selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0});return false}
+      if (selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0});return false}
       var jsonstr = $(this).parents('.grid').find('tbody tr.active').attr('jsonstr');
       var json = JSON.parse(jsonstr);
       $('.extendAttr_add.modal input[name="extendAttr_add_name"]').val(json.name);
@@ -556,9 +646,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     //扩展属性集-删除
     $('.extendAttrDelBtn').on('click', function() {
       var tr = $(this).parents('.grid').find('tbody tr.active');
-      if(tr.length > 0) {
+      if (tr.length > 0) {
         tr.remove();
-      }else{
+      } else {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
     })
@@ -568,11 +658,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.timeoutLimit_add').find('input[name], select').each(function() {
         deadline[$(this).attr('name')] =$(this).val();
       })
-      if(!deadline.deadlineCondition){
+      if (!deadline.deadlineCondition) {
         layer.msg('请输入持续时间！', {time: 2000, icon:2});
         return false;
       }
-      if(!deadline.exceptionName){
+      if (!deadline.exceptionName) {
         layer.msg('请输入异常名称！', {time: 2000, icon:2});
         return false;
       }
@@ -590,10 +680,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     //超时限制-删除
     $('.timeoutLimitRemoveBtn').on('click', function() {
       var tr = $(this).parents('.grid').find('tbody tr.active');
-      if(tr.length > 0) {
+      if (tr.length > 0) {
         tr.remove();
         $(".timeout_limit_grid .content-div").mCustomScrollbar("update");
-      }else{
+      } else {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
     })
@@ -612,6 +702,39 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.timeoutLimit_add.modal input[name="timeoutLimit_add_operate"]').val("1");
       $('.timeoutLimitAddBtn').trigger('click');
     })
+    //常规-定义
+    $('.conventional').on('click', '.definitionBtn', function(event) {
+      var rol_id = $('.conventional select[name="definition_role"]').siblings('.text').attr('definition_id');
+      // var rol_id = $('.conventional select[name="definition_role"]').dropdown('get value');
+      if (rol_id) { // 编辑
+        $('.conventional_definition input[name="conventional_def_operate"]').val(1);//页面标记 1：代表编辑
+        var participants = thisGraph.participants;
+        for (var i in participants) {
+          if (participants[i].conventional_definition_id == rol_id) {
+            var participant = participants[i];
+            $('.conventional_definition div[data-tab="definition_1"]').find('input[name]:not(".hidden"), textarea').each(function() {
+              $(this).val(participant[$(this).attr('name')]);
+            });
+            for (var j in participant.typeName) {
+              $('.conventional_definition .definition_condition tbody').append(
+                  '<tr>'+
+                  '  <td name="typeName">'+participant.typeName[j]+'</td>'+
+                  '  <td name="itemName">'+participant.itemName[j]+'</td>'+
+                  '  <td name="itemValue">'+participant.itemValue[j]+'</td>'+
+                  '  <td name="secLevelS">'+participant.secLevelS[j]+'</td>'+
+                  '  <td name="secLevelE">'+participant.secLevelE[j]+'</td>'+
+                  '  <td name="roleName">'+participant.roleName[j]+'</td>'+
+                  '</tr>');
+            }
+          }
+        }
+      } else { //增加
+        $('.conventional_definition input[name="conventional_definition_id"]').val(workflow_id + "_Par" + conventional_par);
+        conventional_par++;
+      }
+    });
+    
+    
     //常规-定义-高级-增加条件
     $('.conventional_definition .definition_addBtn').on('click', function() {
       var typeName = $('.conventional_definition [data-tab="definition_2"]>.menu>.item.active').text(),
@@ -664,7 +787,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     //常规-定义-高级-删除条件
     $('.conventional_definition .definition_removeBtn').on('click', function() {
       var select = $('.conventional_definition .definition_condition tbody tr.active');
-      if (select.length>0) {
+      if (select.length > 0) {
         select.remove();
         $(".definition_condition").mCustomScrollbar("update");
       } else {
@@ -673,20 +796,39 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     });
     //常规-定义-确定
     $('.conventional_definition .green.button').on('click', function() {
-      var participant = {};
-      $('.conventional_definition div[data-tab="definition_1"]').find('input[name], select').each(function() {
+      var operate = $('.conventional_definition input[name="conventional_def_operate"]').val(),
+        currentId = $('.conventional_definition input[name="conventional_definition_id"]').val(),
+        participant = {};
+      $('.conventional_definition div[data-tab="definition_1"]').find('input[name]:not(".hidden"), textarea').each(function() {
         participant[$(this).attr('name')] = $(this).val();
       });
-      $('.conventional_definition div[data-tab="definition_2"] tbody').find('tr').each(function() {
-        $(this).find('td').each(function(){
-          participant[$(this).attr('name')] = participant[$(this).attr('name')] || [];
-          participant[$(this).attr('name')].push($(this).text());
+      if (participant.conventional_definition_participant) {//自定义参与者
+
+      } else {
+        $('.conventional_definition div[data-tab="definition_2"] tbody').find('tr').each(function() {
+          $(this).find('td').each(function(){
+            participant[$(this).attr('name')] = participant[$(this).attr('name')] || [];
+            participant[$(this).attr('name')].push($(this).text());
+          });
+          participant['roleName'] = participant['roleName'] || []
+          participant['roleName'].push('party');//常规定义参与者 角色默认是party
         });
-        participant['roleName'] = participant['roleName'] || []
-        participant['roleName'].push('party');//常规定义参与者 角色默认是party
-      });
-      //thisGraph.participants = [];
-      thisGraph.participants.push(participant);
+      }
+
+      if (operate) {// 1：编辑
+        for (var i in thisGraph.participants) {
+          var p = thisGraph.participants[i];
+          if (p.conventional_definition_id == currentId) {
+            thisGraph.participants[i] = participant;
+          }
+        }
+      } else {// '':保存
+        thisGraph.participants.push(participant);
+      }
+      var rol = participant.conventional_definition_name?participant.conventional_definition_name + "-rol":participant.conventional_definition_id + "-rol";
+      $('.conventional select[name="definition_role"]').dropdown('set text', rol);
+      $('.conventional .dropdown .text').attr('definition_id', participant.conventional_definition_id);
+
     });
     
     //监控信息-删除
@@ -727,13 +869,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         for (var i in participants) {
           if (participants[i].conventional_definition_id == rol) {
             var participant = participants[i];
-            $('.monitorinfAddDefinition div[data-tab="definition_one"]').find('input[name]:not(".hidden"),textarea').each(function() {
+            $('.monitorinfAddDefinition div[data-tab="definition_one"]').find('input[name]:not(".hidden"), textarea').each(function() {
               $(this).val(participant[$(this).attr('name')]);
             });
             $('.monitorinfAddDefinition div[data-tab="definition_one"]').find('select').each(function() {
               $(this).dropdown('set selected', participant[$(this).attr('name')]);
             });
-            for(var j in participant.typeName){
+            for (var j in participant.typeName) {
               $('.monitorinfAddDefinition .definition_condition tbody').append(
                   '<tr>'+
                   '  <td name="typeName">'+participant.typeName[j]+'</td>'+
@@ -794,7 +936,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                 '</tr>');
       $(".monitorinfAddDefinition .definition_condition").mCustomScrollbar("update");
       $(".monitorinfAddDefinition .definition_condition").mCustomScrollbar("scrollTo", "bottom", {
-        scrollInertia:1500
+        scrollInertia: 1500
       });
     });
     //监控信息-增加-定义-高级-删除条件
@@ -829,7 +971,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             thisGraph.participants[i] = participant;
           }
         }
-      } else {
+      } else {// '':保存
         thisGraph.participants.push(participant);
       }
 
@@ -855,8 +997,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     })
 
   };
-
-  GraphCreator.prototype.getExtendedAttributes = function(node, deadlineXpdl) {
+  // 获取activity的ExtendedAttributes
+  GraphCreator.prototype.getExtendedAttributes = function(node, deadlineXpdl, conventionalXpdl) {
     var extendAttr = node.extendAttr;
     var highLevel = node.highLevel;
     var highLevelXpdl = '',
@@ -871,22 +1013,22 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       highLevelXpdl = '<ExtendedAttribute Name="deadline" />'
     }
     isCreateNew = node.frontCondition.isCreateNew?'<ExtendedAttribute Name="isCreateNew" Value="'+node.frontCondition.isCreateNew+'"/>':'';
-    voteModel = node.frontCondition.voteModel&&node.frontCondition.voteText?'<ExtendedAttribute Name="syncType" Value="'+node.frontCondition.voteModel+'|'+node.frontCondition.voteText+'"/>':'';
+    voteModel = node.frontCondition.voteModel!="0"&&node.frontCondition.voteText?'<ExtendedAttribute Name="syncType" Value="'+node.frontCondition.voteModel+'|'+node.frontCondition.voteText+'"/>':'';
     responsible = node.monitorinf.responsible?'<ExtendedAttribute Name="responsible" Value="'+node.monitorinf.responsible.join(',')+'"/>':'<ExtendedAttribute Name="responsible"/>'
 
     var ExtendedAttributes = 
             '<ExtendedAttributes>'
-          + '   <ExtendedAttribute Name="isMulInstance" Value="false"/>'
+          +     conventionalXpdl.isMulInstance
           + '   <ExtendedAttribute Name="isResponsibleTem" Value="'+node.monitorinf.isResponsibleTem+'"/>'
           +     responsible
-          + '   <ExtendedAttribute Name="MustActivity" Value="true"/>'
+          +     conventionalXpdl.mustActivity
           +     isCreateNew
           +     voteModel
-          + '   <ExtendedAttribute Name="taskAssignMode" Value="taskAutoMode"/>'
-          + '   <ExtendedAttribute Name="assignmentsOrder" Value="false"/>'
-          + '   <ExtendedAttribute Name="completeAllAssignments" Value="false"/>'
-          + '   <ExtendedAttribute Name="autoAcceptAllAssignments" Value="true"/>'
-          + '   <ExtendedAttribute Name="isResponsible" Value="true"/>'
+          +     conventionalXpdl.taskAssignMode
+          +     conventionalXpdl.assignmentsOrder
+          +     conventionalXpdl.completeAllAssignments
+          +     conventionalXpdl.autoAcceptAllAssignments
+          +     conventionalXpdl.isResponsible
           +     highLevelXpdl
           +     deadlineXpdl.deadline
           + '   <ExtendedAttribute Name="FinishRule"/>'
@@ -894,7 +1036,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           +     deadlineXpdl.warnTime
           +     deadlineXpdl.warnAgentClassName
           +     deadlineXpdl.limitAgentClassName
-          + '   <ExtendedAttribute Name="ParticipantID"/>'
+          +     conventionalXpdl.participantID
           + '   <ExtendedAttribute Name="XOffset" Value="'+node.x+'"/>'
           + '   <ExtendedAttribute Name="YOffset" Value="'+node.y+'"/>';
     if (extendAttr) {
@@ -906,6 +1048,25 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     ExtendedAttributes +=
             '</ExtendedAttributes>';
     return ExtendedAttributes;
+  }
+  //获取常规相应的xpdl
+  GraphCreator.prototype.conventionalXpdl = function(node) {
+    var thisGraph = this,
+      conventional = node.conventional,
+      conventionalXpdl = {};
+    conventionalXpdl.startMode = conventional.startMode=='automatic'?'<StartMode><Automatic/></StartMode>':'<StartMode><Manual/></StartMode>';
+    conventionalXpdl.finishMode = conventional.finishMode=='automatic'?'<FinishMode><Automatic/></FinishMode>':'<FinishMode><Manual/></FinishMode>';
+    conventionalXpdl.isMulInstance = conventional.isMulInstance?'<ExtendedAttribute Name="isMulInstance" Value="true"/>':'<ExtendedAttribute Name="isMulInstance" Value="false"/>';
+    conventionalXpdl.isResponsible = conventional.isResponsible?'<ExtendedAttribute Name="isResponsible" Value="true"/>':'<ExtendedAttribute Name="isResponsible" Value="false"/>'
+    conventionalXpdl.autoAcceptAllAssignments = conventional.autoAcceptAllAssignments?'<ExtendedAttribute Name="autoAcceptAllAssignments" Value="true"/>':'<ExtendedAttribute Name="autoAcceptAllAssignments" Value="false"/>'    
+    conventionalXpdl.completeAllAssignments = conventional.completeAllAssignments?'<ExtendedAttribute Name="completeAllAssignments" Value="true"/>':'<ExtendedAttribute Name="completeAllAssignments" Value="false"/>';
+    conventionalXpdl.assignmentsOrder = conventional.assignmentsOrder?'<ExtendedAttribute Name="assignmentsOrder" Value="true"/>':'<ExtendedAttribute Name="assignmentsOrder" Value="false"/>'
+    conventionalXpdl.description = conventional.description?'<Description>'+conventional.description+'</Description>':'';
+    conventionalXpdl.taskAssignMode = '<ExtendedAttribute Name="taskAssignMode" Value="'+conventional.taskAssignMode+'"/>';
+    conventionalXpdl.mustActivity = conventional.mustActivity?'<ExtendedAttribute Name="MustActivity" Value="true"/>':'<ExtendedAttribute Name="MustActivity" Value="false"/>';
+    conventionalXpdl.participantID = conventional.participantID?'<ExtendedAttribute Name="ParticipantID" Value="'+conventional.participantID+'"/>':'<ExtendedAttribute Name="ParticipantID"/>';
+    conventionalXpdl.performer = conventional.performer?'<Performer>'+conventional.performer+'</Performer>':'';
+    return conventionalXpdl;
   }
   //获取超时限制相应的xpdl 
   GraphCreator.prototype.deadlineXpdl = function(node) {
@@ -956,11 +1117,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     edges.forEach(function (edge) {
       var source = edge.source.component;
       var target = edge.target.component;
-      if( source != "startComponent" && target != "endComponent"){
+      if ( source != "startComponent" && target != "endComponent") {
         if (edge.source == node){
           numOut++;
           transitionRefs += '<TransitionRef Id="'+edge.edgeId+'"/>'
-        }else if (edge.target == node){
+        } else if (edge.target == node){
           numIn++;
         }
       }
@@ -1038,8 +1199,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var nodes = thisGraph.nodes,
       curText = start,
       activity = '';
-    for(var i in nodes){
-      if(nodes[i].type=='activity'){
+    for (var i in nodes) {
+      if (nodes[i].type == 'activity') {
         activity = '<activity Id="'+nodes[i].id+'" Name="'+nodes[i].title+'" form-id="" formdisplayschema="" hisformdisplayschema="">'+
                    '  <operations/>'+
                    '  <text-limit/>'+
@@ -1067,25 +1228,25 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var error = {
       messages: []
     };
-    var activities = "";
-    var nodes_act = [],
-        nodes_start = '',
-        nodes_end = '';
+    var activities = "",
+      nodes_act = [],
+      nodes_start = '',
+      nodes_end = '';
 
-    nodes.forEach(function(node){
-        if(node.type == 'activity'){
+    nodes.forEach(function(node) {
+        if (node.type == 'activity') {
           nodes_act.push(node);
         }
-        if(node.type == 'start'){
-          for(var i in edges){
-            if(edges[i].source == node){
+        if (node.type == 'start') {
+          for (var i in edges) {
+            if (edges[i].source == node) {
                nodes_start += '<ExtendedAttribute Name="StartOfWorkflow" Value="none;'+edges[i].target.id+';'+node.x+';'+node.y+';NOROUTING"/>'
             }
           }
         }
-        if(node.type == 'end'){
-          for(var i in edges){
-            if(edges[i].target == node){
+        if (node.type == 'end') {
+          for (var i in edges) {
+            if (edges[i].target == node) {
                nodes_end += '<ExtendedAttribute Name="EndOfWorkflow" Value="none;'+edges[i].source.id+';'+node.x+';'+node.y+';NOROUTING"/>'
             }
           }
@@ -1094,83 +1255,76 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     nodes_act.forEach(function (node) {
       var activity_inOut = thisGraph.activityInOutNum(node);
       var deadlineXpdl = thisGraph.deadlineXpdl(node);
+      var conventionalXpdl = thisGraph.conventionalXpdl(node);
       switch (node.component) {
         case "activityComponent"://普通活动
           activities 
              += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
-              + deadlineXpdl.limit
+              +      deadlineXpdl.limit
+              +      conventionalXpdl.description
               + '    <Implementation>'
               + '        <No/>'
               + '    </Implementation>'
-              + '    <StartMode>'
-              + '        <Manual/>'
-              + '    </StartMode>'
-              + '    <FinishMode>'
-              + '        <Manual/>'
-              + '    </FinishMode>'
+              +      conventionalXpdl.performer
+              +      conventionalXpdl.startMode
+              +      conventionalXpdl.finishMode
               + '    <Priority/>'
-              + deadlineXpdl.deadlines
-              + thisGraph.getTransitionRestrictions(node, activity_inOut)
-              + thisGraph.getExtendedAttributes(node, deadlineXpdl)
+              +      deadlineXpdl.deadlines
+              +      thisGraph.getTransitionRestrictions(node, activity_inOut)
+              +      thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)
               + '</Activity>';
           break;
         case "blockActivity": //块活动
           activities
              += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
-              + deadlineXpdl.limit
+              +      deadlineXpdl.limit
+              +      conventionalXpdl.description
               + '    <BlockActivity BlockId="Package_H00387DJ_Wor1_Ase2"/>'
-              + '    <StartMode>'
-              + '        <Manual/>'
-              + '    </StartMode>'
-              + '    <FinishMode>'
-              + '        <Manual/>'
-              + '    </FinishMode>'
+              +      conventionalXpdl.performer
+              +      conventionalXpdl.startMode
+              +      conventionalXpdl.finishMode
               + '    <Priority/>'
-              + deadlineXpdl.deadlines
-              + thisGraph.getTransitionRestrictions(node, activity_inOut)
-              + thisGraph.getExtendedAttributes(node, deadlineXpdl)
+              +      deadlineXpdl.deadlines
+              +      thisGraph.getTransitionRestrictions(node, activity_inOut)
+              +      thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)
               + '</Activity>';   
           break;
         case "subFlowActivity": //子活动
           activities
              += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
-              + deadlineXpdl.limit
+              +      deadlineXpdl.limit
+              +      conventionalXpdl.description
               + '    <Implementation>'
               + '        <SubFlow Execution="SYNCHR" Id="Package_6MT7F8C0_Wor4"/>'//subFlowId是什么东西??
               + '    </Implementation>'
-              + '    <StartMode>'
-              + '        <Manual/>'
-              + '    </StartMode>'
-              + '    <FinishMode>'
-              + '        <Manual/>'
-              + '    </FinishMode>'
+              +      conventionalXpdl.performer
+              +      conventionalXpdl.startMode
+              +      conventionalXpdl.finishMode
               + '    <Priority/>'
-              + deadlineXpdl.deadlines
-              + thisGraph.getTransitionRestrictions(node, activity_inOut)
-              + thisGraph.getExtendedAttributes(node, deadlineXpdl)
+              +      deadlineXpdl.deadlines
+              +      thisGraph.getTransitionRestrictions(node, activity_inOut)
+              +      thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)
               + '</Activity>';
           break;
         case "routeActivity": //路径活动
           activities
              += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
-              + deadlineXpdl.limit
+              +      deadlineXpdl.limit
+              +      conventionalXpdl.description
               + '    <Route/>'
-              + '    <StartMode>'
-              + '        <Automatic/>'
-              + '    </StartMode>'
-              + '    <FinishMode>'
-              + '        <Automatic/>'
-              + '    </FinishMode>'
+              +      conventionalXpdl.performer
+              +      conventionalXpdl.startMode
+              +      conventionalXpdl.finishMode
               + '    <Priority/>'
-              + deadlineXpdl.deadlines
-              + thisGraph.getTransitionRestrictions(node, activity_inOut)
-              + thisGraph.getExtendedAttributes(node, deadlineXpdl)
+              +      deadlineXpdl.deadlines
+              +      thisGraph.getTransitionRestrictions(node, activity_inOut)
+              +      thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)
               + '</Activity>';
           break;
         }
     });
     var transitions = "";
-    edges.forEach(function (edge) {
+    edges.forEach(function(edge) {
         transitions
           += '<Transition From="'+edge.source.id+'" Id="'+edge.edgeId+'" To="'+edge.target.id+'">'
            + '    <Condition/>'
@@ -1285,13 +1439,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         + '               </ExtendedAttributes>'
         + '           </Application>'
         + '       </Applications>'
-    if(nodes_act.length>0){
+    if (nodes_act.length > 0) {
       str
        += '       <Activities>'
         +             activities
         + '       </Activities>'
     }
-    if(edges.length>0){
+    if (edges.length > 0) {
       str
        += '       <Transitions>'
         +             transitions     
@@ -1484,7 +1638,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         '  <div name="" class="prop-value"><span>执行者:</span><span>无</span></div>'+
         '</div>'+
         '<div class="clearfix"></div>');
-
   }
 
   // mouseup on nodes
@@ -1579,6 +1732,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       state.justScaleTransGraph = false;
     } else if (state.graphMouseDown && d3.event.shiftKey) {
       // clicked not dragged from svg
+      console.log(thisGraph.svgG);
+      console.log(thisGraph.svgG.node());
       var xycoords = d3.mouse(thisGraph.svgG.node()),
         d = {
           id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
@@ -1751,7 +1906,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
   var xLoc = width / 2 - 25,
       yLoc = 100;
-
 
   // initial node data
   var nodes = [{
