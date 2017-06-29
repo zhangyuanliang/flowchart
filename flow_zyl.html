@@ -172,8 +172,8 @@
 				<div class="field">
     				<label>参与者集:</label>
 					<div class="two fields">
-						<div class="five wide field">
-                		  	<select class="ui search dropdown">
+						<div class="five wide field definition_field">
+                		  	<select class="ui search dropdown" name="definition_role">
       							<option value="">请选择</option>
       							<option value="0">(空)</option>
 							</select>      					
@@ -188,12 +188,14 @@
     				  	<div class="ui checkbox isTracking">
     				  	  	<input type="checkbox" tabindex="0" class="hidden">
     				  	  	<label>是否全程跟踪</label>
+    				  	  	<input type="hidden" name="isResponsible" value="">
     				  	</div>
     				</div>
     				<div class="inline field">
     				  	<div class="ui checkbox isReceiveTask">
     				  	  	<input type="checkbox" tabindex="0" class="hidden">
     				  	  	<label>是否自动接收任务委派</label>
+    				  	  	<input type="hidden" name="autoAcceptAllAssignments" value="">
     				  	</div>
     				</div>
 				</div>
@@ -201,61 +203,68 @@
 				<div class="fields">
 					<div class="five wide field">
 					    <label>开始模式:</label>
-					    <select class="ui search dropdown">
-					      	<option value="1">手动</option>
-					      	<option value="2">自动</option>
+					    <select name="startMode" class="ui search dropdown">
+					    	<option value="">开始模式</option>
+					      	<option value="manual">手动</option>
+					      	<option value="automatic">自动</option>
 					    </select>
 					</div>
 					<div class="five wide field">
 					    <label>完成模式:</label>
-					    <select class="ui search dropdown">
-					      	<option value="1">手动</option>
-					      	<option value="2">自动</option>
+					    <select name="finishMode" class="ui search dropdown">
+					    	<option value="">完成模式</option>
+					      	<option value="manual">手动</option>
+					      	<option value="automatic">自动</option>
 					    </select>
 					</div>
 				    <div class="five wide field">
 				      	<label>优先级:</label>
-				      	<input type="text" placeholder="名称">
+				      	<input name="priority" type="text" placeholder="名称">
 				    </div>
 				</div>
 				<div class="fields">
                 	<div class="inline field">
-    				  	<div class="ui checkbox handledByManyDiv">
-    				  	  	<input name="handledByMany" type="checkbox" tabindex="0" class="hidden">
+    				  	<div class="ui checkbox completeAllAssignmentsDiv">
+    				  	  	<input type="checkbox" tabindex="0" class="hidden">
     				  	  	<label>是否多人处理</label>
+    				  	  	<input type="hidden" name="completeAllAssignments" value="">
     				  	</div>
     				</div>
     				<div class="inline field">
-    				  	<div class="ui checkbox handledOrderByManyDiv">
-    				  	  	<input name="handledOrderByMany" type="checkbox" tabindex="0" class="hidden">
+    				  	<div class="ui checkbox assignmentsOrderDiv">
+    				  	  	<input type="checkbox" tabindex="0" class="hidden">
     				  	  	<label>多人处理是否顺序执行</label>
+    				  	  	<input type="hidden" name="assignmentsOrder" value="">
     				  	</div>
     				</div>
     				<div class="inline field">
     				  	<div class="ui checkbox">
-    				  	  	<input name="" type="checkbox" tabindex="0" class="hidden">
+    				  	  	<input type="checkbox" tabindex="0" class="hidden">
     				  	  	<label>按参与者生成环节实例</label>
+    				  	  	<input type="hidden" name="isMulInstance" value="">
     				  	</div>
     				</div>
 				</div>
 				<div class="field">
     			  	<label>描述：</label>
-    			  	<textarea rows="2"></textarea>
+    			  	<textarea name="description" rows="2"></textarea>
     			</div>
     			<div class="fields">
 					<div class="five wide field">
 					    <label>任务委派规则:</label>
-					    <select class="ui search dropdown">
-					      	<option value="1">自动</option>
-					      	<option value="2">部门默认</option>
-					      	<option value="3">随机</option>
+					    <select name="taskAssignMode" class="ui search dropdown">
+					    	<option value="">任务委派规则</option>
+					      	<option value="taskAutoMode">自动</option>
+					      	<option value="taskOrgConvertMode">部门默认</option>
+					      	<option value="taskRandomMode">随机</option>
 					    </select>
 					</div>
 					<div class="five wide field">
 					    <label>必须结束环节:</label>
-					    <select class="ui search dropdown">
-					      	<option value="1">是</option>
-					      	<option value="2">否</option>
+					    <select name="mustActivity" class="ui search dropdown">
+					    	<option value="">必须结束环节</option>
+					      	<option value="true">是</option>
+					      	<option value="false">否</option>
 					    </select>
 					</div>
 				</div>
@@ -712,6 +721,7 @@
 				    <label>自定义参与者:</label>
 				    <input name="conventional_definition_participant" type="text" placeholder="自定义参与者">
 				</div>
+				<input type="hidden" class="hidden" name="conventional_def_operate" value="">
 			</div>
 		</div>
 		<div class="ui tab segment" data-tab="definition_2">
@@ -1806,12 +1816,12 @@
 				}  
 			} 
 		};
-		function OnClick(event, treeId, treeNode){
+		function OnClick(event, treeId, treeNode) {
 			layer.close(treelayer);
 			$('.tab.active').find('.classifybtn').first().html(treeNode.name);
 			$('.tab.active').find('.classifybtn').first().attr("treeId", treeNode.id);
 			var dataTab = $('.tab.active').attr("data-tab");
-			if(dataTab=='second'){
+			if (dataTab == 'second') {
 				$('div[data-tab="second"] input').val("");
 				$.ajax({
 			  		url: "../organise/organiseTree.do",
@@ -1819,11 +1829,11 @@
 			  		data: {"type": treeNode.id},
 			  		success: function(result) {
 			  			$('#hasAnswerCont').empty();
-			  			if(result.data.length!=0){
+			  			if (result.data.length != 0) {
 				  			//显示数据
 							$('#hasAnswerCont').html(juicer($('#hasAnswerTpl').html(), result));
 							$('.ui.radio.checkbox').checkbox();
-			  			}else{
+			  			} else {
 			  				$('#hasAnswerCont').html('<div class="no-info">暂无信息...</div>');
 			  			}
 			  		},
@@ -1833,7 +1843,7 @@
 			  	});
 			}
 		}
-		function onsuccess(event, treeId, treeNode, msg){
+		function onsuccess(event, treeId, treeNode, msg) {
 			/*var dataJson = JSON.parse(msg);
 			if(dataJson[0].path=='/root/jnszfgjjglzx'){
 				var node = zTree.getNodeByParam("path", "/root/jnszfgjjglzx", null);
@@ -1841,38 +1851,38 @@
 			}*/
 		}
 	
-		$(function(){
-			$('.conventional .definitionBtn').on('click', function(){
+		$(function() {
+			/*$('.conventional .definitionBtn').on('click', function() {
 				$('.conventional_definition input[name="conventional_definition_id"]').val(workflow_id +"_Par"+ conventional_par);
 				conventional_par++;
-			})
-			
+			})*/
+
 			//数据表格添加点击选中行
-			$('.toolgrid,.extended_attr tbody').on('click', 'tr', function(){
+			$('.toolgrid,.extended_attr tbody').on('click', 'tr', function() {
 				$(this).addClass('active').siblings().removeClass('active');
 				$(this).find('input:radio').prop('checked','checked');
 			});	
-			$('.post_condition .list .item').on('click', function(){
+			$('.post_condition .list .item').on('click', function() {
 				$(this).addClass('active').siblings().removeClass('active');
 			});	
 			
-			$('.monitorinf,.conventional_definition,.timeout_limit,.monitorinfAddDefinition tbody').on('click', 'tr', function(){
+			$('.monitorinf,.conventional_definition,.timeout_limit,.monitorinfAddDefinition tbody').on('click', 'tr', function() {
 				$(this).addClass('active').siblings().removeClass('active');
 			});	
 			
-			$('.front_condition .dropdown.convergeType').on('change', function(e){
+			$('.front_condition .dropdown.convergeType').on('change', function(e) {
 				var convergeType = $(this).val();
-				if(convergeType == 0){//空
+				if (convergeType == 0) {//空
 					// $(this).parents('.field').siblings().hide();
 					$(this).parents('.field').siblings().addClass('hideDiv');
 				}
-				if(convergeType	== 'AND'){//And
+				if (convergeType == 'AND') {//And
 					/*$(this).parents('.field').siblings().eq(0).show();
 					$(this).parents('.field').siblings().eq(1).hide();*/
 					$(this).parents('.field').siblings().eq(0).removeClass('hideDiv');
 					$(this).parents('.field').siblings().eq(1).addClass('hideDiv');
 				}
-				if(convergeType	== 'XOR'){//Xor
+				if (convergeType == 'XOR') {//Xor
 					/*$(this).parents('.field').siblings().eq(0).hide();
 					$(this).parents('.field').siblings().eq(1).show();*/
 					$(this).parents('.field').siblings().eq(0).addClass('hideDiv');
@@ -1880,7 +1890,7 @@
 				}
 			});
 			//编辑工具(保存)
-			$('.editor-toolbar .icon.save').on('click', function(){
+			$('.editor-toolbar .icon.save').on('click', function() {
 				var dataTab = $('.full-right-btn .item.active').attr('data-tab');
 				$('.full-right-btn .item').not($('.full-right-btn .item.active')).trigger('click');//触发点击事件获取xpdl和xml
 				$('.full-right-btn .item[data-tab="'+dataTab+'"]').trigger('click');
@@ -1948,13 +1958,13 @@
 				
 			});
 			//控制属性显示
-			$('.component-name').on('click', function(){
+			$('.component-name').on('click', function() {
 				if ($('.component-prop').is(':hidden')) {
 					$('.full-right-bottom ').css({height: '30%'});
 					$('.view').css({height: '65%'});
 					$('.component-name .icon').removeClass('up').addClass('down');
 					$('.component-prop').toggle('slow');
-				}else{
+				} else {
 					$('.full-right-bottom ').css({height: '8%'});
 					$('.view').css({height: '87%'});
 					$('.component-name .icon').removeClass('down').addClass('up');
@@ -1962,17 +1972,17 @@
 				}
 			});
 			//选择左侧工具
-			$('#flowComponents .components-btn').on('click', function(){
+			$('#flowComponents .components-btn').on('click', function() {
 				$(this).siblings().removeClass('active').end().addClass('active');
-				if('drawLineBtn'==$(this).attr('name')){
-					$('#container').on('mouseover mouseout', '.conceptG', function(){
-						if(event.type == 'mouseover'){
+				if ('drawLineBtn' == $(this).attr('name')) {
+					$('#container').on('mouseover mouseout', '.conceptG', function() {
+						if (event.type == 'mouseover') {
 	        				this.style.cursor = 'crosshair';
-	     				}else if(event.type == 'mouseout'){
+	     				} else if (event.type == 'mouseout') {
 	        				this.style.cursor = 'default';
 	      				}
 					});
-				}else{
+				} else {
 					$('#container').off('mouseover mouseout', '.conceptG');
 				}
 			});
@@ -1980,7 +1990,7 @@
 	    
 	</script>
 	<script>
-		$(function(){
+		$(function() {
 			var initProp = '<div>'+
 								'<div name="id" class="prop-value"><span>id:</span><span>'+workflow_id+'</span></div>'+
 								'<div name="name" class="prop-value"><span>名称:</span><span>'+workflow_name+'</span></div>'+
@@ -1993,7 +2003,7 @@
 			$('.menu .item').on('click', updateScrollbar);
 		})
 		
-		$(function(){
+		$(function() {
 			$('#rMenu').hide();
 			//semantic初始化
 			$('.pop-btn').popup();
@@ -2007,13 +2017,35 @@
 			})
 			$('select.dropdown').dropdown();
 			// $('.dropdown.definition_2e_role').dropdown('set selected(value)', 2);
-			$('.ui.checkbox').checkbox();
-			$('.checkbox.isReceiveTask, .checkbox.isTracking').checkbox('check');
-			$('.checkbox.handledOrderByManyDiv').checkbox({
-    			onChecked: function() {
-					$('.checkbox.handledByManyDiv').checkbox('check');
+			$('.ui.checkbox').checkbox({
+				onChecked: function() {
+					$(this).parents('.checkbox').find('input[name]').val(true);
+				},
+				onUnchecked: function() {
+					$(this).parents('.checkbox').find('input[name]').val(false);
 				}
 			});
+			//checkbox 多人处理是否顺序执行 
+			$('.checkbox.assignmentsOrderDiv').checkbox({
+    			onChecked: function() {
+    				$(this).parents('.checkbox').find('input[name]').val(true);
+					$('.checkbox.completeAllAssignmentsDiv').checkbox('check');
+				},
+				onUnchecked: function() {
+					$(this).parents('.checkbox').find('input[name]').val(false);
+				}
+			});
+			//checkbox 是否多人处理
+			$('.checkbox.completeAllAssignmentsDiv').checkbox({
+    			onChecked: function() {
+    				$(this).parents('.checkbox').find('input[name]').val(true);
+				},
+				onUnchecked: function() {
+					$('.checkbox.assignmentsOrderDiv').checkbox('uncheck');
+					$(this).parents('.checkbox').find('input[name]').val(false);
+				}
+			});
+
 			$('.front_condition .radio.checkbox').checkbox({
 				onChecked: function() {
 					$('.front_condition').find('input[name="isCreateNew"]').val($(this).attr('tabindex'));
@@ -2024,11 +2056,13 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.prop_layer').dimmer('hide');
           			clearModal(this);
+          			$(this).find('tbody').empty();
+          			$('.conventional_definition .menu .item[data-tab="definition_1"]').trigger('click');
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.conventional .definitionBtn');
@@ -2037,11 +2071,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.prop_layer').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.prop_layer .toolAddBtn');
@@ -2050,11 +2084,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.tool_add').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.tool_add .actualParametersAdd2');
@@ -2063,11 +2097,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.prop_layer').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.prop_layer .extendAttrAddBtn');
@@ -2076,11 +2110,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.prop_layer').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.prop_layer .timeoutLimitAddBtn');
@@ -2089,11 +2123,11 @@
 				allowMultiple: true,
 				autofocus: false, 
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.prop_layer').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.prop_layer .monitorinfAddBtn');
@@ -2107,7 +2141,7 @@
           			clearModal(this);
           			$(this).find('tbody').empty();
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.monitorinf_add').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.monitorinf_add .definitionBtn');
@@ -2116,11 +2150,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.tool_add').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.tool_add .definitionBtn');
@@ -2129,11 +2163,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.tooldefinition').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.tooldefinition').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.tooldefinition .tooldefinitionAddBtn');
@@ -2142,11 +2176,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.tooldefinition_add').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.tooldefinition_add').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.tooldefinition_add .tooldefinitionAddAddBtn');
@@ -2155,11 +2189,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.tool_add').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.tool_add .actualParametersAdd1');
@@ -2168,11 +2202,11 @@
 				allowMultiple: true,
 				autofocus: false,
 				duration: {},
-				onHidden: function(){
+				onHidden: function() {
           			$('.modal.actualParametersDiv').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.actualParametersDiv').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.actualParametersDiv .definitionBtn');
@@ -2185,7 +2219,7 @@
           			$('.modal.toolAddDefinition').dimmer('hide');
           			clearModal(this);
           		},
-				onShow: function () {
+				onShow: function() {
           			$('.modal.toolAddDefinition').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.toolAddDefinition .toolAddDefinitionAddBtn');
