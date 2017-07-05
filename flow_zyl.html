@@ -467,21 +467,7 @@
 				</div>
 				<div class="ui horizontal divider">选择目标活动</div>
 				<div class="ui middle aligned list">
-				    <div class="item active">
-				        <div class="content">
-				          	<div class="">普通</div>
-				        </div>
-				    </div>
-				    <div class="item">
-				      	<div class="content">
-				      	  	<div class="">普通活动</div>
-				      	</div>
-				    </div>
-				    <div class="item">
-				      	<div class="content">
-				      	  	<div class="">块活动</div>
-				      	</div>
-				    </div>
+
 				</div>
 				<div class="ui top attached tabular mini menu">
 		    	  	<a class="active item" data-tab="four/a">转移信息</a>
@@ -493,19 +479,19 @@
 						<div class="fields">
 						    <div class="four wide field">
 						      <label>ID:</label>
-						      <input type="text" placeholder="ID">
+						      <input type="text" name="edgeId" placeholder="ID">
 						    </div>
 						    <div class="four wide field">
 						      <label>名称:</label>
-						      <input type="text" placeholder="名称">
+						      <input type="text" name="edgeName" placeholder="名称">
 						    </div>
 						    <div class="four wide field">
 							    <label>来自:</label>
-							    <input type="text" placeholder="来自">
+							    <input type="text" name="source" placeholder="来自" disabled="disabled">
 							</div>
 							<div class="four wide field">
 							    <label>到:</label>
-							    <input type="text" placeholder="到">
+							    <input type="text" name="target" placeholder="到" disabled="disabled">
 							</div>
 						</div>
 						
@@ -513,39 +499,222 @@
 						
 						<div class="field">
 		    			  	<label>描述：</label>
-		    			  	<textarea rows="2"></textarea>
+		    			  	<textarea name="description" rows="2"></textarea>
 		    			</div>
+						<div class="ui horizontal divider">扩展属性集</div>
+		    			<div class="ui mini form grid transferInf_extended_attr">
+						  	<div class="computer only row">
+						  		<div class="twelve wide tablet computer column content-div">
+						  			<table class="ui blue sortable selectable celled striped compact table">
+										<thead>
+											<tr>
+												<th class="one wide">选择</th>
+												<th class="two wide">名</th>
+												<th class="two wide">值</th>
+											</tr>
+										</thead>
+										<tbody>
+											
+										</tbody>
+									</table>
+						  		</div>
+						    	<div class="three wide column">
+						    		<div class="ui vertical">
+								    	<button class="ui positive basic mini button extendAttrAddBtn"><i class="icon plus"></i> 添 加</button>
+										<button class="ui primary basic mini button extendAttrEditBtn"><i class="icon write"></i> 编 辑</button>
+										<button class="ui negative basic mini button extendAttrDelBtn"><i class="icon remove"></i> 删 除</button>
+								  	</div>
+						    	</div>
+						  	</div>
+						</div>
 		    			
 					</div>
 		    	</div>
 		    	<div class="ui bottom attached tab segment" data-tab="four/b">
 		    		<div class="ui mini form">
-						<div class="five wide field">
-						    <label>类型:</label>
-						    <select class="ui search dropdown">
-						      	<option value="">选择</option>
-						      	<option value="0">(空)</option>
-						      	<option value="1">其它</option>
-						      	<option value="2">异常</option>
-						      	<option value="3">按业务对象转移</option>
-						      	<option value="4">按业务对象转移</option>
-						    </select>
-						</div>
+			    		<div class="inline fields">
+							<div class="five wide field">
+							    <label>类型:</label>
+							    <select name="conditype" class="ui search dropdown">
+							      	<option value="">选择</option>
+							      	<option value="0">(空)</option>
+							      	<option value="OTHERWISE">其它</option>
+							      	<option value="EXCEPTION">异常</option>
+							      	<option value="WORKFLOWBEAN">按业务对象转移</option>
+							      	<option value="CONDITION">条件</option>
+							      	<option value="TACHE">环节名称转移</option>
+							      	<option value="USERDEFINE">用户自定义</option>
+							      	<option value="DEFAULTEXCEPTION">缺省异常</option>
+							      	<option value="CUSTOM">自定义转移</option>
+							    </select>
+							</div>
+			    		</div>
+			    		<!-- 条件设置-类型-异常 -->
+						<div class="myitem hideDiv exceptionDiv">
+							<div class="five wide field">
+							    <label>请选择异常:</label>
+							    <select name="" class="ui search dropdown">
+							      	<option value="">请选择异常</option>
+							      	<option value="0">(空)</option>
+							    </select>
+							</div>
+			            </div>
+			            <!-- 条件设置-类型-按业务对象转移 -->
+			            <div class="myitem hideDiv workflowbeanDiv">
+				            <div class="fields">
+								<div class="five wide field">
+								    <label>业务对象:</label>
+								    <select name="" class="ui search dropdown">
+								      	<option value="">请选择业务对象</option>
+								      	<option value="0">(空)</option>
+								      	<option value="1">发送人</option>
+								      	<option value="2">创建人</option>
+								    </select>
+								</div>
+								<div class="five wide field">
+								    <label>默认字段:</label>
+								    <select name="" class="ui search dropdown">
+								      	<option value="0">默认</option>
+								    </select>
+								</div>
+							</div>
+							<button class="ui positive basic mini button _addBtn"><i class="icon plus"></i> 增 加 条 件</button>
+							<button class="ui negative basic mini button _removeBtn"><i class="icon remove"></i> 删 除 条 件</button>
+							<div class="ui divider"></div>
+					        <div class="ui grid content-div business_obj">
+							  	<div class="computer only row">
+							  		<div class="tablet computer column">
+							  			<table class="ui blue sortable selectable celled striped compact table">
+							  				<thead>
+												<tr>
+													<th class="two wide">编号</th>
+													<th class="two wide">业务对象</th>
+													<th class="two wide">参数字段</th>
+													<th class="two wide">方法</th>
+													<th class="two wide">运算符1</th>
+													<th class="two wide">参考值1</th>
+													<th class="two wide">关系</th>
+													<th class="two wide">运算符2</th>
+													<th class="two wide">参考值2</th>
+													<th class="two wide">返回类型</th>
+												</tr>
+											</thead>
+											<tbody>
+												
+											</tbody>
+										</table>
+							  		</div>
+							  	</div>
+							</div>	
+							<div class="field">
+								<div class="two fields">
+									<div class="seven wide field">
+				            	   		<input type="text" placeholder="整体关系">			
+				            	   	</div>
+				            	   	<div class="five wide field">
+										<button class="ui facebook mini button definitionBtn"><i class="write icon"></i>关系设置</button>
+				            	   	</div>
+				            	</div>
+				            </div>
+			            </div>
+			            <!-- 条件设置-类型-条件 -->
+			            <div class="myitem hideDiv conditionDiv">
+			            	<div class="ui horizontal divider">字段条件</div>
+			            	<div class="inline fields">
+								<div class="five wide field">
+								    <label>字段:</label>
+								    <select name="" class="ui search dropdown">
+								      	<option value="">请选择</option>
+								      	<option value="0">(空)</option>
+								      	<option value="1">sourceReferenceId</option>
+								      	<option value="2">formId</option>
+								      	<option value="3">nextActivityName</option>
+								      	<option value="4">formType</option>
+								    </select>
+								</div>
+			            		<div class="five wide field">
+								    <label>条件1:</label>
+								    <select name="" class="ui search dropdown">
+								      	<option value="">请选择</option>
+								      	<option value="0">(空)</option>
+								    </select>
+								</div>
+								<div class="five wide field">
+								    <label>参考值1:</label>
+								    <input type="text" placeholder="参考值">
+								</div>
+			            	</div>
+			            	<div class="inline fields">
+								<div class="five wide field">
+								    <label>关系:</label>
+								    <select name="" class="ui search dropdown">
+								      	<option value="1">并且</option>
+								      	<option value="2">或者</option>
+								    </select>
+								</div>
+			            		<div class="five wide field">
+								    <label>条件2:</label>
+								    <select name="" class="ui search dropdown">
+								      	<option value="">请选择</option>
+								      	<option value="0">(空)</option>
+								    </select>
+								</div>
+								<div class="five wide field">
+								    <label>参考值2:</label>
+								    <input type="text" placeholder="参考值">
+								</div>
+			            	</div>
+			            	<button class="ui positive basic mini button _addBtn"><i class="icon plus"></i> 增 加 条 件</button>
+							<button class="ui negative basic mini button _removeBtn"><i class="icon remove"></i> 删 除 条 件</button>
+							<div class="ui divider"></div>
+					        <div class="ui grid content-div business_obj">
+							  	<div class="computer only row">
+							  		<div class="tablet computer column">
+							  			<table class="ui blue sortable selectable celled striped compact table">
+							  				<thead>
+												<tr>
+													<th class="three wide">字段</th>
+													<th class="three wide">条件1</th>
+													<th class="three wide">参考值1</th>
+													<th class="three wide">关系</th>
+													<th class="three wide">条件2</th>
+													<th class="three wide">参考值2</th>
+													<th class="three wide">类型</th>
+												</tr>
+											</thead>
+											<tbody>
+												
+											</tbody>
+										</table>
+							  		</div>
+							  	</div>
+							</div>
+			            </div>
+			            <!-- 条件设置-类型-用户自定义 -->
+						<div class="myitem hideDiv tacheDiv">
+							<div class="inline fields">	
+								<div class="five wide field">
+								    <label>条件:</label>
+								    <input type="text" placeholder="条件">
+								</div>
+							</div>
+			            </div>
+
 					</div>
 		    	</div>
 		    	<div class="ui bottom attached tab segment" data-tab="four/c">
 		    		<div class="ui mini form">
 						<div class="five wide field">
 						    <label>任务委派规则:</label>
-						    <select class="ui search dropdown">
+						    <select name="transitionEventType" class="ui search dropdown">
 						      	<option value="">选择</option>
-						      	<option value="1">规则1</option>
-						      	<option value="2">规则2</option>
+						      	<option value="transitionScript">脚本类型</option>
+						      	<option value="transitionClass">程序类型</option>
 						    </select>
 						</div>
 						<div class="five wide field">
 						    <label>转移事件:</label>
-						    <input type="text" placeholder="转移事件">
+						    <input type="text" name="transitionEvent" placeholder="转移事件">
 						</div>
 					</div>
 		    	</div>
@@ -688,14 +857,16 @@
 				</div>
 			</div>
 		</div><!-- 监控信息 end -->
-	  	<div class="actions inverted segment">
+	  	<div class="actions inverted">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
 			<button class="ui right floated red inverted cancel button">
 				<i class="remove icon"></i>取消
 			</button>
+			<div class="clearfix"></div>
 		</div>
+		<div class="clearfix"></div>
 	</div><!-- 属性弹出层 end -->
 	<!-- 活动属性-常规-定义 -->
 	<div class="ui coupled small modal tab conventional_definition">
@@ -1442,6 +1613,31 @@
 			<input type="hidden" name="extendAttr_add_operate" value="">		
 		</div>
   	</div>
+  	<!-- 后置条件-扩展属性-添加 -->
+	<div class="ui coupled small modal tab segment postCondition_extendAttr_add">
+  	  	<div class="ui mini form">
+  	  		<div class="fields">
+  	  			<div class="five wide field">
+			      	<label>名称:</label>
+			      	<input name="extendAttr_add_name" type="text" placeholder="名称">
+			    </div>
+			    <div class="five wide field">
+			      	<label>值:</label>
+			      	<input name="extendAttr_add_value" type="text" placeholder="值">
+			    </div>
+  	  		</div>
+			<div class="ui divider"></div>
+    		<div class="actions inverted segment">
+				<button class="ui right floated green inverted ok button">
+					<i class="checkmark icon"></i>确定
+				</button>
+				<button class="ui right floated red inverted cancel button">
+					<i class="remove icon"></i>取消
+				</button>
+			</div>
+			<input type="hidden" name="extendAttr_add_operate" value="">		
+		</div>
+  	</div>
   	<!-- 活动属性-扩展属性-添加 -->
 	<div class="ui coupled small modal tab segment extendAttr_add">
   	  	<div class="ui mini form">
@@ -1858,12 +2054,9 @@
 			})*/
 
 			//数据表格添加点击选中行
-			$('.toolgrid,.extended_attr tbody').on('click', 'tr', function() {
+			$('.toolgrid,.extended_attr,.post_condition tbody').on('click', 'tr', function() {
 				$(this).addClass('active').siblings().removeClass('active');
 				$(this).find('input:radio').prop('checked','checked');
-			});	
-			$('.post_condition .list .item').on('click', function() {
-				$(this).addClass('active').siblings().removeClass('active');
 			});	
 			
 			$('.monitorinf,.conventional_definition,.timeout_limit,.monitorinfAddDefinition tbody').on('click', 'tr', function() {
@@ -2005,6 +2198,9 @@
 		
 		$(function() {
 			$('#rMenu').hide();
+			$('#rMenu').on('mouseleave', function(){
+				$('#rMenu').hide();
+			})
 			//semantic初始化
 			$('.pop-btn').popup();
 			//jquery插件滚动条
@@ -2092,6 +2288,19 @@
           			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.tool_add .actualParametersAdd2');
+			/*  活动属性-后置条件-扩展属性-添加 */
+			$('.postCondition_extendAttr_add.modal').modal({
+				allowMultiple: true,
+				autofocus: false,
+				duration: {},
+				onHidden: function() {
+					$('.modal.prop_layer').dimmer('hide');
+          			clearModal(this);
+          		},
+				onShow: function() {
+          			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
+          		}
+			}).modal('attach events', '.post_condition .extendAttrAddBtn');
 			/* 活动属性-扩展属性-添加 */
 			$('.extendAttr_add.modal').modal({
 				allowMultiple: true,
@@ -2104,7 +2313,7 @@
 				onShow: function() {
           			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
           		}
-			}).modal('attach events', '.modal.prop_layer .extendAttrAddBtn');
+			}).modal('attach events', '.extended_attr .extendAttrAddBtn');
 			/* 超时限制-增加 */
 			$('.timeoutLimit_add.modal').modal({
 				allowMultiple: true,
