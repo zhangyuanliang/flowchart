@@ -291,22 +291,22 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           // window.alert('取消!');
         },
         onApprove: function() {
-          if(isImport){
+          if (isImport) {
             var jsonStr = $('div.json_data textarea').val();
-            if(jsonStr){
+            if (jsonStr) {
               var json = JSON.parse(jsonStr);
               var edges = [];
               var nodes =json.nodes;
 
-              for(var i in json.edges){
+              for (var i in json.edges) {
                 var source = json.edges[i].source.id;
                 var target = json.edges[i].target.id;
                 var edge = {};
                 edge.edgeId = json.edges[i].edgeId;
-                for(var j in json.nodes){
+                for (var j in json.nodes) {
                   var node = json.nodes[j].id
-                  if(source==node) edge.source = nodes[j];
-                  if(target==node) edge.target = nodes[j];
+                  if (source == node) edge.source = nodes[j];
+                  if (target == node) edge.target = nodes[j];
                 }
                 edges.push(edge);
               }
@@ -317,15 +317,15 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           }
         },
         onHidden: function(){
-          $('#div.json_data input,textarea').val('');
+          $('#div.json_data input, textarea').val('');
         }
       })
       .modal('setting', 'transition', 'scale')
       .modal('show');
 
-      if($(this).hasClass('in')){
+      if ($(this).hasClass('in')) {
         $('div.json_data .header').text('导入数据');
-      }else{
+      } else {
         $('div.json_data .header').text('导出数据');
         var json = {};
         json.nodes = thisGraph.nodes;
@@ -335,7 +335,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     });
     
     //删除单个元素
-    $('.editor-toolbar #delete-ele').on('click', function(){
+    $('.editor-toolbar #delete-ele').on('click', function() {
       var selectedNode = thisGraph.state.selectedNode,
         selectedEdge = thisGraph.state.selectedEdge;
       if (selectedNode) {
@@ -350,7 +350,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     });
     //右击菜单
-    $('#rMenu .item').on('click', function(){
+    $('#rMenu .item').on('click', function() {
       var item = $(this).attr('name');
       var selectedNode = thisGraph.state.selectedNode,
       selectedEdge = thisGraph.state.selectedEdge;
@@ -412,6 +412,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             $('.prop_layer .conventional').find('input[name], textarea, select').each(function() {
               conventional[$(this).attr('name')] = $(this).val();
             })
+            if (conventional.ID != selectedNode.id) {
+              selectedNode.id = conventional.ID;
+            }
+            if (conventional.name != selectedNode.title) {
+              selectedNode.title = conventional.name;
+            }
             var $role = $('.conventional select[name="definition_role"]');
             if ($role.dropdown('get text')[0] != '(空)') {
               conventional.performer = $role.siblings('.text').attr('definition_id');
@@ -489,7 +495,37 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               $('.extended_attr tbody').append(tr).find('.ui.checkbox').checkbox();
             }
             //展示-后置条件
-            
+            var postCondition = {};
+            thisGraph.edges.forEach(function(edge) {
+              if (edge.source == node) {
+                postCondition.targetActivities = postCondition.targetActivities || [];
+                postCondition.targetActivities.push({'activity': edge.target, 'transition': edge});
+              }
+            });
+            postCondition.targetActivities && postCondition.targetActivities.forEach(function(targetActivity) {
+              $('.post_condition .list').append('<div class="item" acivityId="'+targetActivity.activity.id+'" jsonstr='+JSON.stringify(targetActivity.transition)+'>'+
+                                                '    <div class="content">'+
+                                                '        <div class="">'+targetActivity.activity.title+'</div>'+
+                                                '    </div>'+
+                                                '</div>');
+            });
+            $('.post_condition .list').on('click', '.item', function() {
+              $(this).addClass('active').siblings().removeClass('active');
+              var transition = JSON.parse($(this).attr('jsonstr'));
+              //清空 转移信息/条件设置/事件
+              $('.post_condition .tab').find('input, textarea').val('');
+              $('.post_condition .tab').find('select').dropdown('clear');
+
+              $('.post_condition input[name="edgeId"]').val(transition.edgeId);
+              $('.post_condition input[name="edgeName"]').val(transition.edgeName || '');
+              $('.post_condition input[name="source"]').val(transition.source.title);
+              $('.post_condition input[name="target"]').val(transition.target.title);
+              $('.post_condition textarea[name="description"]').val(transition.description || '');
+              //遍历扩展属性
+              
+
+            });
+            $('.post_condition .list .item').eq(0).trigger('click');
             //展示-前置条件
             var frontCondition = node.frontCondition;
             if (frontCondition.convergeType) {
@@ -503,7 +539,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               }
             }
             //展示-工具
-            
+
             //展示-常规
             var conventional = node.conventional;
             $('.conventional').find('input[name], textarea').each(function() {
@@ -563,6 +599,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             $('.monitorinf tbody').empty(); //清空监控信息
             $('.timeout_limit tbody').empty(); //清空监控信息
             $('.extended_attr tbody').empty(); //清空扩展属性集
+            $('.post_condition tbody').empty(); //清空后置条件
+            $('.post_condition .list').empty(); //清空后置条件
 
             $('.conventional select[name="definition_role"]').siblings('.text').removeAttr('definition_id');
 
@@ -587,7 +625,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     $('#container svg .graph').on('contextmenu', function(e) {
       $('#flowComponents div[name="selectBtn"]').trigger('click');
       $('#container .conceptG').css('cursor', 'default');//防止在活动块上右击存在问题
-      $("#rMenu").css({"top":event.clientY+"px", "left":event.clientX+"px"});
+      $("#rMenu").css({"top":(event.clientY-2)+"px", "left":(event.clientX-2)+"px"});
       var selectedNode = thisGraph.state.selectedNode;
       if (selectedNode.type != 'activity') {
         $('#rMenu a[name="propMenu"]').hide();
@@ -605,6 +643,58 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('#flowComponents div[name="selectBtn"]').trigger('click');
       return false;
     });
+    //后置条件-扩展属性集-添加
+    $('.postCondition_extendAttr_add .green.button').on('click', function() {
+      var name = $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_name"]').val();
+      var value = $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_value"]').val();
+      if (!name) {
+        layer.msg('请输入名称！', {time: 2000, icon:2});
+        return false;
+      }
+      if (!value) {
+        layer.msg('请输入值！', {time: 2000, icon:2});
+        return false;
+      }
+      var data = {name:name, value:value};
+      data = {data:data, jsonstr:JSON.stringify(data)}
+      var html = juicer($('#extended_attr_tpl').html(), data);
+      var operate = $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_operate"]').val();
+      if (operate) {
+        var selectedTr = $('.transferInf_extended_attr tbody tr.active');
+        selectedTr.attr('jsonstr', data.jsonstr);
+        selectedTr.find('td').eq(1).text(data.data.name);
+        selectedTr.find('td').eq(2).text(data.data.value);
+      } else {
+        $('.transferInf_extended_attr tbody').append(html).find('.ui.checkbox').checkbox();
+        $(".transferInf_extended_attr .content-div").mCustomScrollbar("update");
+        $(".transferInf_extended_attr .content-div").mCustomScrollbar("scrollTo", "bottom", {
+          scrollInertia: 1500
+        });
+      }
+      $('.postCondition_extendAttr_add.modal input').val("");
+    })
+    //后置条件-扩展属性集-编辑
+    $('.transferInf_extended_attr .extendAttrEditBtn').on('click', function() {
+      var selectedTr = $(this).parents('.grid').find('tbody tr.active');
+      if (selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0});return false}
+      var jsonstr = $(this).parents('.grid').find('tbody tr.active').attr('jsonstr');
+      var json = JSON.parse(jsonstr);
+      $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_name"]').val(json.name);
+      $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_value"]').val(json.value);
+      $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_operate"]').val("1");
+      $('.transferInf_extended_attr .extendAttrAddBtn').trigger('click');
+    })
+    //后置条件-扩展属性集-删除
+    $('.transferInf_extended_attr .extendAttrDelBtn').on('click', function() {
+      var tr = $(this).parents('.grid').find('tbody tr.active');
+      if (tr.length > 0) {
+        tr.remove();
+        $(".transferInf_extended_attr .content-div").mCustomScrollbar("update");
+      } else {
+        layer.msg('请选择一行!', {time: 2000, icon:0});
+      }
+    })
+
     //扩展属性集-添加
     $('.extendAttr_add .green.button').on('click', function() {
       var name = $('.extendAttr_add.modal input[name="extendAttr_add_name"]').val();
@@ -632,7 +722,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.extendAttr_add.modal input').val("");
     })
     //扩展属性集-编辑
-    $('.extendAttrEditBtn').on('click', function() {
+    $('.extended_attr .extendAttrEditBtn').on('click', function() {
       var selectedTr = $(this).parents('.grid').find('tbody tr.active');
       if (selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0});return false}
       var jsonstr = $(this).parents('.grid').find('tbody tr.active').attr('jsonstr');
@@ -640,11 +730,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.extendAttr_add.modal input[name="extendAttr_add_name"]').val(json.name);
       $('.extendAttr_add.modal input[name="extendAttr_add_value"]').val(json.value);
       $('.extendAttr_add.modal input[name="extendAttr_add_operate"]').val("1");
-      $('.modal.prop_layer .extendAttrAddBtn').trigger('click');
+      $('.extended_attr .extendAttrAddBtn').trigger('click');
       // $('.extendAttr_add.modal').modal('show'); //会关闭一级弹窗
     })
     //扩展属性集-删除
-    $('.extendAttrDelBtn').on('click', function() {
+    $('.extended_attr .extendAttrDelBtn').on('click', function() {
       var tr = $(this).parents('.grid').find('tbody tr.active');
       if (tr.length > 0) {
         tr.remove();
@@ -993,6 +1083,16 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         var node = thisGraph.state.selectedNode;
         node.monitorinf.responsible = node.monitorinf.responsible || [];
         node.monitorinf.responsible.push(definition_id);
+      }
+    })
+    //后置条件-条件设置-类型
+    $('.post_condition select[name=conditype]').on('change', function(){
+      var show_cls = '.'+$(this).val().toLowerCase()+'Div';
+      var show_div = $(this).parents('.fields').siblings(show_cls);
+      if (show_div.length) {
+        show_div.removeClass('hideDiv').siblings('.myitem').addClass('hideDiv');
+      } else {
+        $(this).parents('.fields').siblings('.myitem').addClass('hideDiv');
       }
     })
 
@@ -1938,6 +2038,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
 })(window.d3, window.saveAs, window.Blob, vkbeautify);
 
+/**
+ * [generateUUID 返回一串序列码]
+ * @return {String} [uuid]
+ */
 function generateUUID() {
     var d = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -1947,11 +2051,11 @@ function generateUUID() {
     });
     return uuid;
 };
-/*
-** randomWord 产生任意长度随机字母数字组合
-** randomFlag-是否任意长度 min-任意长度最小位[固定位数] max-任意长度最大位
-** xuanfeng 2014-08-28
-*/
+/** 
+ * randomWord 产生任意长度随机字母数字组合
+ * randomFlag-是否任意长度 min-任意长度最小位[固定位数] max-任意长度最大位
+ * xuanfeng 2014-08-28
+ */
 function randomWord(randomFlag, min, max){
     var str = "",
         range = min,
