@@ -2,7 +2,7 @@
 
   Demo演示（chrome浏览）：
   
-  - [https://zhangyuanliang.github.io/flow-chart/flow_zyl.html](https://zhangyuanliang.github.io/flow-chart/flow_zyl.html)
+  - [https://zhangyuanliang.github.io/flow-chart/flowchart.html](https://zhangyuanliang.github.io/flow-chart/flowchart.html)
   
   svg实现流程图绘制，前端页面应用：jquery.js、d3.js、semantic.css，功能包括：
   - 流程图块生成、拖拽、连线
