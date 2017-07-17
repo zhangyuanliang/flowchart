@@ -210,13 +210,15 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
     $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable', 'true').on('dragstart', function(ev) {
       $(this).siblings().removeClass('active').end().addClass('active');
-      ev.originalEvent.dataTransfer.setData('text', $(this).children('span').text());
+      ev.originalEvent.dataTransfer.setData('text', $(this).find('span').text());
       ev.originalEvent.dataTransfer.setData('shapename', $(this).attr('for-name'));
       ev.originalEvent.dataTransfer.setData('component', $(this).attr('name'));
       ev.originalEvent.dataTransfer.setData('type', $(this).attr('type'));
       // $('#reset-zoom').trigger("click");
     });
     $('#container').on('drop', function(ev) {
+      ev.stopPropagation(); //阻止冒泡
+      ev.preventDefault(); //阻止默认行为
       var position ={};
       position.x = parseInt(ev.originalEvent.offsetX),
       position.y = parseInt(ev.originalEvent.offsetY);
@@ -243,6 +245,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             finishMode: 'manual'
           },
           frontCondition: {},
+          postCondition: {},
           extendAttr: [],
           highLevel: {},
           timeoutLimit: {},
@@ -259,10 +262,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $(this).siblings().removeClass('active').end().addClass('active');
       if('drawLineBtn'==$(this).attr('name')){
         thisGraph.state.drawLine = true;
-        $('#container').on('mouseover mouseout', '.conceptG', function() {
-          if(event.type == 'mouseover'){
+        $('#container').on('mouseover mouseout', '.conceptG', function(e) {
+          if(e.type == 'mouseover'){
             this.style.cursor = 'crosshair';
-          }else if(event.type == 'mouseout'){
+          }else if(e.type == 'mouseout'){
             this.style.cursor = 'default';
           }
         });
@@ -398,7 +401,41 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               thisGraph.state.selectedNode.timeoutLimit.deadline.push(jsonstr);
             })
             //更新-后置条件
+            var item_act = $('.prop_layer .post_condition .list .item.active');
+            if (item_act.length) {
+              var edge;
+              var jsonObj = JSON.parse(item_act.attr('jsonStr'));
+              for (var i in thisGraph.edges) {
+                if (thisGraph.edges[i].edgeId == jsonObj.edgeId) {
+                  edge = thisGraph.edges[i];
+                }
+              }
+              var postCondition = {};
+              var $transferInf = $('.prop_layer .post_condition div[data-tab="four/a"]');//转移信息
+              $transferInf.find("input:not(.hidden), select, textarea").each(function() {
+                postCondition[$(this).attr('name')] = $(this).val();
+              });
+              postCondition.extendedAttrs = [];
+              $transferInf.find('tbody tr').each(function() {
+                var jsonstr = $(this).attr('jsonstr');
+                postCondition.extendedAttrs.push(jsonstr);
+              });
+              var $conditionSet = $('.prop_layer .post_condition div[data-tab="four/b"]');//条件设置
+              var conditype = $conditionSet.find('select[name=conditype]').val();
+              postCondition.conditype = conditype;
+              var $event = $('.prop_layer .post_condition div[data-tab="four/c"]');//事件（标签）
+              $event.find("input[name], select").each(function() {
+                postCondition[$(this).attr('name')] = $(this).val();
+              });
+              edge.edgeId = postCondition.edgeId;
+              edge.postCondition = postCondition;
+
+              var splitType = $('.post_condition select[name=splitType]').val();
+              thisGraph.state.selectedNode.postCondition = {splitType: splitType};
+
+            }
             
+
             //更新-前置条件
             thisGraph.state.selectedNode.frontCondition = {};
             $('.front_condition > div:not(".hideDiv")').find('input:not(:radio)[name], select').each(function() {
@@ -495,37 +532,64 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               $('.extended_attr tbody').append(tr).find('.ui.checkbox').checkbox();
             }
             //展示-后置条件
-            var postCondition = {};
+            var postCondition = {targetActivities: []};
             thisGraph.edges.forEach(function(edge) {
               if (edge.source == node) {
-                postCondition.targetActivities = postCondition.targetActivities || [];
                 postCondition.targetActivities.push({'activity': edge.target, 'transition': edge});
               }
             });
-            postCondition.targetActivities && postCondition.targetActivities.forEach(function(targetActivity) {
-              $('.post_condition .list').append('<div class="item" acivityId="'+targetActivity.activity.id+'" jsonstr='+JSON.stringify(targetActivity.transition)+'>'+
-                                                '    <div class="content">'+
-                                                '        <div class="">'+targetActivity.activity.title+'</div>'+
-                                                '    </div>'+
-                                                '</div>');
-            });
-            $('.post_condition .list').on('click', '.item', function() {
-              $(this).addClass('active').siblings().removeClass('active');
-              var transition = JSON.parse($(this).attr('jsonstr'));
-              //清空 转移信息/条件设置/事件
-              $('.post_condition .tab').find('input, textarea').val('');
-              $('.post_condition .tab').find('select').dropdown('clear');
-
-              $('.post_condition input[name="edgeId"]').val(transition.edgeId);
-              $('.post_condition input[name="edgeName"]').val(transition.edgeName || '');
-              $('.post_condition input[name="source"]').val(transition.source.title);
-              $('.post_condition input[name="target"]').val(transition.target.title);
-              $('.post_condition textarea[name="description"]').val(transition.description || '');
-              //遍历扩展属性
-              
-
-            });
-            $('.post_condition .list .item').eq(0).trigger('click');
+            if (postCondition.targetActivities.length > 0) {
+              $('.post_condition .targetActivity').removeClass('hideDiv');
+              $('.post_condition select[name="splitType"]').parent().removeClass('disabled');
+              if (postCondition.targetActivities.length > 1) {
+                var splitType = thisGraph.state.selectedNode.postCondition.splitType || 'XOR';
+                $('.post_condition select[name="splitType"]').parent().dropdown('set selected', splitType);
+              } else {
+                $('.post_condition select[name="splitType"]').parent().addClass('disabled');
+              }
+              postCondition.targetActivities.forEach(function(targetActivity) {//目标活动展示
+                $('.post_condition .list').append('<div class="item" acivityId="'+targetActivity.activity.id+'" jsonstr='+JSON.stringify(targetActivity.transition)+'>'+
+                                                  '    <div class="content">'+
+                                                  '        <div class="">'+targetActivity.activity.title+'</div>'+
+                                                  '    </div>'+
+                                                  '</div>');
+              });
+              // $(".post_condition .targetActivityShow").mCustomScrollbar('update');
+              $('.post_condition .list').on('click', '.item', function() {//点击目标活动
+                $(this).addClass('active').siblings().removeClass('active');
+                var transition = JSON.parse($(this).attr('jsonstr'));
+                //清空 转移信息/条件设置/事件
+                $('.post_condition .tab').find('input, textarea').val('');
+                $('.post_condition .tab').find('select').dropdown('clear');
+                $('.post_condition tbody').empty();
+                //转移信息
+                $('.post_condition input[name="edgeId"]').val(transition.edgeId);
+                $('.post_condition input[name="edgeName"]').val(transition.postCondition && transition.postCondition.edgeName || '');
+                $('.post_condition input[name="sourceTitle"]').val(transition.source.title);
+                $('.post_condition input[name="targetTitle"]').val(transition.target.title);
+                $('.post_condition textarea[name="description"]').val(transition.postCondition && transition.postCondition.description || '');
+                //遍历扩展属性
+                transition.postCondition && transition.postCondition.extendedAttrs.forEach(function(item) {
+                  var extendedAttr = JSON.parse(item);
+                  var data = {name: extendedAttr.name, value: extendedAttr.value};
+                  data = {data:data, jsonstr:JSON.stringify(data)};
+                  var html = juicer($('#extended_attr_tpl').html(), data);
+                  $('.transferInf_extended_attr tbody').append(html).find('.ui.checkbox').checkbox();
+                  $(".transferInf_extended_attr .content-div").mCustomScrollbar("update");
+                });
+                //条件设置 事件（标签）
+                if (transition.postCondition) {
+                  $('.post_condition select[name="conditype"]').parent().dropdown('set selected', transition.postCondition.conditype || '');
+                  
+                  $('.post_condition select[name="transitionEventType"]').parent().dropdown('set selected', transition.postCondition.transitionEventType || '');
+                  $('.post_condition input[name="transitionEvent"]').val(transition.postCondition.transitionEvent);
+                }
+              });
+              $('.post_condition .list .item').eq(0).trigger('click');
+            } else {
+              $('.post_condition .targetActivity').addClass('hideDiv');
+              $('.post_condition select[name="splitType"]').parent().addClass('disabled');
+            }
             //展示-前置条件
             var frontCondition = node.frontCondition;
             if (frontCondition.convergeType) {
@@ -625,7 +689,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     $('#container svg .graph').on('contextmenu', function(e) {
       $('#flowComponents div[name="selectBtn"]').trigger('click');
       $('#container .conceptG').css('cursor', 'default');//防止在活动块上右击存在问题
-      $("#rMenu").css({"top":(event.clientY-2)+"px", "left":(event.clientX-2)+"px"});
+      $("#rMenu").css({"top":(e.clientY-2)+"px", "left":(e.clientX-2)+"px"});
       var selectedNode = thisGraph.state.selectedNode;
       if (selectedNode.type != 'activity') {
         $('#rMenu a[name="propMenu"]').hide();
@@ -1086,7 +1150,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     })
     //后置条件-条件设置-类型
-    $('.post_condition select[name=conditype]').on('change', function(){
+    $('.post_condition select[name=conditype]').on('change', function() {
       var show_cls = '.'+$(this).val().toLowerCase()+'Div';
       var show_div = $(this).parents('.fields').siblings(show_cls);
       if (show_div.length) {
@@ -1095,6 +1159,79 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $(this).parents('.fields').siblings('.myitem').addClass('hideDiv');
       }
     })
+    //后置条件-条件设置-类型(条件)-字段
+    $('.conditionDiv select[name=condition_field]').on('change', function() {
+      var field = $(this).val();
+      $('.conditionDiv').find('input[name]').val('');
+      if (field != '0') {
+        var condition_sel = $('.conditionDiv .condition_sel');
+        if (field == 'nextActivityName') {
+          condition_sel.dropdown('setup menu', {
+              values: [
+                {value: '包含', text: '包含', name: '包含' },
+                {value: '包含2', text: '包含2', name: '包含2' },
+                {value: '不包含', text: '不包含', name: '不包含' }
+              ]
+            }).dropdown('set selected', '包含');
+        } else {
+          condition_sel.dropdown('setup menu', {
+              values: [
+                {value: '=',  text: '=', name: '=' },
+                {value: '!=', text: '!=', name: '!=' },
+                {value: '包含', text: '包含', name: '包含' },
+                {value: '不包含', text: '不包含', name: '不包含' },
+                {value: '前缀', text: '前缀', name: '前缀' },
+                {value: '后缀', text: '后缀', name: '后缀' }
+              ]
+            }).dropdown('set selected', '=');
+        }
+      }
+    })
+    //后置条件-条件设置-类型-增加条件
+    $('.conditionDiv .condition_addBtn').on('click', function() {
+      var condition = {};
+      $('.conditionDiv').find('input[name]').each(function() {
+        condition[$(this).attr('name')] = $(this).val();
+      });//:not(".condition_sel")
+      $('.conditionDiv').find('.selection').each(function() {
+        var value = $(this).find('.menu .item.selected').attr('data-value');
+        condition[$(this).children('select').attr('name')] = value;
+      });
+
+      if (!condition.condition_field || condition.condition_field == '0') {
+        layer.msg('请选择字段！', {time: 2000, icon:2});
+        return false;
+      }
+      if (!condition.condition_ref1 && !condition.condition_ref2) {//存在一个参考值即可
+        layer.msg('条件参数不全！', {time: 2000, icon:2});
+        return false;
+      }
+
+      $('.conditionDiv tbody').append('<tr jsonstr="'+JSON.stringify(condition)+'">'+
+                                      '  <td>'+condition.condition_field+'</td>'+
+                                      '  <td>'+condition.condition_one+'</td>'+
+                                      '  <td>'+condition.condition_ref1+'</td>'+
+                                      '  <td>'+condition.condition_rel+'</td>'+
+                                      '  <td>'+condition.condition_two+'</td>'+
+                                      '  <td>'+condition.condition_ref2+'</td>'+
+                                      '  <td>String</td>'+
+                                      '</tr>')
+      $('.conditionDiv').find('input[name]').val('');
+      $(".conditionDiv .content-div").mCustomScrollbar("update");
+      $(".conditionDiv .content-div").mCustomScrollbar("scrollTo", "bottom", {
+        scrollInertia: 1500
+      });
+    });
+    //后置条件-条件设置-类型-删除条件
+    $('.conditionDiv .condition_removeBtn').on('click', function() {
+      var tr = $('.conditionDiv tbody tr.active');
+      if (tr.length) {
+        tr.remove();
+        $(".conditionDiv .content-div").mCustomScrollbar("update");
+      } else {
+        layer.msg('请选择一行!', {time: 2000, icon:0});
+      }
+    });
 
   };
   // 获取activity的ExtendedAttributes
@@ -1236,25 +1373,25 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var join = node.frontCondition.convergeType?'<Join Type="'+node.frontCondition.convergeType+'"/>':'<Join Type="XOR"/>';
     var TransitionRestrictions = '';
     if (activity_inOut.numIn > 1 || activity_inOut.numOut > 1 || node.frontCondition.convergeType) {
-      TransitionRestrictions += '  <TransitionRestrictions>'
-                              + '      <TransitionRestriction>'
+      TransitionRestrictions += '<TransitionRestrictions>'
+                              + '    <TransitionRestriction>'
       if (activity_inOut.numIn > 1 || node.frontCondition.convergeType) {  
-        TransitionRestrictions +=        join
+        TransitionRestrictions +=      join
       }
       if (activity_inOut.numOut > 1) {
-        TransitionRestrictions += '      <Split Type="XOR">'
-                                + '          <TransitionRefs>'
-                                +                activity_inOut.transitionRefs
-                                + '          </TransitionRefs>'
-                                + '      </Split>'
+        TransitionRestrictions += '    <Split Type="XOR">'
+                                + '        <TransitionRefs>'
+                                +              activity_inOut.transitionRefs
+                                + '        </TransitionRefs>'
+                                + '    </Split>'
       }
-      TransitionRestrictions += '      </TransitionRestriction>'
-                              + '  </TransitionRestrictions>'
+      TransitionRestrictions += '    </TransitionRestriction>'
+                              + '</TransitionRestrictions>'
     }
     return TransitionRestrictions;
   }
   //生成参与者相应的xpdl
-  GraphCreator.prototype.getParticipants = function() {//??细节还有问题：1.isAppData; 2.condition,conditionXml;
+  GraphCreator.prototype.getParticipants = function() { //??细节还有问题：1.isAppData; 2.condition,conditionXml;
     var thisGraph = this;
     if (thisGraph.participants.length == 0) return false;
 

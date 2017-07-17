@@ -51,7 +51,12 @@ table { border-collapse:collapse }
 }
 .full-right-btn .item{ padding: 0px 20px 0px 20px!important }
 .full-right-bottom { height: 30%; border: 1px solid #c7cacd }
-.components-btn { margin-top:2px; line-height:23px; min-height:23px; }
+.components-btn { 
+    margin-top: 2px; 
+    line-height: 23px; 
+    min-width: 100px; 
+    min-height: 23px; 
+}
 .components-btn:hover { background: #d8d5d5 }
 .components-btn.active { background: #d8d5d5 }
 .components-btn img,span{ cursor: pointer }
@@ -130,9 +135,9 @@ table { border-collapse:collapse }
 #xmlContainer script { display: block; }
 .content-div { overflow: auto; }
 .json_data.modal textarea { width: 100%!important; height: 100px; padding: 7px }
-.vertical.menu{ position: absolute; width: 82px!important }
+#rMenu { position: absolute; width: 82px!important; display: none;}
 /* .prop_layer.modal{ height:577px; }
-.prop_layer>.tab{ height: 447px } */
+.prop_layer>.tab{ height: 447px }  */
 .prop_layer.modal { height: 705px; }
 .prop_layer>.tab { height: 568px }
 .prop_layer.model .ui.checkbox label { font-size: 0.8em!important }
@@ -143,15 +148,19 @@ table { border-collapse:collapse }
 .tool_add { height: 529px }
 .front_condition { height: 416px }
 
-.post_condition .aligned.list { border: 1px solid #dedede; padding: 8px 6px; font-size: 14px; }
+.post_condition .targetActivityShow { border: 1px solid #dedede; padding: 8px 6px; height: 60px; overflow-y: auto; font-size: 14px; }
+.post_condition .aligned.list {  }
 .post_condition .item { line-height: 19px; padding: 3px 6px!important }
-.post_condition .list { height: 60px }
 .post_condition .list .active { background: #dedede; }
-.post_condition .tab { height: 355px }
-.post_condition .business_obj { height: 142px; }
+.post_condition .tab { height: 371px }
+.post_condition .business_obj { height: 165px; }
+.post_condition .targetActivity { margin-top: 10px; }
 
 .conditionDiv .fields .field:nth-child(3) label { width: 70px!important; }
+.conditionDiv .content-div { height: 130px; width:100%;}
 .tacheDiv .field label { width: 35px!important; }
+
+.workflowbeanDiv .content-div { height: 102px; }
 
 .hideDiv { display: none }
 .hideitem { display: none!important }
