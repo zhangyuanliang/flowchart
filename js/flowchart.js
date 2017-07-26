@@ -32,9 +32,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     defs.append('svg:marker')
       .attr('id', 'end-arrow')
       .attr('viewBox', '0 -5 10 10')
-      .attr('refX', "32")
-      .attr('markerWidth', 3.5)
-      .attr('markerHeight', 3.5)
+      .attr('refX', "50")
+      .attr('markerWidth', 5)
+      .attr('markerHeight', 5)
       .attr('orient', 'auto')
       .append('svg:path')
       .attr('d', 'M0,-5L10,0L0,5');
@@ -44,8 +44,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       .attr('id', 'mark-end-arrow')
       .attr('viewBox', '0 -5 10 10')
       .attr('refX', 7)
-      .attr('markerWidth', 3.5)
-      .attr('markerHeight', 3.5)
+      .attr('markerWidth', 5)
+      .attr('markerHeight', 5)
       .attr('orient', 'auto')
       .append('svg:path')
       .attr('d', 'M0,-5L10,0L0,5');
@@ -210,30 +210,30 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
     $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable', 'true').on('dragstart', function(ev) {
       $(this).siblings().removeClass('active').end().addClass('active');
-      ev.originalEvent.dataTransfer.setData('text', $(this).find('span').text());
-      ev.originalEvent.dataTransfer.setData('shapename', $(this).attr('for-name'));
-      ev.originalEvent.dataTransfer.setData('component', $(this).attr('name'));
-      ev.originalEvent.dataTransfer.setData('type', $(this).attr('type'));
+      var json_obj = {
+        text: $(this).find('span').text(),
+        shapename: $(this).attr('for-name'),
+        component: $(this).attr('name'),
+        type: $(this).attr('type')
+      }
+      ev.originalEvent.dataTransfer.setData('text', JSON.stringify(json_obj));
       // $('#reset-zoom').trigger("click");
     });
     $('#container').on('drop', function(ev) {
       ev.stopPropagation(); //阻止冒泡
       ev.preventDefault(); //阻止默认行为
-      var position ={};
+      var position = {};
       position.x = parseInt(ev.originalEvent.offsetX),
       position.y = parseInt(ev.originalEvent.offsetY);
       // var xycoords = d3.mouse(thisGraph.svgG.node());
-      var shapeLabel = ev.originalEvent.dataTransfer.getData('text'),
-        shapename = ev.originalEvent.dataTransfer.getData('shapename'),
-        component = ev.originalEvent.dataTransfer.getData('component'),
-        type = ev.originalEvent.dataTransfer.getData('type'),
-        shapeId = shapename + new Date().getTime(),
+      var data = JSON.parse(ev.originalEvent.dataTransfer.getData('text')),
+        shapeId = data.shapename + new Date().getTime(),
         isCreate = true;
       var d = {
           id: Word+'_node_'+randomWord(false, 4)+thisGraph.idct++,
-          title: shapeLabel,
-          component: component,
-          type: type,
+          title: data.text,
+          component: data.component,
+          type: data.type,
           x: position.x,
           y: position.y,
           conventional: {
@@ -341,15 +341,30 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     $('.editor-toolbar #delete-ele').on('click', function() {
       var selectedNode = thisGraph.state.selectedNode,
         selectedEdge = thisGraph.state.selectedEdge;
-      if (selectedNode) {
-        thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
-        thisGraph.spliceLinksForNode(selectedNode);
-        thisGraph.state.selectedNode = null;
-        thisGraph.updateGraph();
-      } else if (selectedEdge) {
-        thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
-        thisGraph.state.selectedEdge = null;
-        thisGraph.updateGraph();
+      if (!selectedNode && !selectedEdge) {
+        layer.msg('请选中元素！', {time: 2000, icon: 2, offset: '180px'});
+        return;
+      } else {
+        //询问框
+        layer.confirm('确定要删除选择元素吗？', {
+          icon: 0,
+          btn: ['确定','取消'], //按钮
+          offset: '180px'
+        }, function(){
+          if (selectedNode) {
+            thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
+            thisGraph.spliceLinksForNode(selectedNode);
+            thisGraph.state.selectedNode = null;
+            thisGraph.updateGraph();
+          } else if (selectedEdge) {
+            thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
+            thisGraph.state.selectedEdge = null;
+            thisGraph.updateGraph();
+          }
+          layer.msg('删除成功', {icon: 1, offset: '180px'});
+        }, function(){
+          
+        });
       }
     });
     //右击菜单
@@ -359,10 +374,20 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       selectedEdge = thisGraph.state.selectedEdge;
       if (item == 'removeMenu') {
         if (selectedNode) {
-          thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
-          thisGraph.spliceLinksForNode(selectedNode);
-          thisGraph.state.selectedNode = null;
-          thisGraph.updateGraph();
+          //询问框
+          layer.confirm('确定要删除选择元素吗？', {
+            icon: 0,
+            btn: ['确定','取消'], //按钮
+            offset: '180px'
+          }, function(){
+            thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
+            thisGraph.spliceLinksForNode(selectedNode);
+            thisGraph.state.selectedNode = null;
+            thisGraph.updateGraph();
+            layer.msg('删除成功', {icon: 1, offset: '180px'});
+          }, function(){
+            
+          });
         } else if (selectedEdge) {
           thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
           thisGraph.state.selectedEdge = null;
@@ -1727,8 +1752,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
   /* PROTOTYPE FUNCTIONS */
   GraphCreator.prototype.dragmove = function(d) {
     var thisGraph = this;
-    if (thisGraph.state.shiftNodeDrag||thisGraph.state.drawLine) {
-      thisGraph.dragLine.attr('d', 'M' + d.x + ',' + d.y + 'L' + d3.mouse(thisGraph.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
+    if (thisGraph.state.shiftNodeDrag || thisGraph.state.drawLine) {
+      var link = thisGraph.dragLine.attr('d', 'M' + d.x + ',' + d.y + 'L' + d3.mouse(thisGraph.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
+      refresh(link);//兼容IE11
     } else {
       d.x += d3.event.dx;
       d.y += d3.event.dy;
@@ -1852,12 +1878,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     d3.event.stopPropagation();
     state.mouseDownNode = d;
 
-    if (d3.event.shiftKey||thisGraph.state.drawLine) {
+    if (d3.event.shiftKey || thisGraph.state.drawLine) {
         // Automatically create node when they shift + drag?
       state.shiftNodeDrag = d3.event.shiftKey;
       // reposition dragged directed edge
-      thisGraph.dragLine.classed('hidden', false)
+      var link = thisGraph.dragLine.classed('hidden', false)
         .attr('d', 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + d.y);
+      refresh(link);//兼容IE11
       return;
     }
   };
@@ -1979,10 +2006,20 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           type: 'activity',
           x: xycoords[0],
           y: xycoords[1],
+          conventional: {
+            mustActivity: true, 
+            taskAssignMode: 'taskAutoMode', 
+            autoAcceptAllAssignments: true, 
+            isResponsible: true,
+            startMode: 'manual',
+            finishMode: 'manual'
+          },
           frontCondition: {},
+          postCondition: {},
           extendAttr: [],
           highLevel: {},
           timeoutLimit: {},
+          monitorinf: {isResponsibleTem: true},
           eventTypeId: null
         };
       thisGraph.nodes.push(d);
@@ -1990,7 +2027,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     } else if (state.shiftNodeDrag||state.drawLine) {
       // dragged from node
       state.shiftNodeDrag = false;
-      thisGraph.dragLine.classed("hidden", true);
+      thisGraph.dragLine.classed("hidden", true);//win7 IE11下存在bug
+      
     }
     state.graphMouseDown = false;
   };
@@ -2042,13 +2080,14 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     });
     var paths = thisGraph.paths;
     // update existing paths
-    paths.style('marker-end', 'url(#end-arrow)')
+    var link = paths.style('marker-end', 'url(#end-arrow)')
       .classed(consts.selectedClass, function(d) {
         return d === state.selectedEdge;
       })
       .attr("d", function(d) {
         return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
       });
+    refresh(link);//兼容IE11
 
     // add new paths
     paths.enter()
@@ -2193,7 +2232,7 @@ function generateUUID() {
  * randomFlag-是否任意长度 min-任意长度最小位[固定位数] max-任意长度最大位
  * xuanfeng 2014-08-28
  */
-function randomWord(randomFlag, min, max){
+function randomWord(randomFlag, min, max) {
     var str = "",
         range = min,
         arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
@@ -2205,4 +2244,24 @@ function randomWord(randomFlag, min, max){
         str += arr[pos];
     }
     return str;
+}
+/**
+ * refresh 连线兼容IE11
+ * @param  {[type]} link [改变attr后的dragLine]
+ */
+function refresh(link) {
+  if (/(MSIE 10)|(Trident)/.test(navigator.appVersion)) {
+    /*var svgNode = link.node();
+    if (svgNode) {
+      svgNode.parentNode.insertBefore(svgNode, svgNode);
+    }*/
+    if (link[0] instanceof Array) {
+      link[0].forEach(function(item) {
+        item.parentNode.insertBefore(item, item);
+      })
+    } else if (link[0]) {
+      var svgNode = link.node();
+      svgNode.parentNode.insertBefore(svgNode, svgNode);
+    }
+  }
 }
