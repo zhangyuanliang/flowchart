@@ -19,7 +19,8 @@ table { border-collapse:collapse }
 .ui.modal>.header {padding:0 0 0.7rem 0;}
 
 .subheader { 
-    min-height: 46px; 
+     
+    min-height: 47px;
     border-bottom: 1px solid #c7cacd; 
     padding-top: 18px; 
     padding-left: 10px; 
@@ -38,18 +39,22 @@ table { border-collapse:collapse }
     border-right: 1px solid #c7cacd; 
 }
 .editor-toolbar .icon:hover { color: #66C17B; }
+
+.full {height: 93%}
 .full-left,.full-right { height: 574px; float: left }
 .full-left { width: 8%; padding: 5px; }
 .full-right { width: 92% }
 .full-right form { height: 574px }
 .full-right-top { background-image: url(../icons/gooflow_blank2.gif)!important; }
-.view { height: 65%; border-left: 1px solid #c7cacd;}
+.view { height: 67%; border-left: 1px solid #c7cacd;}
 .full-right-btn { 
     border-top: 1px solid #D4D4D5!important; 
     border-left: 1px solid #D4D4D5!important; 
     margin-bottom: 0px!important 
+    height: 3%;
+    margin-bottom: 0px!important;
 }
-.full-right-btn .item{ padding: 0px 20px 0px 20px!important }
+.full-right-btn .item{ height: 100% }
 .full-right-bottom { height: 30%; border: 1px solid #c7cacd }
 .components-btn { 
     margin-top: 2px; 

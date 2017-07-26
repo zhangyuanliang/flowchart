@@ -82,7 +82,7 @@ marker{
 g.conceptG circle{
   fill: #F6FBFF;
   stroke: #333;
-  stroke-width: 2px;
+  stroke-width: 1px;
 }
 
 g.conceptG:hover circle{
@@ -99,7 +99,7 @@ g.selected:hover circle{
 path.link {
   fill: none;
   stroke: #333;
-  stroke-width: 5px;
+  stroke-width: 2px;
   cursor: default;
 }
 
@@ -113,6 +113,7 @@ g.connect-node circle{
 
 path.link.hidden{
   stroke-width: 0;
+  display: none
 }
 
 path.link.selected {
