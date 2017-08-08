@@ -361,7 +361,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             thisGraph.state.selectedEdge = null;
             thisGraph.updateGraph();
           }
-          layer.msg('删除成功', {icon: 1, offset: '180px'});
+          layer.msg('删除成功', {icon: 1, offset: '180px', time: 600});
         }, function(){
           
         });
@@ -384,7 +384,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             thisGraph.spliceLinksForNode(selectedNode);
             thisGraph.state.selectedNode = null;
             thisGraph.updateGraph();
-            layer.msg('删除成功', {icon: 1, offset: '180px'});
+            layer.msg('删除成功', {icon: 1, offset: '180px', time: 600});
           }, function(){
             
           });
@@ -448,6 +448,55 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               var $conditionSet = $('.prop_layer .post_condition div[data-tab="four/b"]');//条件设置
               var conditype = $conditionSet.find('select[name=conditype]').val();
               postCondition.conditype = conditype;
+              if (conditype == 'CONDITION') {//类型选择条件
+                var tr = $('.conditionDiv tbody').find('tr');
+                var fieldCondition = '',
+                  condixml = '',
+                  fieldConditions_type = '';
+                if (tr.length) {
+                  tr.each(function() {
+                    var json_obj = JSON.parse($(this).attr('jsonstr'));
+                    fieldCondition += 
+                      ' <fieldCondition type="'+json_obj.fieldCondition_type+'">'+
+                      '   <expression key="'+json_obj.key+'" sign="'+json_obj.sign_one+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_one+'"><![CDATA['+json_obj.displayValue_two+']]></expression>'+
+                      '   <expression key="'+json_obj.key+'" sign="'+json_obj.sign_two+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_two+'"><![CDATA['+json_obj.displayValue_two+']]></expression>'+
+                      ' </fieldCondition>'
+                  }) 
+                  fieldConditions_type = $('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('get value');
+                }
+                condixml = '<FieldConditions type="'+fieldConditions_type+'">'+ fieldCondition +'</FieldConditions>';
+                condixml = Base64.encode(condixml);
+                postCondition.condixml = condixml;
+              }
+              if (conditype == 'EXCEPTION') {//类型选择异常
+                postCondition.condiException = $('.exceptionDiv select[name=condiException]').parent().dropdown('get value');
+              }
+              if (conditype == 'WORKFLOWBEAN') {//类型选择业务对象转移
+                var tr = $('.workflowbeanDiv tbody').find('tr');
+                var beanCondition = '',
+                  condixml = '',
+                  beanConditions_type = '';
+                if (tr.length) {
+                  tr.each(function() {
+                    var json_obj = JSON.parse($(this).attr('jsonstr'));
+                    beanCondition += 
+                      '<beanCondition code="'+json_obj.code+'" type="'+json_obj.beanConditions_type+'" bean="'+json_obj.bean+'" paramField="'+json_obj.paramField+'">'+
+                      '  <expression key="'+json_obj.key+'" sign="'+json_obj.sign_one+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_one+'"><![CDATA['+json_obj.displayValue_one+']]></expression>'+
+                      '  <expression key="'+json_obj.key+'" sign="'+json_obj.sign_two+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_two+'"><![CDATA['+json_obj.displayValue_two+']]></expression>'+
+                      '</beanCondition>'
+                  })
+                  beanConditions_type = $('.workflowbeanDiv input[name=beanConditions_type]').val();
+                }
+                condixml = '<beanConditions type="'+beanConditions_type+'">'+ beanCondition +'</beanConditions>';
+                condixml = Base64.encode(condixml);
+                postCondition.condixml = condixml;
+              }
+              if (conditype == 'USERDEFINE') {//类型选择用户自定义
+                postCondition.condition_data = $('.userdefineDiv input').val();
+              }
+              if (conditype == 'CUSTOM') {//类型选择自定义转移
+                postCondition.condition_data = $('.customDiv textarea').val();
+              }
               var $event = $('.prop_layer .post_condition div[data-tab="four/c"]');//事件（标签）
               $event.find("input[name], select").each(function() {
                 postCondition[$(this).attr('name')] = $(this).val();
@@ -579,7 +628,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                                                   '    </div>'+
                                                   '</div>');
               });
-              // $(".post_condition .targetActivityShow").mCustomScrollbar('update');
               $('.post_condition .list').on('click', '.item', function() {//点击目标活动
                 $(this).addClass('active').siblings().removeClass('active');
                 var transition = JSON.parse($(this).attr('jsonstr'));
@@ -587,6 +635,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                 $('.post_condition .tab').find('input, textarea').val('');
                 $('.post_condition .tab').find('select').dropdown('clear');
                 $('.post_condition tbody').empty();
+                $('.post_condition .postCondi_extendedAttr').mCustomScrollbar("update");
+
                 //转移信息
                 $('.post_condition input[name="edgeId"]').val(transition.edgeId);
                 $('.post_condition input[name="edgeName"]').val(transition.postCondition && transition.postCondition.edgeName || '');
@@ -600,8 +650,27 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                   data = {data:data, jsonstr:JSON.stringify(data)};
                   var html = juicer($('#extended_attr_tpl').html(), data);
                   $('.transferInf_extended_attr tbody').append(html).find('.ui.checkbox').checkbox();
-                  $(".transferInf_extended_attr .content-div").mCustomScrollbar("update");
+                  $(".transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar("update");
                 });
+                //遍历条件设置下列表
+                if (transition.postCondition && transition.postCondition.condixml) {//condixml base64
+                  var fieldConditions_obj = {fieldCondition:[]};
+                  var fieldConditions_str = Base64.decode(transition.postCondition.condixml);
+                  fieldConditions_obj.fieldConditions_type = $(fieldConditions_str).attr('type');
+                  $(fieldConditions_str).find('fieldCondition').each(function(fc) {
+                    var fieldCondition = {};
+                    fieldCondition.fieldCondition_type = $(this).attr('type');
+                    fieldCondition.key = $(this).find('expression').eq(0).attr('key');
+                    fieldCondition.sign_one = $(this).find('expression').eq(0).attr('sign');
+                    fieldCondition.type = $(this).find('expression').eq(0).attr('type');
+                    fieldCondition.displayValue_one = $(this).find('expression').eq(0).attr('displayValue');
+                    fieldCondition.sign_two = $(this).find('expression').eq(1).attr('sign');
+                    fieldCondition.displayValue_two = $(this).find('expression').eq(1).attr('displayValue');
+                    var tr = thisGraph.getConditionList(fieldCondition);
+                    $('.conditionDiv tbody').append(tr);
+                  })
+                  $('.conditionDiv tbody').data('fieldConditions_type', fieldConditions_obj.fieldConditions_type);
+                }
                 //条件设置 事件（标签）
                 if (transition.postCondition) {
                   $('.post_condition select[name="conditype"]').parent().dropdown('set selected', transition.postCondition.conditype || '');
@@ -755,8 +824,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         selectedTr.find('td').eq(2).text(data.data.value);
       } else {
         $('.transferInf_extended_attr tbody').append(html).find('.ui.checkbox').checkbox();
-        $(".transferInf_extended_attr .content-div").mCustomScrollbar("update");
-        $(".transferInf_extended_attr .content-div").mCustomScrollbar("scrollTo", "bottom", {
+        $(".transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar("update");
+        $(".transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar("scrollTo", "bottom", {
           scrollInertia: 1500
         });
       }
@@ -765,7 +834,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     //后置条件-扩展属性集-编辑
     $('.transferInf_extended_attr .extendAttrEditBtn').on('click', function() {
       var selectedTr = $(this).parents('.grid').find('tbody tr.active');
-      if (selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0});return false}
+      if (selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0}); return false}
       var jsonstr = $(this).parents('.grid').find('tbody tr.active').attr('jsonstr');
       var json = JSON.parse(jsonstr);
       $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_name"]').val(json.name);
@@ -778,7 +847,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       var tr = $(this).parents('.grid').find('tbody tr.active');
       if (tr.length > 0) {
         tr.remove();
-        $(".transferInf_extended_attr .content-div").mCustomScrollbar("update");
+        $(".transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar("update");
       } else {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
@@ -982,7 +1051,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         participant[$(this).attr('name')] = $(this).val();
       });
       if (participant.conventional_definition_participant) {//自定义参与者
-
+        
       } else {
         $('.conventional_definition div[data-tab="definition_2"] tbody').find('tr').each(function() {
           $(this).find('td').each(function(){
@@ -1137,7 +1206,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         participant[$(this).attr('name')] = $(this).val();
       });
       $('.monitorinfAddDefinition div[data-tab="definition_two"] tbody').find('tr').each(function() {
-        $(this).find('td').each(function(){
+        $(this).find('td').each(function() {
           participant[$(this).attr('name')] = participant[$(this).attr('name')] || [];
           participant[$(this).attr('name')].push($(this).text());
         });
@@ -1180,12 +1249,36 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       var show_div = $(this).parents('.fields').siblings(show_cls);
       if (show_div.length) {
         show_div.removeClass('hideDiv').siblings('.myitem').addClass('hideDiv');
+        if (show_cls == '.conditionDiv') {//显示-条件-默认选定
+          var fieldConditions_type = $('.conditionDiv tbody').data('fieldConditions_type');
+          if (fieldConditions_type) {
+            $('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('set selected', fieldConditions_type);
+          } else {
+            $('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('set selected', 'AND');
+          }
+          $('.conditionDiv select[name=fieldCondition_type]').parent().dropdown('set selected', 'AND');
+          $(".conditionDiv .conditionList").mCustomScrollbar("update");
+        }
+        if (show_cls == '.exceptionDiv') {//显示-异常-默认选定
+          $('.exceptionDiv select[name=condiException]:parent').dropdown('set selected', '请选择异常');
+        }
+        if (show_cls == '.workflowbeanDiv') {//显示-按业务对象转移-默认选定
+          $('.workflowbeanDiv select[name=paramField]').parent().dropdown('set selected', '0');
+          $('.workflowbeanDiv select[name=fieldCondition_type]').parent().dropdown('set selected', 'AND')
+          $('.workflowbeanDiv input[name=beanConditions_type]').val('AND');
+        }
+        if (show_cls == '.userdefineDiv') {//显示-用户自定义-默认选定
+          
+        }
+        if (show_cls == '.customDiv') {//显示-自定义转移-默认选定
+          
+        }
       } else {
         $(this).parents('.fields').siblings('.myitem').addClass('hideDiv');
       }
     })
     //后置条件-条件设置-类型(条件)-字段
-    $('.conditionDiv select[name=condition_field]').on('change', function() {
+    $('.conditionDiv select[name=key]').on('change', function() {
       var field = $(this).val();
       $('.conditionDiv').find('input[name]').val('');
       if (field != '0') {
@@ -1193,57 +1286,49 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         if (field == 'nextActivityName') {
           condition_sel.dropdown('setup menu', {
               values: [
-                {value: '包含', text: '包含', name: '包含' },
-                {value: '包含2', text: '包含2', name: '包含2' },
-                {value: '不包含', text: '不包含', name: '不包含' }
+                {value: 'IN', text: '包含', name: '包含' },
+                {value: 'NOT', text: '不包含', name: '不包含' }
               ]
-            }).dropdown('set selected', '包含');
+            }).dropdown('set selected', 'IN');
         } else {
           condition_sel.dropdown('setup menu', {
               values: [
-                {value: '=',  text: '=', name: '=' },
+                {value: '==',  text: '=', name: '=' },
                 {value: '!=', text: '!=', name: '!=' },
-                {value: '包含', text: '包含', name: '包含' },
-                {value: '不包含', text: '不包含', name: '不包含' },
-                {value: '前缀', text: '前缀', name: '前缀' },
-                {value: '后缀', text: '后缀', name: '后缀' }
+                {value: 'IN', text: '包含', name: '包含' },
+                {value: 'NOT', text: '不包含', name: '不包含' },
+                {value: 'PREFIX', text: '前缀', name: '前缀' },
+                {value: 'SUFFIX', text: '后缀', name: '后缀' }
               ]
             }).dropdown('set selected', '=');
         }
       }
     })
-    //后置条件-条件设置-类型-增加条件
+    //后置条件-条件设置-类型(条件)-增加条件
     $('.conditionDiv .condition_addBtn').on('click', function() {
       var condition = {};
       $('.conditionDiv').find('input[name]').each(function() {
         condition[$(this).attr('name')] = $(this).val();
       });//:not(".condition_sel")
       $('.conditionDiv').find('.selection').each(function() {
-        var value = $(this).find('.menu .item.selected').attr('data-value');
+        var value = $(this).find('.menu .item.selected').attr('data-value');//semantic-UI setmenu 存在bug, 无法取到值
         condition[$(this).children('select').attr('name')] = value;
       });
 
-      if (!condition.condition_field || condition.condition_field == '0') {
+      if (!condition.key || condition.key == '0') {
         layer.msg('请选择字段！', {time: 2000, icon:2});
         return false;
       }
-      if (!condition.condition_ref1 && !condition.condition_ref2) {//存在一个参考值即可
+      if (!condition.displayValue_one && !condition.displayValue_two) {//存在一个参考值即可
         layer.msg('条件参数不全！', {time: 2000, icon:2});
         return false;
       }
 
-      $('.conditionDiv tbody').append('<tr jsonstr="'+JSON.stringify(condition)+'">'+
-                                      '  <td>'+condition.condition_field+'</td>'+
-                                      '  <td>'+condition.condition_one+'</td>'+
-                                      '  <td>'+condition.condition_ref1+'</td>'+
-                                      '  <td>'+condition.condition_rel+'</td>'+
-                                      '  <td>'+condition.condition_two+'</td>'+
-                                      '  <td>'+condition.condition_ref2+'</td>'+
-                                      '  <td>String</td>'+
-                                      '</tr>')
+      var tr = thisGraph.getConditionList(condition);
+      $('.conditionDiv tbody').append(tr);
       $('.conditionDiv').find('input[name]').val('');
-      $(".conditionDiv .content-div").mCustomScrollbar("update");
-      $(".conditionDiv .content-div").mCustomScrollbar("scrollTo", "bottom", {
+      $(".conditionDiv .conditionList").mCustomScrollbar("update");
+      $(".conditionDiv .conditionList").mCustomScrollbar("scrollTo", "bottom", {
         scrollInertia: 1500
       });
     });
@@ -1252,13 +1337,204 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       var tr = $('.conditionDiv tbody tr.active');
       if (tr.length) {
         tr.remove();
-        $(".conditionDiv .content-div").mCustomScrollbar("update");
+        $(".conditionDiv .conditionList").mCustomScrollbar("update");
       } else {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
     });
+    //后置条件-条件设置-类型(按业务对象转移)-业务对象
+    $('.workflowbeanDiv select[name=bean]').on('change', function() {
+      if (this.value != '0') {
+        $('.workflowbeanDiv .detailDiv').show('slow');
+      } else {
+        $('.workflowbeanDiv .detailDiv').hide(1000);
+      }
+    });
+    //后置条件-条件设置-类型(按业务对象转移)-业务对象(发送人)-方法
+    $('.detailDiv select[name=key]').on('change', function() {
+      $('.detailDiv').find('input[name]').val('');
+      if (this.value != '0') {
+        var condition_sel = $('.detailDiv .condition_sel');
+        condition_sel.dropdown('setup menu', {
+            values: [
+              {value: '==',  text: '=', name: '=' },
+              {value: '!=', text: '!=', name: '!=' },
+              {value: 'IN', text: '包含', name: '包含' },
+              {value: 'NOT', text: '不包含', name: '不包含' },
+              {value: 'PREFIX', text: '前缀', name: '前缀' },
+              {value: 'SUFFIX', text: '后缀', name: '后缀' }
+            ]
+          }).dropdown('set selected', '=');
+      }
+    });
+    //后置条件-条件设置-类型(按业务对象转移)-增加条件
+    $('.workflowbeanDiv .condition_addBtn').on('click', function() {
+      var bean = $('.workflowbeanDiv select[name=bean]').val();
+      if (!bean || bean == '0') {
+        layer.msg('请选择业务对象！', {time: 2000, icon:2});
+        return false;
+      }
+      var condition = {};
+      $('.workflowbeanDiv').find('input[name]').each(function() {
+        condition[$(this).attr('name')] = $(this).val();
+      });//:not(".condition_sel")
+      $('.workflowbeanDiv').find('.selection').each(function() {
+        var value = $(this).find('.menu .item.selected').attr('data-value');//semantic-UI setmenu 存在bug, 无法取到值
+        condition[$(this).children('select').attr('name')] = value;
+      });
+
+      if (!condition.key || condition.key == '0') {
+        layer.msg('请选择方法！', {time: 2000, icon:2});
+        return false;
+      }
+      if (!condition.displayValue_one && !condition.displayValue_two) {//存在一个参考值即可
+        layer.msg('条件参数不全！', {time: 2000, icon:2});
+        return false;
+      }
+      var num = $('.workflowbeanDiv tbody tr').length==0? 1:parseInt($('.workflowbeanDiv tbody tr:last').find('td:first').text())+1;
+      var tr = thisGraph.getConditionList(condition, num);
+      $('.workflowbeanDiv tbody').append(tr);
+      $('.workflowbeanDiv').find('input[name^=displayValue]').val('');
+      $(".workflowbeanDiv .conditionList2").mCustomScrollbar("update");
+      $(".workflowbeanDiv .conditionList2").mCustomScrollbar("scrollTo", "bottom", {
+        scrollInertia: 1500
+      });
+    })
+    //后置条件-条件设置-类型(按业务对象转移)-删除条件
+    $('.workflowbeanDiv .condition_removeBtn').on('click', function() {
+      var tr = $('.workflowbeanDiv tbody tr.active');
+      if (tr.length) {
+        tr.remove();
+        $(".workflowbeanDiv .conditionList2").mCustomScrollbar("update");
+      } else {
+        layer.msg('请选择一行!', {time: 2000, icon:0});
+      }
+    })
+    //后置条件-条件设置-类型(按业务对象转移)-关系设置-分组
+    $('.relationshipPlacement .relationshipGroup').on('click', function() {
+      var names = [];
+      var condition_no = $('.relationshipPlacement .condition_no').find('input[name][value=true]');
+      var relationship = $('.relationshipPlacement .radio.checkbox.checked').children('input').attr('tabindex');
+      if (!condition_no.length || !relationship) {
+        layer.msg('请选择条件代号或关系!', {time: 2000, icon:0});
+        return false;
+      }
+      condition_no.each(function() {
+        names.push($(this).attr('name'));
+        $(this).parent('.checkbox').remove();
+      })
+      var beanConditions_type = '';
+      names.forEach(function(item) {
+        beanConditions_type += item + relationship;
+      })
+      beanConditions_type = '(' + beanConditions_type.replace(/(\&\&$)|(\|\|$)/, '') + ')';
+
+      $('.relationshipPlacement input[name=beanConditions_type]').val(beanConditions_type);
+      $('.relationshipPlacement .condition_no').prepend(
+        '<div class="inline field">'+
+        '   <div class="ui checkbox">'+
+        '       <input type="checkbox" tabindex="0" class="hidden">'+
+        '       <label>'+beanConditions_type+'</label>'+
+        '       <input type="hidden" name="'+beanConditions_type+'" value="">'+
+        '   </div>'+
+        '</div>');
+      $('.relationshipPlacement .condition_no .checkbox').filter(':first').checkbox({
+          onChecked: function() {
+            $(this).parents('.checkbox').find('input[name]').val(true);
+          },
+          onUnchecked: function() {
+            $(this).parents('.checkbox').find('input[name]').val(false);
+          }
+        });
+
+    })
+    //后置条件-条件设置-类型(按业务对象转移)-关系设置-重置
+    $('.relationshipPlacement .relationshipReset').on('click', function() {
+      $('.relationshipPlacement input[name=beanConditions_type]').val('');
+
+      var num = $('.workflowbeanDiv tbody tr').length;
+      $('.relationshipPlacement .condition_no').empty();
+      for (var i = 0; i < num; i++) {
+        $('.relationshipPlacement .condition_no').append(
+          '<div class="inline field">'+
+          '   <div class="ui checkbox">'+
+          '       <input type="checkbox" tabindex="0" class="hidden">'+
+          '       <label>${'+(i+1)+'}</label>'+
+          '       <input type="hidden" name="${'+(i+1)+'}" value="">'+
+          '   </div>'+
+          '</div>');
+      }
+      $('.relationshipPlacement .condition_no').find('.ui.checkbox').checkbox({
+        onChecked: function() {
+          $(this).parents('.checkbox').find('input[name]').val(true);
+        },
+        onUnchecked: function() {
+          $(this).parents('.checkbox').find('input[name]').val(false);
+        }
+      });
+    })
+    //后置条件-条件设置-类型(按业务对象转移)-关系设置-确定
+    $('.relationshipPlacement .green.button').on('click', function() {
+      var beanConditions_type = $('.relationshipPlacement input[name=beanConditions_type]').val();
+      $('.workflowbeanDiv  input[name=beanConditions_type]').val(beanConditions_type);
+    })
+    
 
   };
+  
+  // 获取 后置条件-条件设置-类型(条件)下的列表
+  GraphCreator.prototype.getConditionList = function(condition, num) {
+    var displayCondi = {};
+    var sign = condition.sign_one;
+    displayCondi.sign_one = sign=='!='? '!=':sign=='=='? '=':sign=='IN'? '包含':sign=='NOT'? '不包含':sign=='PREFIX'? '前缀':sign=='SUFFIX'?'后缀':'';
+    sign = condition.sign_two;
+    displayCondi.sign_two = sign=='!='? '!=':sign=='=='? '=':sign=='IN'? '包含':sign=='NOT'? '不包含':sign=='PREFIX'? '前缀':sign=='SUFFIX'?'后缀':'';
+    displayCondi.fieldCondition_type = condition.fieldCondition_type=='AND'? '并且':condition.fieldCondition_type=='||'? '或者':'';
+    displayCondi.type = condition.key=='nextActivityName'?'External_java.util.ArrayList':'String';
+    displayCondi.key = condition.key;
+    displayCondi.displayValue_one = condition.displayValue_one;
+    displayCondi.displayValue_two = condition.displayValue_two;
+    condition.type = displayCondi.type;
+
+    var tr = '<tr jsonstr='+JSON.stringify(condition)+'>'+
+             '  <td>'+displayCondi.key+'</td>'+
+             '  <td>'+displayCondi.sign_one+'</td>'+
+             '  <td>'+displayCondi.displayValue_one+'</td>'+
+             '  <td>'+displayCondi.fieldCondition_type+'</td>'+
+             '  <td>'+displayCondi.sign_two+'</td>'+
+             '  <td>'+displayCondi.displayValue_two+'</td>'+
+             '  <td>'+displayCondi.type+'</td>'+
+             '</tr>'
+    if (condition.bean) {//类型：按业务对象转移
+      displayCondi.bean = condition.bean=='System_Wf_Source_Party'? '发送人':condition.bean=='System_cre_id'?'创建人':'';
+      displayCondi.paramField = condition.paramField!='0'? condition.paramField:'默认';
+      displayCondi.key = condition.key=='CorpName'?'获取组织名称':condition.key=='Extattr'?'获取人员扩展属性1':condition.key=='MObilephone'?
+        '获取人员移动电话号码':condition.key=='Firstname'?'获取人员姓氏':condition.key=='Gender'?'获取人员性别':condition.key=='Birthday'?
+        '获取人员出生日期':condition.key=='Securitylevel'?'获取人员安全级别':condition.key=='Mainemail'?'获取人员常用EMAI':condition.key=='Lastname'?
+        '获取人员名字':condition.key=='Duty'?'获取人员职务':condition.key=='Homeaddress'?'获取人员家庭住址':condition.key=='AdminLevel'?
+        '获取人员级别':condition.key=='Workno'?'获取人员工号':condition.key=='Callname'?'获取人员称呼':condition.key=='Otheremail'?
+        '获取人员备用EMAIL':condition.key=='Instantmessage'?'获取人员即时消息号':condition.key=='Name'?'获取人员姓名':
+        condition.key=='Officeaddress'?'获取人员工作地点ID':condition.key=='Fixedphone'?'获取人员固定电话号码':'';
+
+      condition.bean = condition.bean + ',personInfo';
+      condition.paramField = condition.paramField!='0'? condition.paramField:'';
+      condition.key = 'getMetaBeanById(&apos;personInfo&apos;,'+condition.bean+').get'+condition.key+'()';
+      condition.code = num;
+      tr = '<tr jsonstr='+JSON.stringify(condition)+'>'+
+           '  <td class="two wide">'+num+'</td>'+
+           '  <td class="two wide" title='+displayCondi.bean+'>'+displayCondi.bean+'</td>'+
+           '  <td class="two wide">'+displayCondi.paramField+'</td>'+
+           '  <td class="two wide" title='+displayCondi.key+'>'+displayCondi.key+'</td>'+
+           '  <td class="two wide">'+displayCondi.sign_one+'</td>'+
+           '  <td class="two wide">'+displayCondi.displayValue_one+'</td>'+
+           '  <td class="two wide">'+displayCondi.fieldCondition_type+'</td>'+
+           '  <td class="two wide">'+displayCondi.sign_two+'</td>'+
+           '  <td class="two wide">'+displayCondi.displayValue_two+'</td>'+
+           '  <td class="two wide">'+displayCondi.type+'</td>'+
+           '</tr>'
+    }
+    return tr;
+  }
   // 获取activity的ExtendedAttributes
   GraphCreator.prototype.getExtendedAttributes = function(node, deadlineXpdl, conventionalXpdl) {
     var extendAttr = node.extendAttr;
@@ -1587,16 +1863,34 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     });
     var transitions = "";
     edges.forEach(function(edge) {
-        transitions
-          += '<Transition From="'+edge.source.id+'" Id="'+edge.edgeId+'" To="'+edge.target.id+'">'
-           + '    <Condition/>'
-           + '    <ExtendedAttributes>'
-           + '        <ExtendedAttribute Name="TransitionRuleType"/>'
-           + '        <ExtendedAttribute Name="TransitionEventType" Value="transitionClass"/>'
-           + '        <ExtendedAttribute Name="conditype"/>'
-           + '        <ExtendedAttribute Name="RoutingType" Value="NOROUTING"/>'
-           + '    </ExtendedAttributes>'
-           + '</Transition>'
+      var conditype = edge.postCondition && edge.postCondition.conditype || '';
+      var conditypeXpdl = conditype? '<ExtendedAttribute Name="conditype" Value="'+conditype+'"/>':'<ExtendedAttribute Name="conditype"/>';
+      var condixml = edge.postCondition && edge.postCondition.condixml || '';
+      var condixmlXpdl = condixml? '<ExtendedAttribute Name="condixml" Value="'+condixml+'"/>':'';
+      var condition = '',
+        condiException = '';
+      if (conditype == 'CONDITION' || conditype == 'WORKFLOWBEAN') {
+        condition = '<Condition Type="CONDITION"><![CDATA[()]]></Condition>';
+      } else if (conditype) {
+        condition = '<Condition Type="'+conditype+'"/>'
+      } else {
+        condition = '<Condition/>';
+      }
+      if (conditype == 'EXCEPTION') {
+        condiException = edge.postCondition.condiException? '<ExtendedAttribute Name="condiException" Value="'+edge.postCondition.condiException+'"/>':'';
+      }
+      transitions
+        += '<Transition From="'+edge.source.id+'" Id="'+edge.edgeId+'" To="'+edge.target.id+'">'
+         +      condition
+         + '    <ExtendedAttributes>'
+         +          condiException
+         +          condixmlXpdl
+         + '        <ExtendedAttribute Name="TransitionRuleType"/>'
+         + '        <ExtendedAttribute Name="TransitionEventType" Value="transitionClass"/>'
+         +          conditypeXpdl
+         + '        <ExtendedAttribute Name="RoutingType" Value="NOROUTING"/>'
+         + '    </ExtendedAttributes>'
+         + '</Transition>'
     });
     var str
         = '<WorkflowProcesses>'
@@ -2044,9 +2338,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     state.lastKeyDown = d3.event.keyCode;
     var selectedNode = state.selectedNode,
       selectedEdge = state.selectedEdge;
-
+    /*
     switch (d3.event.keyCode) {
-      /*case consts.BACKSPACE_KEY:*/
+      //case consts.BACKSPACE_KEY:
       case consts.DELETE_KEY:
         d3.event.preventDefault();
         if (selectedNode) {
@@ -2061,7 +2355,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           thisGraph.updateGraph();
         }
         break;
-    }
+    }*/
   };
 
   GraphCreator.prototype.svgKeyUp = function() {

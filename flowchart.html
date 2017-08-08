@@ -4,10 +4,10 @@
 	<meta charset="UTF-8">
 	<title>flowChart</title>
     <!-- <link rel="stylesheet" type="text/css" href="css/style.css" /> -->
-	<link type="text/css" href="css/Semantic-UI-CSS-master/semantic.min.css" rel="stylesheet">
+	<link type="text/css" href="Semantic-UI-2.2.11/dist/semantic.min.css" rel="stylesheet">
 	<link type="text/css" href="css/graph-creator.css" rel="stylesheet" />
 	<link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet">
-	<link type="text/css" href="js/ztree/css/metroStyle/metroStyle.css" rel="stylesheet">
+	<link type="text/css" href="ztree/css/metroStyle/metroStyle.css" rel="stylesheet">
 	<link type="text/css" href="css/flowchart.css" rel="stylesheet"/>
 </head>
 <body>
@@ -456,11 +456,12 @@
 				    </select>
 				</div>
 				<div class="ui horizontal divider">选择目标活动</div>
-				<div class="targetActivityShow">
+				<div class="targetActivityShow content-div">
 					<div class="ui middle aligned list">
 						
 					</div>
 				</div>
+
 				<div class="targetActivity hideDiv">
 					<div class="ui top attached tabular mini menu">
 			    	  	<a class="active item" data-tab="four/a">转移信息</a>
@@ -494,7 +495,7 @@
 							<div class="ui horizontal divider">扩展属性集</div>
 			    			<div class="ui mini form grid transferInf_extended_attr">
 							  	<div class="computer only row">
-							  		<div class="twelve wide tablet computer column content-div">
+							  		<div class="twelve wide tablet computer column postCondi_extendedAttr">
 							  			<table class="ui blue sortable selectable celled striped compact table">
 											<thead>
 												<tr>
@@ -543,9 +544,8 @@
 							<div class="myitem hideDiv exceptionDiv">
 								<div class="five wide field">
 								    <label>请选择异常:</label>
-								    <select name="" class="ui search dropdown">
-								      	<option value="">请选择异常</option>
-								      	<option value="0">(空)</option>
+								    <select name="condiException" class="ui search dropdown">
+								      	<option value="请选择异常">请选择异常</option>
 								    </select>
 								</div>
 				            </div>
@@ -554,78 +554,103 @@
 					            <div class="inline fields">
 									<div class="five wide field">
 									    <label>业务对象:</label>
-									    <select name="" class="ui search dropdown">
+									    <select name="bean" class="ui search dropdown">
 									      	<option value="">请选择业务对象</option>
 									      	<option value="0">(空)</option>
-									      	<option value="1">发送人</option>
-									      	<option value="2">创建人</option>
+									      	<option value="System_Wf_Source_Party">发送人</option>
+									      	<option value="System_cre_id">创建人</option>
 									    </select>
 									</div>
 									<div class="five wide field">
-									    <label>默认字段:</label>
-									    <select name="" class="ui search dropdown">
+									    <label>参数字段:</label>
+									    <select name="paramField" class="ui search dropdown">
 									      	<option value="0">默认</option>
 									    </select>
 									</div>
 								</div>
 								<!-- 业务对象-发送人 -->
-								<div class="myitem hideDiv xxxDiv">
-					            	<div class="inline fields">
+								<div class="myitem hideDiv detailDiv">
+					            	<div class="inline three fields">
 										<div class="five wide field">
 										    <label>方法:</label>
-										    <select name="condition_field" class="ui search dropdown">
+										    <select name="key" class="ui search dropdown wide">
 										      	<option value="">请选择</option>
 										      	<option value="0">(空)</option>
-										      	<option value="">sourceReferenceId</option>
-										      	<option value="">formId</option>
-										      	<option value="">nextActivityName</option>
-										      	<option value="">formType</option>
+										      	<option value="CorpName">获取组织名称</option>
+										      	<option value="Extattr">获取人员扩展属性1</option>
+										      	<option value="MObilephone">获取人员移动电话号码</option>
+										      	<option value="Firstname">获取人员姓氏</option>
+										      	<option value="Gender">获取人员性别</option>
+										      	<option value="Birthday">获取人员出生日期</option>
+										      	<option value="Securitylevel">获取人员安全级别</option>
+										      	<option value="Mainemail">获取人员常用EMAI</option>
+										      	<option value="Lastname">获取人员名字</option>
+										      	<option value="Duty">获取人员职务</option>
+										      	<option value="Homeaddress">获取人员家庭住址</option>
+										      	<option value="AdminLevel">获取人员级别</option>
+										      	<option value="Workno">获取人员工号</option>
+										      	<option value="Callname">获取人员称呼</option>
+										      	<option value="Otheremail">获取人员备用EMAIL</option>
+										      	<option value="Instantmessage">获取人员即时消息号</option>
+										      	<option value="Name">获取人员姓名</option>
+										      	<option value="Officeaddress">获取人员工作地点ID</option>
+										      	<option value="Fixedphone">获取人员固定电话号码</option>
 										    </select>
 										</div>
-					            		<div class="five wide field">
+					            		<div class="field">
 										    <label>条件1:</label>
-										    <select name="condition_one" class="ui search dropdown condition_sel">
+										    <select name="sign_one" class="ui search dropdown condition_sel">
 										      	<option value="">请选择</option>
-										      	
 										    </select>
 										</div>
-										<div class="five wide field">
+										<div class="field">
 										    <label>参考值1:</label>
-										    <input type="text" name="condition_ref1" placeholder="参考值">
+										    <input type="text" name="displayValue_one" placeholder="参考值">
 										</div>
 					            	</div>
-					            	<div class="inline fields">
+					            	<div class="inline three fields">
 										<div class="five wide field">
-										    <label>方法:</label>
-										    <select name="condition_field" class="ui search dropdown">
-										      	<option value="">请选择</option>
-										      	<option value="0">(空)</option>
-										      	<option value="">sourceReferenceId</option>
-										      	<option value="">formId</option>
-										      	<option value="">nextActivityName</option>
-										      	<option value="">formType</option>
+										    <label>关系:</label>
+										    <select name="fieldCondition_type" class="ui search dropdown">
+										      	<option value="AND">并且</option>
+										      	<option value="||">或者</option>
 										    </select>
 										</div>
-					            		<div class="five wide field">
+					            		<div class="field">
 										    <label>条件2:</label>
-										    <select name="condition_two" class="ui search dropdown condition_sel">
+										    <select name="sign_two" class="ui search dropdown condition_sel">
 										      	<option value="">请选择</option>
-										      	
 										    </select>
 										</div>
-										<div class="five wide field">
+										<div class="field">
 										    <label>参考值2:</label>
-										    <input type="text" name="condition_ref1" placeholder="参考值">
+										    <input type="text" name="displayValue_two" placeholder="参考值">
 										</div>
 					            	</div>
 					            </div>
-								<button class="ui positive basic mini button _addBtn"><i class="icon plus"></i> 增 加 条 件</button>
-								<button class="ui negative basic mini button _removeBtn"><i class="icon remove"></i> 删 除 条 件</button>
+
+								<div class="fields">
+									<div class="five wide field">
+										<button class="ui positive basic mini button condition_addBtn"><i class="icon plus"></i> 增 加 条 件</button>
+										<button class="ui negative basic mini button condition_removeBtn"><i class="icon remove"></i> 删 除 条 件</button>
+										
+									</div>
+									<div class="ten wide field">
+										<div class="two fields">
+											<div class="seven wide field">
+						            	   		<input type="text" name="beanConditions_type" placeholder="整体关系" readonly>			
+						            	   	</div>
+						            	   	<div class="field">
+												<button class="ui facebook mini button relationshipPlaBtn"><i class="write icon"></i>关系设置</button>
+						            	   	</div>
+						            	</div>
+									</div>
+					            </div>
 								<div class="ui divider hidden"></div>
-						        <div class="ui grid content-div business_obj">
+						        <div class="ui grid conditionList2">
 								  	<div class="computer only row">
 								  		<div class="tablet computer column">
-								  			<table class="ui blue sortable selectable celled striped compact table">
+								  			<table class="ui blue sortable selectable fixed single line celled striped compact table">
 								  				<thead>
 													<tr>
 														<th class="two wide">编号</th>
@@ -647,16 +672,7 @@
 								  		</div>
 								  	</div>
 								</div>	
-								<div class="field">
-									<div class="two fields">
-										<div class="seven wide field">
-					            	   		<input type="text" placeholder="整体关系">			
-					            	   	</div>
-					            	   	<div class="five wide field">
-											<button class="ui facebook mini button definitionBtn"><i class="write icon"></i>关系设置</button>
-					            	   	</div>
-					            	</div>
-					            </div>
+								
 				            </div>
 				            <!-- 条件设置-类型-条件 -->
 				            <div class="myitem hideDiv conditionDiv">
@@ -664,7 +680,7 @@
 				            	<div class="inline fields">
 									<div class="five wide field">
 									    <label>字段:</label>
-									    <select name="condition_field" class="ui search dropdown">
+									    <select name="key" class="ui search dropdown">
 									      	<option value="">请选择</option>
 									      	<option value="0">(空)</option>
 									      	<option value="sourceReferenceId">sourceReferenceId</option>
@@ -675,34 +691,33 @@
 									</div>
 				            		<div class="five wide field">
 									    <label>条件1:</label>
-									    <select name="condition_one" class="ui search dropdown condition_sel">
+									    <select name="sign_one" class="ui search dropdown condition_sel">
 									      	<option value="">请选择</option>
-									      	
 									    </select>
 									</div>
 									<div class="five wide field">
 									    <label>参考值1:</label>
-									    <input type="text" name="condition_ref1" placeholder="参考值">
+									    <input type="text" name="displayValue_one" placeholder="参考值">
 									</div>
 				            	</div>
 				            	<div class="inline fields">
 									<div class="five wide field">
 									    <label>关系:</label>
-									    <select name="condition_rel" class="ui search dropdown">
-									      	<option selected="selected" value="1">并且</option>
-									      	<option value="2">或者</option>
+									    <select name="fieldCondition_type" class="ui search dropdown">
+									      	<option value="AND">并且</option>
+									      	<option value="||">或者</option>
 									    </select>
 									</div>
 				            		<div class="five wide field">
 									    <label>条件2:</label>
-									    <select name="condition_two" class="ui search dropdown condition_sel">
+									    <select name="sign_two" class="ui search dropdown condition_sel">
 									      	<option value="">请选择</option>
 									      	<option value="0">(空)</option>
 									    </select>
 									</div>
 									<div class="five wide field">
 									    <label>参考值2:</label>
-									    <input type="text" name="condition_ref2" placeholder="参考值">
+									    <input type="text" name="displayValue_two" placeholder="参考值">
 									</div>
 				            	</div>
 								<div class="inline fields">
@@ -712,14 +727,14 @@
 									</div>
 									<div class="five wide field">
 									    <label>整体关系:</label>
-									    <select name="condition_overall" class="ui search dropdown">
-									      	<option value="1">并且</option>
-									      	<option value="2">或者</option>
+									    <select name="fieldConditions_type" class="ui search dropdown">
+									      	<option value="AND">并且</option>
+									      	<option value="||">或者</option>
 									    </select>
 									</div>
 								</div>
 								<div class="ui divider hidden"></div>
-						        <div class="ui grid content-div">
+						        <div class="ui grid conditionList">
 								  	<div class="computer only row">
 								  		<div class="tablet computer column">
 								  			<table class="ui blue sortable selectable celled striped compact table">
@@ -743,15 +758,23 @@
 								</div>
 				            </div>
 				            <!-- 条件设置-类型-用户自定义 -->
-							<div class="myitem hideDiv tacheDiv">
+							<div class="myitem hideDiv userdefineDiv">
 								<div class="inline fields">	
 									<div class="five wide field">
 									    <label>条件:</label>
-									    <input type="text" placeholder="条件">
+									    <input name="condition_data" type="text" placeholder="条件">
 									</div>
 								</div>
 				            </div>
-
+				            <!-- 条件设置-类型-自定义转移 -->
+							<div class="myitem hideDiv customDiv">
+								<div class="ui form">
+								  	<div class="field">
+								  	  	<label>表达式：</label>
+								  	  	<textarea></textarea>
+								  	</div>
+								</div>
+				            </div>
 						</div>
 			    	</div>
 			    	<div class="ui bottom attached tab segment" data-tab="four/c">
@@ -771,6 +794,7 @@
 						</div>
 			    	</div>
 				</div>
+				
 			</div>
 		</div><!-- 后置条件 end -->
 		<!-- 扩展属性集 start -->
@@ -1689,6 +1713,57 @@
 			<input type="hidden" name="extendAttr_add_operate" value="">		
 		</div>
   	</div>
+  	<!-- 后置条件-条件设置-关系设置 -->
+  	<div class="ui coupled small modal tab segment relationshipPlacement">
+  		<i class="close icon"></i>
+  		<div class="header">关系设置</div>
+  		<div class="ui mini form">
+  			<div class="ui horizontal divider">选择条件代号</div>
+  	  		<div class="fields condition_no">
+               	
+			</div>
+			<div class="ui horizontal divider">选择关系</div>
+			<div class="fields">
+				<div class="inline field">
+					<div class="ui radio checkbox">
+						<input type="radio" name="relationship" tabindex="&&" class="hidden" value="">
+						<label>并且</label>
+					</div>
+				</div>
+				<div class="inline field">
+					<div class="ui radio checkbox">
+						<input type="radio" name="relationship" tabindex="||" class="hidden" value="">
+						<label>或者</label>
+					</div>
+				</div>
+			</div>
+			<div class="ui horizontal divider">设置</div>
+			<div class="two inline fields">
+				<div class="five wide field">
+					<button class="ui primary mini button relationshipGroup">
+						<i class="cubes icon"></i>分组
+					</button>
+					<button class="ui mini button relationshipReset">
+						<i class="reply all icon"></i>重置
+					</button>
+				</div>
+				<div class="seven wide field delivery">
+					<label>预览:</label>
+					<input name="beanConditions_type" type="text" placeholder="" readonly value="">
+				</div>
+			</div>
+										
+			<div class="ui divider hidden"></div>
+    		<div class="actions inverted segment clearfix">
+				<button class="ui right floated green inverted ok button">
+					<i class="checkmark icon"></i>确定
+				</button>
+				<button class="ui right floated red inverted cancel button">
+					<i class="remove icon"></i>取消
+				</button>
+			</div>
+		</div>
+  	</div>
   	<!-- 活动属性-扩展属性-添加 -->
 	<div class="ui coupled small modal tab segment extendAttr_add">
   	  	<div class="ui mini form">
@@ -1991,12 +2066,12 @@
 	<script type="text/javascript" src="js/common.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/d3.v3.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/juicer-min.js" charset="utf-8"></script>
-	<script type="text/javascript" src="js/layer/layer.js" charset="utf-8"></script>
-	<script type="text/javascript" src="js/semantic/semantic.js" charset="utf-8"></script>
-	<script type="text/javascript" src="js/ztree/js/jquery.ztree.all.js"></script>
+	<script type="text/javascript" src="layer/layer.js" charset="utf-8"></script>
+	<script type="text/javascript" src="Semantic-UI-2.2.11/dist/semantic.js" charset="utf-8"></script>
+	<script type="text/javascript" src="ztree/js/jquery.ztree.all.js"></script>
 	<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/vkbeautify.js" charset="utf-8"></script>
-	<script type="text/javascript" src="js/svg.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/base64.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/flowchart.js" charset="utf-8"></script>
 	
 	<script>
@@ -2245,14 +2320,38 @@
 			//semantic初始化
 			$('.pop-btn').popup();
 			//jquery插件滚动条
-			$(".content-div, .targetActivityShow").mCustomScrollbar();
+			$(".content-div, .postCondi_extendedAttr, .conditionList, .conditionList2").mCustomScrollbar();
 			//活动属性semantic初始化
 			$('.prop_layer .menu .item').tab();
-			$('.prop_layer .menu .item').on('click', function() {
+			$('.prop_layer>.menu .item').on('click', function() {
 				var item = $(this).attr('data-tab');
 				$('.prop_layer [data-tab="'+item+'"]').find('.content-div').mCustomScrollbar("update");
 				if (item == 'four') {
-					$('.post_condition .targetActivityShow').mCustomScrollbar("update");
+					$('.post_condition .postCondi_extendedAttr').mCustomScrollbar("update");
+					$('.prop_layer.modal').css({
+						height: '745px'
+					})
+					$('.prop_layer>.tab').css({
+						height: '608px'
+					})
+				} else {
+					$('.prop_layer.modal').css({
+						height: '577px'
+					})
+					$('.prop_layer>.tab').css({
+						height: '447px'
+					})
+				}
+			})
+			//后置条件下的tab
+			$('.targetActivity .menu .item').on('click', function() {//防止切换切换标签时滚动条消失
+				var item = $(this).attr('data-tab');
+				// $('.targetActivity div[data-tab="'+item+'"]').find('.content-div').mCustomScrollbar("update");
+				if (item == 'four/b') {
+					$('.conditionDiv .conditionList').mCustomScrollbar("update");
+				}
+				if (item == 'four/a') {
+					$('.targetActivity .postCondi_extendedAttr').mCustomScrollbar("update");
 				}
 			})
 			$('select.dropdown').dropdown();
@@ -2352,6 +2451,45 @@
 	          			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
+			})
+			/* 活动属性-后置条件-条件设置-关系设置 */
+			$(document).on('click', '.relationshipPlaBtn', function() {
+				var num = $('.workflowbeanDiv tbody tr').length;
+				if (num) {
+					$('.relationshipPlacement.modal').modal({
+						allowMultiple: true,
+						autofocus: false,
+						duration: {},
+						onHidden: function() {
+							$('.modal.prop_layer').dimmer('hide');
+		          			clearModal(this);
+		          		},
+						onShow: function() {
+		          			$('.modal.prop_layer').dimmer({closable: false}).dimmer('show');
+		          			$('.relationshipPlacement .condition_no').empty();
+		          			for (var i = 0; i < num; i++) {
+		          				$('.relationshipPlacement .condition_no').append(
+		          					'<div class="inline field">'+
+						    		'  	<div class="ui checkbox">'+
+						    		'  	  	<input type="checkbox" tabindex="0" class="hidden">'+
+						    		'  	  	<label>${'+(i+1)+'}</label>'+
+						    		'  	  	<input type="hidden" name="${'+(i+1)+'}" value="">'+
+						    		'  	</div>'+
+						    		'</div>');
+		          			}
+		          			$('.relationshipPlacement .condition_no').find('.ui.checkbox').checkbox({
+								onChecked: function() {
+									$(this).parents('.checkbox').find('input[name]').val(true);
+								},
+								onUnchecked: function() {
+									$(this).parents('.checkbox').find('input[name]').val(false);
+								}
+							});
+		          		}
+					}).modal('show');
+				} else {
+					layer.msg('请添加条件!', {time: 2000, icon:2});
+				}
 			})
 			/* 活动属性-扩展属性-添加 */
 			$(document).on('click', '.extended_attr .extendAttrAddBtn', function() {
