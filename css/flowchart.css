@@ -17,6 +17,7 @@ table { border-collapse:collapse }
 
 .ui.menu {margin:0;}
 .ui.modal>.header {padding:0 0 0.7rem 0;}
+.field textarea {resize:none!important;}
 
 .subheader { 
      
@@ -141,10 +142,10 @@ table { border-collapse:collapse }
 .content-div { overflow: auto; }
 .json_data.modal textarea { width: 100%!important; height: 100px; padding: 7px }
 #rMenu { position: absolute; width: 82px!important; display: none;}
-/* .prop_layer.modal{ height:577px; }
-.prop_layer>.tab{ height: 447px }  */
-.prop_layer.modal { height: 705px; }
-.prop_layer>.tab { height: 568px }
+.prop_layer.modal{ height:577px; }
+.prop_layer>.tab{ height: 447px }  
+/* .prop_layer.modal { height: 705px; }
+.prop_layer>.tab { height: 568px }*/
 .prop_layer.model .ui.checkbox label { font-size: 0.8em!important }
 
 .prop_layer_second.modal { height: 410px }
@@ -157,15 +158,15 @@ table { border-collapse:collapse }
 .post_condition .aligned.list {  }
 .post_condition .item { line-height: 19px; padding: 3px 6px!important }
 .post_condition .list .active { background: #dedede; }
-.post_condition .tab { height: 371px }
+.post_condition .tab { height: 414px }
 .post_condition .business_obj { height: 165px; }
 .post_condition .targetActivity { margin-top: 10px; }
 
 .conditionDiv .fields .field:nth-child(3) label { width: 70px!important; }
-.conditionDiv .content-div { height: 130px; width:100%;}
-.tacheDiv .field label { width: 35px!important; }
+.conditionDiv .conditionList { height: 130px; width:100%;}
+.userdefineDiv .field label { width: 35px!important; }
 
-.workflowbeanDiv .content-div { height: 102px; }
+.workflowbeanDiv .content-div { height: 143px; }
 
 .hideDiv { display: none }
 .hideitem { display: none!important }
@@ -174,7 +175,7 @@ table { border-collapse:collapse }
 
 .conventional_definition { height: 493px}
 .conventional_definition>.tab { height: 360px }
-.transferInf_extended_attr .content-div {
+.transferInf_extended_attr .postCondi_extendedAttr {
     height: 129px;
     overflow-y: auto;
 }
@@ -195,3 +196,9 @@ table { border-collapse:collapse }
 .ui.standards { height: 560px; }
 
 .monitorinf_grid { height:370px; }
+
+.detailDiv .fields .field:nth-child(1) .dropdown.selection {
+    width: 193px!important;
+}
+
+.delivery label { width: 36px!important; }

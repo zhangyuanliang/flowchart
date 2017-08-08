@@ -146,16 +146,16 @@
 }
 .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
 	background:#fff; /* rgba fallback */
-	background:rgba(255,255,255,0.75);
+	background:rgba(111, 107, 107, 0.75);
 	filter:"alpha(opacity=75)"; -ms-filter:"alpha(opacity=75)"; /* old ie */
 }
 .mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{
-	background:rgba(255,255,255,0.85);
+	background:rgba(111, 107, 107, 0.75);
 	filter:"alpha(opacity=85)"; -ms-filter:"alpha(opacity=85)"; /* old ie */
 }
 .mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
 .mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{
-	background:rgba(255,255,255,0.9);
+	background:rgba(111, 107, 107, 0.75);
 	filter:"alpha(opacity=90)"; -ms-filter:"alpha(opacity=90)"; /* old ie */
 }
 .mCSB_scrollTools .mCSB_buttonUp,
