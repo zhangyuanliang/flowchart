@@ -11,7 +11,6 @@
   - 产生相应的xml和xpdl
   - 保存（还未完成，待更新）
 ### 产品成果如下：
-![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/prtSrc/show.mp4)
 #### 图标视图
 ![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_1.jpg)
 #### Xpdl视图
