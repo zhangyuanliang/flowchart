@@ -12,11 +12,7 @@
   - 保存（还未完成，待更新）
 ### 产品成果如下：
 ![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/show.gif)
-#### 图标视图
-![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_1.jpg)
 #### Xpdl视图
 ![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_2.jpg)
 #### Xml视图
 ![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_3.jpg)
-#### 属性弹窗
-![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_4.jpg)
