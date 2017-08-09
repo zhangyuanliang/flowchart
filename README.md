@@ -1,6 +1,6 @@
 # flow-chart
 
-  Demo演示（chrome浏览）：
+  Demo演示（最好用Chrome测试，兼容Chrome、Firefox、IE11）：
   
   - [https://zhangyuanliang.github.io/flow-chart/flowchart.html](https://zhangyuanliang.github.io/flow-chart/flowchart.html)
   
