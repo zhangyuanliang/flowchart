@@ -1,10 +1,8 @@
 # flow-chart  
 
-  Demo演示（Chrome）：  
-  > &mdash;[**Demo Online**](https://zhangyuanliang.github.io/flow-chart/flowchart.html)  
-  
-  SVG实现流程图绘制，前端页面应用：`jquery.js`/`d3.js`/ `semantic.css`
-  
+Demo演示（Chrome）：  
+> &mdash;[**Demo Online**](https://zhangyuanliang.github.io/flow-chart/flowchart.html)  
+SVG实现流程图绘制，前端页面应用：`jquery.js`/`d3.js`/ `semantic.css`  
 功能包括：  
 - 流程图块生成、拖拽、连线  
 - 放大缩小功能  
@@ -14,8 +12,8 @@
 ### 产品成果如下：  
 >![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/show.gif)     
 #### Xpdl视图  
->![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_1.jpg)    
+>![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_1.png)    
 #### Xml视图
->![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_2.jpg) 
+>![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_2.png) 
 
 本项目兼容`Chrome/Firefox/IE11`，最好用`Chrome`浏览测试。
