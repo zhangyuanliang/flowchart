@@ -14,5 +14,6 @@
 #### Xpdl视图  
 >![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_2.jpg)    
 #### Xml视图
->![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_3.jpg)      
+>![Image text](https://github.com/zhangyuanliang/flow-chart/blob/master/img/img_3.jpg) 
+
 本项目兼容`Chrome/Firefox/IE11`，最好用`Chrome`浏览测试。
