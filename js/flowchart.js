@@ -373,33 +373,34 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       var selectedNode = thisGraph.state.selectedNode,
       selectedEdge = thisGraph.state.selectedEdge;
       if (item == 'removeMenu') {
-        if (selectedNode) {
-          //询问框
-          layer.confirm('确定要删除选择元素吗？', {
-            icon: 0,
-            btn: ['确定','取消'], //按钮
-            offset: '180px'
-          }, function(){
-            thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
-            thisGraph.spliceLinksForNode(selectedNode);
-            thisGraph.state.selectedNode = null;
+        if (!selectedNode && !selectedEdge) return false;
+        //询问框
+        layer.confirm('确定要删除选择元素吗？', {
+          icon: 0,
+          btn: ['确定','取消'], //按钮
+          offset: '180px'
+        }, function(){
+          if (selectedNode) {
+              thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
+              thisGraph.spliceLinksForNode(selectedNode);
+              thisGraph.state.selectedNode = null;
+              thisGraph.updateGraph();
+          } else if (selectedEdge) {
+            thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
+            thisGraph.state.selectedEdge = null;
             thisGraph.updateGraph();
-            layer.msg('删除成功', {icon: 1, offset: '180px', time: 600});
-          }, function(){
-            
-          });
-        } else if (selectedEdge) {
-          thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
-          thisGraph.state.selectedEdge = null;
-          thisGraph.updateGraph();
-        }
+          }
+          layer.msg('删除成功', {icon: 1, offset: '180px', time: 600});
+        }, function(){
+          
+        });
       }
       if (item == 'toFront') {
         alert('前置');
       }
-      //属性弹出层
-      if (item == 'propMenu') {
-        $('.ui.modal.prop_layer').modal({
+      //属性弹出层(节点)
+      if (item == 'propMenu' && selectedNode) {
+        $('.ui.modal.prop_node').modal({
           autofocus: false,
           closable: false,
           onApprove: function() {
@@ -412,7 +413,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             //更新-高级 属性
             thisGraph.state.selectedNode.highLevel = {};
             var highLevel = {};
-            $('.prop_layer .highLevel').find('input').each(function() {
+            $('.prop_node .highLevel').find('input').each(function() {
               highLevel[$(this).attr('name')] = $(this).val();
             })
             thisGraph.state.selectedNode.highLevel = highLevel;
@@ -426,7 +427,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               thisGraph.state.selectedNode.timeoutLimit.deadline.push(jsonstr);
             })
             //更新-后置条件
-            var item_act = $('.prop_layer .post_condition .list .item.active');
+            var item_act = $('.prop_node .post_condition .list .item.active');
             if (item_act.length) {
               var edge;
               var jsonObj = JSON.parse(item_act.attr('jsonStr'));
@@ -436,7 +437,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                 }
               }
               var postCondition = {};
-              var $transferInf = $('.prop_layer .post_condition div[data-tab="four/a"]');//转移信息
+              var $transferInf = $('.prop_node .post_condition div[data-tab="four/a"]');//转移信息
               $transferInf.find("input:not(.hidden), select, textarea").each(function() {
                 postCondition[$(this).attr('name')] = $(this).val();
               });
@@ -445,11 +446,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                 var jsonstr = $(this).attr('jsonstr');
                 postCondition.extendedAttrs.push(jsonstr);
               });
-              var $conditionSet = $('.prop_layer .post_condition div[data-tab="four/b"]');//条件设置
+              var $conditionSet = $('.prop_node .post_condition div[data-tab="four/b"]');//条件设置
               var conditype = $conditionSet.find('select[name=conditype]').val();
               postCondition.conditype = conditype;
               if (conditype == 'CONDITION') {//类型选择条件
-                var tr = $('.conditionDiv tbody').find('tr');
+                var tr = $('.post_condition .conditionDiv tbody').find('tr');
                 var fieldCondition = '',
                   condixml = '',
                   fieldConditions_type = '';
@@ -462,17 +463,17 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                       '   <expression key="'+json_obj.key+'" sign="'+json_obj.sign_two+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_two+'"><![CDATA['+json_obj.displayValue_two+']]></expression>'+
                       ' </fieldCondition>'
                   }) 
-                  fieldConditions_type = $('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('get value');
+                  fieldConditions_type = $('.post_condition .conditionDiv select[name=fieldConditions_type]').parent().dropdown('get value');
                 }
                 condixml = '<FieldConditions type="'+fieldConditions_type+'">'+ fieldCondition +'</FieldConditions>';
                 condixml = Base64.encode(condixml);
                 postCondition.condixml = condixml;
               }
               if (conditype == 'EXCEPTION') {//类型选择异常
-                postCondition.condiException = $('.exceptionDiv select[name=condiException]').parent().dropdown('get value');
+                postCondition.condiException = $('.post_condition .exceptionDiv select[name=condiException]').parent().dropdown('get value');
               }
               if (conditype == 'WORKFLOWBEAN') {//类型选择业务对象转移
-                var tr = $('.workflowbeanDiv tbody').find('tr');
+                var tr = $('.post_condition .workflowbeanDiv tbody').find('tr');
                 var beanCondition = '',
                   condixml = '',
                   beanConditions_type = '';
@@ -485,19 +486,19 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                       '  <expression key="'+json_obj.key+'" sign="'+json_obj.sign_two+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_two+'"><![CDATA['+json_obj.displayValue_two+']]></expression>'+
                       '</beanCondition>'
                   })
-                  beanConditions_type = $('.workflowbeanDiv input[name=beanConditions_type]').val();
+                  beanConditions_type = $('.post_condition .workflowbeanDiv input[name=beanConditions_type]').val();
                 }
                 condixml = '<beanConditions type="'+beanConditions_type+'">'+ beanCondition +'</beanConditions>';
                 condixml = Base64.encode(condixml);
                 postCondition.condixml = condixml;
               }
               if (conditype == 'USERDEFINE') {//类型选择用户自定义
-                postCondition.condition_data = $('.userdefineDiv input').val();
+                postCondition.condition_data = $('.post_condition .userdefineDiv input').val();
               }
               if (conditype == 'CUSTOM') {//类型选择自定义转移
-                postCondition.condition_data = $('.customDiv textarea').val();
+                postCondition.condition_data = $('.post_condition .customDiv textarea').val();
               }
-              var $event = $('.prop_layer .post_condition div[data-tab="four/c"]');//事件（标签）
+              var $event = $('.prop_node .post_condition div[data-tab="four/c"]');//事件（标签）
               $event.find("input[name], select").each(function() {
                 postCondition[$(this).attr('name')] = $(this).val();
               });
@@ -520,7 +521,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             //更新-常规
             thisGraph.state.selectedNode.conventional = {};
             var conventional = {};
-            $('.prop_layer .conventional').find('input[name], textarea, select').each(function() {
+            $('.prop_node .conventional').find('input[name], textarea, select').each(function() {
               conventional[$(this).attr('name')] = $(this).val();
             })
             if (conventional.ID != selectedNode.id) {
@@ -652,24 +653,56 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                   $('.transferInf_extended_attr tbody').append(html).find('.ui.checkbox').checkbox();
                   $(".transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar("update");
                 });
-                //遍历条件设置下列表
-                if (transition.postCondition && transition.postCondition.condixml) {//condixml base64
-                  var fieldConditions_obj = {fieldCondition:[]};
-                  var fieldConditions_str = Base64.decode(transition.postCondition.condixml);
-                  fieldConditions_obj.fieldConditions_type = $(fieldConditions_str).attr('type');
-                  $(fieldConditions_str).find('fieldCondition').each(function(fc) {
-                    var fieldCondition = {};
-                    fieldCondition.fieldCondition_type = $(this).attr('type');
-                    fieldCondition.key = $(this).find('expression').eq(0).attr('key');
-                    fieldCondition.sign_one = $(this).find('expression').eq(0).attr('sign');
-                    fieldCondition.type = $(this).find('expression').eq(0).attr('type');
-                    fieldCondition.displayValue_one = $(this).find('expression').eq(0).attr('displayValue');
-                    fieldCondition.sign_two = $(this).find('expression').eq(1).attr('sign');
-                    fieldCondition.displayValue_two = $(this).find('expression').eq(1).attr('displayValue');
-                    var tr = thisGraph.getConditionList(fieldCondition);
-                    $('.conditionDiv tbody').append(tr);
-                  })
-                  $('.conditionDiv tbody').data('fieldConditions_type', fieldConditions_obj.fieldConditions_type);
+                //遍历条件设置-类型（条件）下列表
+                if (transition.postCondition && transition.postCondition.conditype == 'CONDITION') {
+                  if (transition.postCondition.condixml) {//condixml base64
+                    var fieldConditions_obj = {fieldCondition:[]};
+                    var fieldConditions_str = Base64.decode(transition.postCondition.condixml);
+                    fieldConditions_obj.fieldConditions_type = $(fieldConditions_str).attr('type');
+                    $(fieldConditions_str).find('fieldCondition').each(function(fc) {
+                      var fieldCondition = {};
+                      fieldCondition.fieldCondition_type = $(this).attr('type');
+                      fieldCondition.key = $(this).find('expression').eq(0).attr('key');
+                      fieldCondition.sign_one = $(this).find('expression').eq(0).attr('sign');
+                      fieldCondition.type = $(this).find('expression').eq(0).attr('type');
+                      fieldCondition.displayValue_one = $(this).find('expression').eq(0).attr('displayValue');
+                      fieldCondition.sign_two = $(this).find('expression').eq(1).attr('sign');
+                      fieldCondition.displayValue_two = $(this).find('expression').eq(1).attr('displayValue');
+                      var tr = thisGraph.getConditionList(fieldCondition);
+                      $('.post_condition .conditionDiv tbody').append(tr);
+                    })
+                    $('.post_condition .conditionDiv tbody').data('fieldConditions_type', fieldConditions_obj.fieldConditions_type);
+                  }
+                } else {
+                  $('.post_condition .conditionDiv tbody').removeData('fieldConditions_type');
+                }
+                //遍历条件设置-类型（按业务对象转移）下列表
+                if (transition.postCondition && transition.postCondition.conditype == 'WORKFLOWBEAN') {
+                  if (transition.postCondition.condixml) {
+                    var beanConditions_obj = {beanCondition:[]};
+                    var beanConditions_str = Base64.decode(transition.postCondition.condixml);
+                    beanConditions_obj.fieldConditions_type = $(beanConditions_str).attr('type');
+                    $(beanConditions_str).find('beanCondition').each(function(fc) {
+                      var beanCondition = {};
+                      beanCondition.fieldCondition_type = $(this).attr('type');
+                      beanCondition.key = $(this).find('expression').eq(0).attr('key').split('.get')[1].replace('()', '');
+                      beanCondition.sign_one = $(this).find('expression').eq(0).attr('sign');
+                      beanCondition.type = $(this).find('expression').eq(0).attr('type');
+                      beanCondition.displayValue_one = $(this).find('expression').eq(0).attr('displayValue');
+                      beanCondition.sign_two = $(this).find('expression').eq(1).attr('sign');
+                      beanCondition.displayValue_two = $(this).find('expression').eq(1).attr('displayValue');
+
+                      beanCondition.bean = $(this).attr('bean').split(',')[0];
+                      beanCondition.paramField = $(this).attr('paramField');
+                      var num = $(this).attr('code');
+
+                      var tr = thisGraph.getConditionList(beanCondition, num);
+                      $('.post_condition .workflowbeanDiv tbody').append(tr);
+                    })
+                    $('.post_condition .workflowbeanDiv tbody').data('fieldConditions_type', beanConditions_obj.fieldConditions_type);
+                  }
+                } else {
+                  $('.post_condition .workflowbeanDiv tbody').removeData('fieldConditions_type');
                 }
                 //条件设置 事件（标签）
                 if (transition.postCondition) {
@@ -762,36 +795,51 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
             $('.conventional select[name="definition_role"]').siblings('.text').removeAttr('definition_id');
 
-            $('.prop_layer .menu .item[data-tab="one"]').trigger('click');
+            $('.prop_node .menu .item[data-tab="one"]').trigger('click');
           }
         }).modal('show');
         
-        $('.prop_layer>.menu a[data-tab*="two"]').addClass('hideitem');
+        $('.prop_node>.menu a[data-tab*="two"]').addClass('hideitem');
         if (selectedNode.title == '普通活动') {
-          $('.prop_layer>.menu a[data-tab="two_1"]').removeClass('hideitem');
+          $('.prop_node>.menu a[data-tab="two_1"]').removeClass('hideitem');
         }
         if (selectedNode.title == '块活动') {
-          $('.prop_layer>.menu a[data-tab="two_2"]').removeClass('hideitem');
+          $('.prop_node>.menu a[data-tab="two_2"]').removeClass('hideitem');
         }
         if (selectedNode.title == '子活动') {
-          $('.prop_layer>.menu a[data-tab="two_3"]').removeClass('hideitem');
+          $('.prop_node>.menu a[data-tab="two_3"]').removeClass('hideitem');
         }
+      } else if (item == 'propMenu' && selectedEdge) { //属性弹出层(连线)
+        $('.ui.modal.prop_edge').modal({
+          autofocus: false,
+          closable: false,
+          onApprove: function() {
+
+          }
+        }).modal('show');
       }
       $('#rMenu').hide();
     });
     //右击点击
     $('#container svg .graph').on('contextmenu', function(e) {
+      e.preventDefault();
       $('#flowComponents div[name="selectBtn"]').trigger('click');
       $('#container .conceptG').css('cursor', 'default');//防止在活动块上右击存在问题
       $("#rMenu").css({"top":(e.clientY-2)+"px", "left":(e.clientX-2)+"px"});
-      var selectedNode = thisGraph.state.selectedNode;
-      if (selectedNode.type != 'activity') {
-        $('#rMenu a[name="propMenu"]').hide();
-      } else {
-        $('#rMenu a[name="propMenu"]').show();
+      var selectedNode = thisGraph.state.selectedNode,
+        selectedEdge = thisGraph.state.selectedEdge;
+
+      if (selectedNode) {
+        if (selectedNode.type != 'activity') {
+          $('#rMenu a[name="propMenu"]').hide();
+        } else {
+          $('#rMenu a[name="propMenu"]').show();
+        }
+        $("#rMenu").show();
+      } else if (selectedEdge) {
+        $("#rMenu").show();
       }
-      $("#rMenu").show();
-      return false;
+      
     })
 
     $('svg').on('click', function() {
@@ -814,11 +862,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         return false;
       }
       var data = {name:name, value:value};
-      data = {data:data, jsonstr:JSON.stringify(data)}
+      data = {data:data, jsonstr:JSON.stringify(data)};
       var html = juicer($('#extended_attr_tpl').html(), data);
       var operate = $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_operate"]').val();
       if (operate) {
-        var selectedTr = $('.transferInf_extended_attr tbody tr.active');
+        var event_source = $(this).data('event_source');
+        var selectedTr = $(event_source).find('.transferInf_extended_attr tbody tr.active');
         selectedTr.attr('jsonstr', data.jsonstr);
         selectedTr.find('td').eq(1).text(data.data.name);
         selectedTr.find('td').eq(2).text(data.data.value);
@@ -1244,28 +1293,34 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     })
     //后置条件-条件设置-类型
-    $('.post_condition select[name=conditype]').on('change', function() {
-      var show_cls = '.'+$(this).val().toLowerCase()+'Div';
+    $('.targetActivity select[name=conditype]').on('change', function() {
+      var show_cls = '.' + $(this).val().toLowerCase() + 'Div';
       var show_div = $(this).parents('.fields').siblings(show_cls);
+      var targetActivity$ = $(this).parents('.targetActivity');//为了公用模板
       if (show_div.length) {
         show_div.removeClass('hideDiv').siblings('.myitem').addClass('hideDiv');
         if (show_cls == '.conditionDiv') {//显示-条件-默认选定
-          var fieldConditions_type = $('.conditionDiv tbody').data('fieldConditions_type');
+          var fieldConditions_type = targetActivity$.find('.conditionDiv tbody').data('fieldConditions_type');
           if (fieldConditions_type) {
-            $('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('set selected', fieldConditions_type);
+            targetActivity$.find('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('set selected', fieldConditions_type);
           } else {
-            $('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('set selected', 'AND');
+            targetActivity$.find('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('set selected', 'AND');
           }
-          $('.conditionDiv select[name=fieldCondition_type]').parent().dropdown('set selected', 'AND');
-          $(".conditionDiv .conditionList").mCustomScrollbar("update");
+          targetActivity$.find('.conditionDiv select[name=fieldCondition_type]').parent().dropdown('set selected', 'AND');
+          targetActivity$.find(".conditionDiv .conditionList").mCustomScrollbar("update");
         }
         if (show_cls == '.exceptionDiv') {//显示-异常-默认选定
-          $('.exceptionDiv select[name=condiException]:parent').dropdown('set selected', '请选择异常');
+          targetActivity$.find('.exceptionDiv select[name=condiException]:parent').dropdown('set selected', '请选择异常');
         }
         if (show_cls == '.workflowbeanDiv') {//显示-按业务对象转移-默认选定
-          $('.workflowbeanDiv select[name=paramField]').parent().dropdown('set selected', '0');
-          $('.workflowbeanDiv select[name=fieldCondition_type]').parent().dropdown('set selected', 'AND')
-          $('.workflowbeanDiv input[name=beanConditions_type]').val('AND');
+          var fieldConditions_type = targetActivity$.find('.workflowbeanDiv tbody').data('fieldConditions_type');
+          if (fieldConditions_type) {
+            targetActivity$.find('.workflowbeanDiv input[name=beanConditions_type]').val(fieldConditions_type);
+          } else {
+            targetActivity$.find('.workflowbeanDiv input[name=beanConditions_type]').val('AND');
+          }
+          targetActivity$.find('.workflowbeanDiv select[name=paramField]').parent().dropdown('set selected', '0');
+          targetActivity$.find('.workflowbeanDiv select[name=fieldCondition_type]').parent().dropdown('set selected', 'AND');
         }
         if (show_cls == '.userdefineDiv') {//显示-用户自定义-默认选定
           
@@ -1279,10 +1334,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     })
     //后置条件-条件设置-类型(条件)-字段
     $('.conditionDiv select[name=key]').on('change', function() {
-      var field = $(this).val();
-      $('.conditionDiv').find('input[name]').val('');
+      var field = $(this).val(),
+        conditionDiv$ = $(this).parents('.conditionDiv');
+      conditionDiv$.find('input[name]').val('');
       if (field != '0') {
-        var condition_sel = $('.conditionDiv .condition_sel');
+        var condition_sel = conditionDiv$.find('.condition_sel');
         if (field == 'nextActivityName') {
           condition_sel.dropdown('setup menu', {
               values: [
@@ -1307,10 +1363,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     //后置条件-条件设置-类型(条件)-增加条件
     $('.conditionDiv .condition_addBtn').on('click', function() {
       var condition = {};
-      $('.conditionDiv').find('input[name]').each(function() {
+      var conditionDiv$ = $(this).parents('.conditionDiv');
+      conditionDiv$.find('input[name]').each(function() {
         condition[$(this).attr('name')] = $(this).val();
       });//:not(".condition_sel")
-      $('.conditionDiv').find('.selection').each(function() {
+      conditionDiv$.find('.selection').each(function() {
         var value = $(this).find('.menu .item.selected').attr('data-value');//semantic-UI setmenu 存在bug, 无法取到值
         condition[$(this).children('select').attr('name')] = value;
       });
@@ -1325,36 +1382,39 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
 
       var tr = thisGraph.getConditionList(condition);
-      $('.conditionDiv tbody').append(tr);
-      $('.conditionDiv').find('input[name]').val('');
-      $(".conditionDiv .conditionList").mCustomScrollbar("update");
-      $(".conditionDiv .conditionList").mCustomScrollbar("scrollTo", "bottom", {
+      conditionDiv$.find('tbody').append(tr);
+      conditionDiv$.find('input[name]').val('');
+      conditionDiv$.find('.conditionList').mCustomScrollbar('update');
+      conditionDiv$.find('.conditionList').mCustomScrollbar('scrollTo', 'bottom', {
         scrollInertia: 1500
       });
     });
     //后置条件-条件设置-类型-删除条件
     $('.conditionDiv .condition_removeBtn').on('click', function() {
-      var tr = $('.conditionDiv tbody tr.active');
+      var conditionDiv$ = $(this).parents('.conditionDiv');
+      var tr = conditionDiv$.find('tbody tr.active');
       if (tr.length) {
         tr.remove();
-        $(".conditionDiv .conditionList").mCustomScrollbar("update");
+        conditionDiv$.find('.conditionList').mCustomScrollbar('update');
       } else {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
     });
     //后置条件-条件设置-类型(按业务对象转移)-业务对象
     $('.workflowbeanDiv select[name=bean]').on('change', function() {
+      var workflowbeanDiv$ = $(this).parents('.workflowbeanDiv');
       if (this.value != '0') {
-        $('.workflowbeanDiv .detailDiv').show('slow');
+        workflowbeanDiv$.find('.detailDiv').show('slow');
       } else {
-        $('.workflowbeanDiv .detailDiv').hide(1000);
+        workflowbeanDiv$.find('.detailDiv').hide(1000);
       }
     });
     //后置条件-条件设置-类型(按业务对象转移)-业务对象(发送人)-方法
     $('.detailDiv select[name=key]').on('change', function() {
-      $('.detailDiv').find('input[name]').val('');
+      var detailDiv$ = $(this).parents('.detailDiv');
+      detailDiv$.find('input[name]').val('');
       if (this.value != '0') {
-        var condition_sel = $('.detailDiv .condition_sel');
+        var condition_sel = detailDiv$.find('.condition_sel');
         condition_sel.dropdown('setup menu', {
             values: [
               {value: '==',  text: '=', name: '=' },
@@ -1369,16 +1429,17 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     });
     //后置条件-条件设置-类型(按业务对象转移)-增加条件
     $('.workflowbeanDiv .condition_addBtn').on('click', function() {
-      var bean = $('.workflowbeanDiv select[name=bean]').val();
+      var workflowbeanDiv$ = $(this).parents('.workflowbeanDiv');
+      var bean = workflowbeanDiv$.find('select[name=bean]').val();
       if (!bean || bean == '0') {
         layer.msg('请选择业务对象！', {time: 2000, icon:2});
         return false;
       }
       var condition = {};
-      $('.workflowbeanDiv').find('input[name]').each(function() {
+      workflowbeanDiv$.find('input[name]').each(function() {
         condition[$(this).attr('name')] = $(this).val();
       });//:not(".condition_sel")
-      $('.workflowbeanDiv').find('.selection').each(function() {
+      workflowbeanDiv$.find('.selection').each(function() {
         var value = $(this).find('.menu .item.selected').attr('data-value');//semantic-UI setmenu 存在bug, 无法取到值
         condition[$(this).children('select').attr('name')] = value;
       });
@@ -1391,21 +1452,22 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('条件参数不全！', {time: 2000, icon:2});
         return false;
       }
-      var num = $('.workflowbeanDiv tbody tr').length==0? 1:parseInt($('.workflowbeanDiv tbody tr:last').find('td:first').text())+1;
+      var num = workflowbeanDiv$.find('tbody tr').length==0? 1:parseInt($('.workflowbeanDiv tbody tr:last').find('td:first').text())+1;
       var tr = thisGraph.getConditionList(condition, num);
-      $('.workflowbeanDiv tbody').append(tr);
-      $('.workflowbeanDiv').find('input[name^=displayValue]').val('');
-      $(".workflowbeanDiv .conditionList2").mCustomScrollbar("update");
-      $(".workflowbeanDiv .conditionList2").mCustomScrollbar("scrollTo", "bottom", {
+      workflowbeanDiv$.find('tbody').append(tr);
+      workflowbeanDiv$.find('input[name^=displayValue]').val('');
+      workflowbeanDiv$.find('.conditionList2').mCustomScrollbar('update');
+      workflowbeanDiv$.find('.conditionList2').mCustomScrollbar('scrollTo', 'bottom', {
         scrollInertia: 1500
       });
     })
     //后置条件-条件设置-类型(按业务对象转移)-删除条件
     $('.workflowbeanDiv .condition_removeBtn').on('click', function() {
-      var tr = $('.workflowbeanDiv tbody tr.active');
+      var workflowbeanDiv$ = $(this).parents('.workflowbeanDiv');
+      var tr = workflowbeanDiv$.find('tbody tr.active');
       if (tr.length) {
         tr.remove();
-        $(".workflowbeanDiv .conditionList2").mCustomScrollbar("update");
+        workflowbeanDiv$.find('.conditionList2').mCustomScrollbar('update');
       } else {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }

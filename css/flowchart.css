@@ -20,7 +20,6 @@ table { border-collapse:collapse }
 .field textarea {resize:none!important;}
 
 .subheader { 
-     
     min-height: 47px;
     border-bottom: 1px solid #c7cacd; 
     padding-top: 18px; 
@@ -142,13 +141,13 @@ table { border-collapse:collapse }
 .content-div { overflow: auto; }
 .json_data.modal textarea { width: 100%!important; height: 100px; padding: 7px }
 #rMenu { position: absolute; width: 82px!important; display: none;}
-.prop_layer.modal{ height:577px; }
-.prop_layer>.tab{ height: 447px }  
-/* .prop_layer.modal { height: 705px; }
-.prop_layer>.tab { height: 568px }*/
-.prop_layer.model .ui.checkbox label { font-size: 0.8em!important }
+.prop_node.modal{ height:577px; }
+.prop_node>.tab{ height: 447px }  
+/* .prop_node.modal { height: 705px; }
+.prop_node>.tab { height: 568px }*/
+.prop_node.model .ui.checkbox label { font-size: 0.8em!important }
 
-.prop_layer_second.modal { height: 410px }
+.prop_node_second.modal { height: 410px }
 .toolgrid { height: 444px; }
 .ui.vertical button{ margin-bottom: 2px }
 .tool_add { height: 529px }
@@ -171,7 +170,7 @@ table { border-collapse:collapse }
 .hideDiv { display: none }
 .hideitem { display: none!important }
 
-.prop_layer_second .bottom.tab { height: 90px }
+.prop_node_second .bottom.tab { height: 90px }
 
 .conventional_definition { height: 493px}
 .conventional_definition>.tab { height: 360px }
@@ -202,3 +201,6 @@ table { border-collapse:collapse }
 }
 
 .delivery label { width: 36px!important; }
+
+.prop_edge .header { margin-bottom: 10px!important; }
+.prop_edge .tab { height: 400px }
