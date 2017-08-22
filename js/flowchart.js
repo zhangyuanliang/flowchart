@@ -24,7 +24,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       lastKeyDown: -1,
       shiftNodeDrag: false,
       selectedText: null,
-      drawLine: false
+      drawLine: null
     };
 
     // define arrow markers for graph links
@@ -32,7 +32,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     defs.append('svg:marker')
       .attr('id', 'end-arrow')
       .attr('viewBox', '0 -5 10 10')
-      .attr('refX', 50)
+      .attr('refX', 42)
       .attr('markerWidth', 5)
       .attr('markerHeight', 5)
       .attr('orient', 'auto')
@@ -85,12 +85,14 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           y: d.y
         };
       })
+      .on("dragstart", function(){d3.select(this).select("circle").attr("r", thisGraph.consts.nodeRadius+1);})
       .on("drag", function(args) {
         thisGraph.state.justDragged = true;
         thisGraph.dragmove.call(thisGraph, args);
       })
       .on("dragend", function(args) {
         // args = circle that was dragged
+        d3.select(this).select("circle").attr("r", thisGraph.consts.nodeRadius-1);
       });
 
     // listen for key events
@@ -120,6 +122,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         return true;
       })
       .on("zoomstart", function() {
+        console.log('zoomstart triggered');
         var ael = d3.select("#" + thisGraph.consts.activeEditId).node();
         if (ael) {
           ael.blur();
@@ -127,6 +130,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         if (!d3.event.sourceEvent.shiftKey) d3.select('body').style("cursor", "move");
       })
       .on("zoomend", function() {
+        console.log('zoomend triggered');
         d3.select('body').style("cursor", "auto");
       });
 
@@ -230,14 +234,15 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
       ev.originalEvent.dataTransfer.setData('text', JSON.stringify(json_obj));
       // $('#reset-zoom').trigger("click");
-    });
+      
+    }); 
     $('#container').on('drop', function(ev) {
       ev.stopPropagation(); //阻止冒泡
       ev.preventDefault(); //阻止默认行为
       var position = {};
       position.x = parseInt(ev.originalEvent.offsetX),
       position.y = parseInt(ev.originalEvent.offsetY);
-      // var xycoords = d3.mouse(thisGraph.svgG.node());
+      
       var data = JSON.parse(ev.originalEvent.dataTransfer.getData('text')),
         shapeId = data.shapename + new Date().getTime(),
         isCreate = true;
@@ -269,23 +274,26 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     }).on('dragover', function(ev) {
       ev.preventDefault();
     });
+
     //选择左侧工具
     $('#flowComponents .components-btn').on('click', function() {
       $(this).siblings().removeClass('active').end().addClass('active');
-      if('drawLineBtn'==$(this).attr('name')){
-        thisGraph.state.drawLine = true;
+      var nodeName = $(this).attr('name');
+      if ('drawLineBtn' == nodeName || 'drawPolylineBtn' == nodeName) {
+        thisGraph.state.drawLine = nodeName;
         $('#container').on('mouseover mouseout', '.conceptG', function(e) {
-          if(e.type == 'mouseover'){
+          if (e.type == 'mouseover') {
             this.style.cursor = 'crosshair';
-          }else if(e.type == 'mouseout'){
+          } else if (e.type == 'mouseout') {
             this.style.cursor = 'default';
           }
         });
-      }else{
+      } else {
         $('#container').off('mouseover mouseout', '.conceptG');
-        thisGraph.state.drawLine = false;
+        thisGraph.state.drawLine = null;
       }
     });
+
     //切换标签时获取xml和xpdl
     $('.full-right-btn.menu .item').on('click', function() {
       var dataTab = $(this).attr('data-tab');
@@ -298,6 +306,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $('#xpdlContainer xmp').empty().text(xpdlContent);
       }
     });
+
     //点击导入导出按钮
     $('.editor-toolbar').on('click', '.sign.in,.sign.out', function(event) {
       var isImport = $(this).hasClass('in');
@@ -362,7 +371,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           icon: 0,
           btn: ['确定','取消'], //按钮
           offset: '180px'
-        }, function(){
+        }, function() {
           if (selectedNode) {
             thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
             thisGraph.spliceLinksForNode(selectedNode);
@@ -374,11 +383,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             thisGraph.updateGraph();
           }
           layer.msg('删除成功', {icon: 1, offset: '180px', time: 600});
-        }, function(){
+        }, function() {
           
         });
       }
     });
+
     //右击菜单
     $('#rMenu .item').on('click', function() {
       var item = $(this).attr('name');
@@ -509,7 +519,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $(selector).find('.tab').find('select').dropdown('clear');
         $(selector).find('tbody').empty();
         $(selector).find('.postCondi_extendedAttr').mCustomScrollbar("update");
-
         //转移信息
         $(selector).find('input[name="edgeId"]').val(transition.edgeId);
         $(selector).find('input[name="edgeName"]').val(transition.postCondition && transition.postCondition.edgeName || '');
@@ -895,6 +904,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('#flowComponents div[name="selectBtn"]').trigger('click');
       return false;
     });
+
     //后置条件-扩展属性集-添加
     $('.postCondition_extendAttr_add .green.button').on('click', function() {
       var name = $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_name"]').val();
@@ -926,6 +936,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
       $('.postCondition_extendAttr_add.modal input').val("");
     })
+
     //后置条件-扩展属性集-编辑
     $('.targetActivity').on('click', '.transferInf_extended_attr .extendAttrEditBtn', function() {
       var selectedTr = $(this).parents('.grid').find('tbody tr.active');
@@ -974,6 +985,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
       $('.extendAttr_add.modal input').val("");
     })
+
     //扩展属性集-编辑
     $('.extended_attr .extendAttrEditBtn').on('click', function() {
       var selectedTr = $(this).parents('.grid').find('tbody tr.active');
@@ -986,6 +998,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.extended_attr .extendAttrAddBtn').trigger('click');
       // $('.extendAttr_add.modal').modal('show'); //会关闭一级弹窗
     })
+
     //扩展属性集-删除
     $('.extended_attr .extendAttrDelBtn').on('click', function() {
       var tr = $(this).parents('.grid').find('tbody tr.active');
@@ -995,6 +1008,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
     })
+
     //超时限制-增加-确定
     $('.timeoutLimit_add .green.button').on('click', function() {
       var deadline = {};
@@ -1020,6 +1034,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $(".timeout_limit_grid .content-div").mCustomScrollbar("scrollTo", "bottom", {scrollInertia: 1500});
       }
     })
+
     //超时限制-删除
     $('.timeoutLimitRemoveBtn').on('click', function() {
       var tr = $(this).parents('.grid').find('tbody tr.active');
@@ -1030,6 +1045,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
     })
+
     //超时限制-编辑
     $('.timeoutLimitEditBtn').on('click', function(){
       var tr = $(this).parents('.grid').find('tbody tr.active');
@@ -1045,6 +1061,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.timeoutLimit_add.modal input[name="timeoutLimit_add_operate"]').val("1");
       $('.timeoutLimitAddBtn').trigger('click');
     })
+
     //常规-定义
     $('.conventional').on('click', '.definitionBtn', function(event) {
       var rol_id = $('.conventional select[name="definition_role"]').siblings('.text').attr('definition_id');
@@ -1127,6 +1144,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         scrollInertia:1500
       });
     });
+
     //常规-定义-高级-删除条件
     $('.conventional_definition .definition_removeBtn').on('click', function() {
       var select = $('.conventional_definition .definition_condition tbody tr.active');
@@ -1137,6 +1155,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('请选择一行!', {time: 2000, icon: 2});
       }
     });
+
     //常规-定义-确定
     $('.conventional_definition .green.button').on('click', function() {
       var operate = $('.conventional_definition input[name="conventional_def_operate"]').val(),
@@ -1189,6 +1208,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('请选择一行', {time: 2000, icon: 2});
       }
     });
+
     //监控信息-编辑
     $('.monitorinf .monitorinfEditBtn').on('click', function() {
       var selected = $('.monitorinf').find('tbody tr.active');
@@ -1201,6 +1221,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('请选择一行', {time: 2000, icon: 2});
       }
     })
+
     //监控信息-增加-定义
     $('.monitorinf_add .definitionBtn').on('click', function() {
       var operate = $('.monitorinf_add input[name="monitorinf_add_operate"]').val();
@@ -1236,6 +1257,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         conventional_par++;
       }
     })
+
     //监控信息-增加-定义-高级-增加条件
     $('.monitorinfAddDefinition .monitorinfDefintionAddBtn').on('click', function() {
       var typeName = $('.monitorinfAddDefinition [data-tab="definition_two"]>.menu>.item.active').text(),
@@ -1282,6 +1304,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         scrollInertia: 1500
       });
     });
+
     //监控信息-增加-定义-高级-删除条件
     $('.monitorinfAddDefinition .monitorinfDefintionRemoveBtn').on('click', function() {
       var select = $('.monitorinfAddDefinition .definition_condition tbody tr.active');
@@ -1292,6 +1315,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('请选择一行!', {time: 2000, icon: 2});
       }
     });
+
     //监控信息-增加-定义-确定
     $('.monitorinfAddDefinition .green.button').on('click', function() {
       var operate = $('.monitorinfAddDefinition input[name="monitorinf_add_operate"]').val(),
@@ -1322,6 +1346,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.monitorinf_add select[name="definition_role"]').dropdown('set text', rol);
       $('.monitorinf_add .dropdown .text').attr('definition_id', participant.conventional_definition_id);
     });
+
     //监控信息-增加-确定
     $('.monitorinf_add .green.button').on('click', function() {
       var operate = $('.monitorinf_add input[name="monitorinf_add_operate"]').val();//operate:1为编辑
@@ -1338,6 +1363,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         node.monitorinf.responsible.push(definition_id);
       }
     })
+
     //后置条件-条件设置-类型
     $('.targetActivity').on('change', 'select[name=conditype]', function() {
       var show_cls = '.' + $(this).val().toLowerCase() + 'Div';
@@ -1378,6 +1404,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $(this).parents('.fields').siblings('.myitem').addClass('hideDiv');
       }
     })
+
     //后置条件-条件设置-类型(条件)-字段
     $('.targetActivity').on('change', '.conditionDiv select[name=key]', function() {
       var field = $(this).val(),
@@ -1406,6 +1433,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         }
       }
     })
+
     //后置条件-条件设置-类型(条件)-增加条件
     $('.targetActivity').on('click', '.conditionDiv .condition_addBtn', function() {
       var condition = {};
@@ -1435,6 +1463,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         scrollInertia: 1500
       });
     });
+
     //后置条件-条件设置-类型-删除条件
     $('.targetActivity').on('click', '.conditionDiv .condition_removeBtn', function() {
       var conditionDiv$ = $(this).parents('.conditionDiv');
@@ -1446,6 +1475,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
     });
+
     //后置条件-条件设置-类型(按业务对象转移)-业务对象
     $('.targetActivity').on('change', '.workflowbeanDiv select[name=bean]', function() {
       var workflowbeanDiv$ = $(this).parents('.workflowbeanDiv');
@@ -1455,6 +1485,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         workflowbeanDiv$.find('.detailDiv').hide(1000);
       }
     });
+
     //后置条件-条件设置-类型(按业务对象转移)-业务对象(发送人)-方法
     $('.targetActivity').on('change', '.detailDiv select[name=key]', function() {
       var detailDiv$ = $(this).parents('.detailDiv');
@@ -1473,6 +1504,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           }).dropdown('set selected', '=');
       }
     });
+
     //后置条件-条件设置-类型(按业务对象转移)-增加条件
     $('.targetActivity').on('click', '.workflowbeanDiv .condition_addBtn', function() {
       var workflowbeanDiv$ = $(this).parents('.workflowbeanDiv');
@@ -1507,6 +1539,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         scrollInertia: 1500
       });
     })
+
     //后置条件-条件设置-类型(按业务对象转移)-删除条件
     $('.targetActivity').on('click', '.workflowbeanDiv .condition_removeBtn', function() {
       var workflowbeanDiv$ = $(this).parents('.workflowbeanDiv');
@@ -1518,6 +1551,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         layer.msg('请选择一行!', {time: 2000, icon:0});
       }
     })
+
     //后置条件-条件设置-类型(按业务对象转移)-关系设置-分组
     $('.relationshipPlacement .relationshipGroup').on('click', function() {
       var names = [];
@@ -1556,6 +1590,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         });
 
     })
+
     //后置条件-条件设置-类型(按业务对象转移)-关系设置-重置
     $('.relationshipPlacement .relationshipReset').on('click', function() {
       $('.relationshipPlacement input[name=beanConditions_type]').val('');
@@ -1581,6 +1616,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         }
       });
     })
+
     //后置条件-条件设置-类型(按业务对象转移)-关系设置-确定
     $('.relationshipPlacement .green.button').on('click', function() {
       var beanConditions_type = $('.relationshipPlacement input[name=beanConditions_type]').val();
@@ -1643,6 +1679,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     }
     return tr;
   }
+
   // 获取activity的ExtendedAttributes
   GraphCreator.prototype.getExtendedAttributes = function(node, deadlineXpdl, conventionalXpdl) {
     var extendAttr = node.extendAttr;
@@ -1695,6 +1732,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             '</ExtendedAttributes>';
     return ExtendedAttributes;
   }
+
   //获取常规相应的xpdl
   GraphCreator.prototype.conventionalXpdl = function(node) {
     var thisGraph = this,
@@ -1714,6 +1752,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     conventionalXpdl.performer = conventional.performer?'<Performer>'+conventional.performer+'</Performer>':'';
     return conventionalXpdl;
   }
+
   //获取超时限制相应的xpdl 
   GraphCreator.prototype.deadlineXpdl = function(node) {
     var thisGraph = this,
@@ -1751,6 +1790,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     deadlineXpdl.deadline = deadlines_arr.length>0?'<ExtendedAttribute Name="deadline" Value="'+deadlines_arr.join('|')+'"/>':'<ExtendedAttribute Name="deadline"/>';
     return deadlineXpdl;
   }
+
   //获取activity进出线的数量
   GraphCreator.prototype.activityInOutNum = function(node) {
     var thisGraph = this;
@@ -1777,6 +1817,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     activity_inOut.transitionRefs = transitionRefs;
     return activity_inOut;
   }
+
   //获取TransitionRestrictions相应的xpdl
   GraphCreator.prototype.getTransitionRestrictions = function(node, activity_inOut) {
     var join = node.frontCondition.convergeType?'<Join Type="'+node.frontCondition.convergeType+'"/>':'<Join Type="XOR"/>';
@@ -1799,6 +1840,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     }
     return TransitionRestrictions;
   }
+
   //生成参与者相应的xpdl
   GraphCreator.prototype.getParticipants = function() { //??细节还有问题：1.isAppData; 2.condition,conditionXml;
     var thisGraph = this;
@@ -1835,6 +1877,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           + '</Participants>'
     return xpdl;
   }
+
   //生成所有activity xml添加至xmlContainer
   GraphCreator.prototype.emergeAllXmlContent = function() {
     var thisGraph = this;
@@ -1858,6 +1901,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     curText = vkbeautify.xml(curText);
     return curText;
   }
+
   //生成所有activity xml添加至xpdlContainer
   GraphCreator.prototype.emergeAllxpdlContent = function() {
     var thisGraph = this;
@@ -2159,14 +2203,94 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     BACKSPACE_KEY: 8,
     DELETE_KEY: 46,
     ENTER_KEY: 13,
-    nodeRadius: 40
+    nodeRadius: 34
   };
+  /**
+   * 获取link样式 [添加线样式 start:连线起点 des:连线终点]
+   * 如果 |dif.x| > |dif.y| 左右连线，反之，上下连线
+   * 如果 dif.x > 0 && dif.y < 0 第四象限
+   * 如果 dif.x > 0 && dif.y > 0 第一象限
+   * 如果 dif.x < 0 && dif.y > 0 第二象限
+   * 如果 dif.x < 0 && dif.y < 0 第三象限
+   */
+  GraphCreator.prototype.getLink_d = function(start, des) {
+    var d = start;
+    var mid_x = (d.x + des.x)/2,
+      mid_y = (d.y + des.y)/2;
+    var dif_x = des.x - d.x,
+      dif_y = des.y - d.y;
+    var link;
+    if (Math.abs(dif_x) > Math.abs(dif_y)) { // 左右连线
+      if (dif_x > 0 && dif_y > 0) { //第一象限（200,200-300,300）
+        // <path d="M 200,200 L 245,200 M 245,200 A 5,5,0,0,1 250,205 M 250,205 L 250,295 M 250,295 A 5,5,0,0,0 255,300 M 255,300 L 300,300" fill="none" stroke="#F18C16" stroke-width="1"></path>
+        link = 'M' + d.x + ',' + d.y + 'L' + (mid_x-5) + ',' + d.y + 'M' + (mid_x-5) + ',' + d.y + 'A 5,5,0,0,1 ' + mid_x + ',' + (d.y+5) + 
+          'M' + mid_x + ',' + (d.y+5) + 'L' + mid_x + ',' + (des.y-5) +'M' + mid_x + ',' + (des.y-5) + 'A 5,5,0,0,0' + (mid_x+5) + ',' + des.y + 
+          'M' + (mid_x+5) + ',' + des.y + 'L' + des.x + ',' + des.y;
+      }
+      if (dif_x < 0 && dif_y > 0) { //第二象限（200,200-100,300）
+        // <path d="M 200,200 L 155,200 M 155,200 A 5,5,0,0,0 150,205 M 150,205 L 150,295 M 150,295 A 5,5,0,0,1 145,300 M 145,300 L 100,300" fill="none" stroke="#F18C16" stroke-width="1"></path> 
+        link = 'M' + d.x + ',' + d.y + 'L' + (mid_x+5) + ',' + d.y + 'M' + (mid_x+5) + ',' + d.y + 'A 5,5,0,0,0 ' + mid_x + ',' + (d.y+5) + 
+          'M' + mid_x + ',' + (d.y+5) + 'L' + mid_x + ',' + (des.y-5) +'M' + mid_x + ',' + (des.y-5) + 'A 5,5,0,0,1' + (mid_x-5) + ',' + des.y + 
+          'M' + (mid_x-5) + ',' + des.y + 'L' + des.x + ',' + des.y;
+      }
+      if (dif_x < 0 && dif_y < 0) { //第三象限（200,200-100,100）
+        // <path d="M 200,200 L 155,200 M 155,200 A 5,5,0,0,1 150,195 M 150,195 L 150,105 M 150,105 A 5,5,0,0,0 145,100 M 145,100 L 100,100" fill="none" stroke="#F18C16" stroke-width="1"></path>
+        link = 'M' + d.x + ',' + d.y + 'L' + (mid_x+5) + ',' + d.y + 'M' + (mid_x+5) + ',' + d.y + 'A 5,5,0,0,1 ' + mid_x + ',' + (d.y-5) + 
+          'M' + mid_x + ',' + (d.y-5) + 'L' + mid_x + ',' + (des.y+5) +'M' + mid_x + ',' + (des.y+5) + 'A 5,5,0,0,0' + (mid_x-5) + ',' + des.y + 
+          'M' + (mid_x-5) + ',' + des.y + 'L' + des.x + ',' + des.y;
+      }
+      if (dif_x > 0 && dif_y < 0) { //第四象限（200,200-300,100）
+        // <path d="M 200,200 L 245,200 M 245,200 A 5,5,0,0,0 250,195 M 250,195 L 250,105 M 250,105 A 5,5,0,0,1 255,100 M 255,100 L 300,100" fill="none" stroke="#F18C16" stroke-width="1"></path>
+        link = 'M' + d.x + ',' + d.y + 'L' + (mid_x-5) + ',' + d.y + 'M' + (mid_x-5) + ',' + d.y + 'A 5,5,0,0,0 ' + mid_x + ',' + (d.y-5) + 
+          'M' + mid_x + ',' + (d.y-5) + 'L' + mid_x + ',' + (des.y+5) +'M' + mid_x + ',' + (des.y+5) + 'A 5,5,0,0,1' + (mid_x+5) + ',' + des.y + 
+          'M' + (mid_x+5) + ',' + des.y + 'L' + des.x + ',' + des.y;
+      }
+    } else { // 上下连线
+      if (dif_x > 0 && dif_y > 0) { //第一象限（200,200-300,300）
+        // <path d="M 100,100 L 100,145 M 100,145 A 5,5,0,0,0 105,150 M 105,150 L 195,150 M 195,150 A 5,5,0,0,1 200,155 M 200,155 L 200,200" fill="none" stroke="#0096f2" stroke-width="1"></path>
+        link = 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + (mid_y-5) + 'M' + d.x + ',' + (mid_y-5) + 'A 5,5,0,0,0 ' + (d.x+5) + ',' + mid_y + 
+          'M' + (d.x+5) + ',' + mid_y + 'L' + (des.x-5) + ',' + mid_y +'M' + (des.x-5) + ',' + mid_y + 'A 5,5,0,0,1' + des.x + ',' + (mid_y+5) + 
+          'M' + des.x + ',' + (mid_y+5) + 'L' + des.x + ',' + des.y;
+      }
+      if (dif_x < 0 && dif_y > 0) { //第二象限（200,200-100,300）
+        // <path d="M 200,200 L 200,245 M 200,245 A 5,5,0,0,1 195,250 M 195,250 L 105,250 M 105,250 A 5,5,0,0,0 100,255 M 100,255 L 100,300" fill="none" stroke="#0096f2" stroke-width="1"></path>
+        link = 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + (mid_y-5) + 'M' + d.x + ',' + (mid_y-5) + 'A 5,5,0,0,1 ' + (d.x-5) + ',' + mid_y + 
+          'M' + (d.x-5) + ',' + mid_y + 'L' + (des.x+5) + ',' + mid_y +'M' + (des.x+5) + ',' + mid_y + 'A 5,5,0,0,0' + des.x + ',' + (mid_y+5) + 
+          'M' + des.x + ',' + (mid_y+5) + 'L' + des.x + ',' + des.y;
+      }
+      if (dif_x < 0 && dif_y < 0) { //第三象限（200,200-100,100）
+        // <path d="M 200,200 L 200,155 M 200,155 A 5,5,0,0,0 195,150 M 195,150 L 105,150 M 105,150 A 5,5,0,0,1 100,145 M 100,145 L 100,100" fill="none" stroke="#0096f2" stroke-width="1"></path>
+        link = 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + (mid_y+5) + 'M' + d.x + ',' + (mid_y+5) + 'A 5,5,0,0,0 ' + (d.x-5) + ',' + mid_y + 
+          'M' + (d.x-5) + ',' + mid_y + 'L' + (des.x+5) + ',' + mid_y +'M' + (des.x+5) + ',' + mid_y + 'A 5,5,0,0,1' + des.x + ',' + (mid_y-5) + 
+          'M' + des.x + ',' + (mid_y-5) + 'L' + des.x + ',' + des.y;
+      }
+      if (dif_x > 0 && dif_y < 0) { //第四象限（200,200-300,100）
+        // <path d="M 200,200 L 200,155 M 200,155 A 5,5,0,0,1 205,150 M 205,150 L 295,150 M 295,150 A 5,5,0,0,0 300,145 M 300,145 L 300,100" fill="none" stroke="#0096f2" stroke-width="1"></path>
+        link = 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + (mid_y+5) + 'M' + d.x + ',' + (mid_y+5) + 'A 5,5,0,0,1 ' + (d.x+5) + ',' + mid_y + 
+          'M' + (d.x+5) + ',' + mid_y + 'L' + (des.x-5) + ',' + mid_y +'M' + (des.x-5) + ',' + mid_y + 'A 5,5,0,0,0' + des.x + ',' + (mid_y-5) + 
+          'M' + des.x + ',' + (mid_y-5) + 'L' + des.x + ',' + des.y;
+      }
+    }
+    return link;
+  }
 
   /* PROTOTYPE FUNCTIONS */
   GraphCreator.prototype.dragmove = function(d) {
     var thisGraph = this;
+    var drawLine = thisGraph.state.drawLine;
+    var link;
     if (thisGraph.state.shiftNodeDrag || thisGraph.state.drawLine) {
-      var link = thisGraph.dragLine.attr('d', 'M' + d.x + ',' + d.y + 'L' + d3.mouse(thisGraph.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
+      if (drawLine == 'drawLineBtn') { // 直线
+        link = thisGraph.dragLine.attr('d', 'M' + d.x + ',' + d.y + 'L' + d3.mouse(thisGraph.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
+      }
+      if (drawLine == 'drawPolylineBtn') { // 折线
+        var des = {
+          x: d3.mouse(this.svgG.node())[0], 
+          y: d3.mouse(this.svgG.node())[1]
+        }
+        var link_d = thisGraph.getLink_d(d, des);
+        link = thisGraph.dragLine.attr('d', link_d);
+      }
       refresh(link);//兼容IE11
     } else {
       d.x += d3.event.dx;
@@ -2277,12 +2401,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     }
 
     var prevEdge = state.selectedEdge;
-    if (!prevEdge || prevEdge !== d) {debugger
+    if (!prevEdge || prevEdge !== d) {
       thisGraph.replaceSelectEdge(d3path, d);
     } else {
       if(d3.event.button != 2){
         thisGraph.removeSelectFromEdge();
-        d.style('marker-end', 'url(#end-arrow)');
+        // d.style('marker-end', 'url(#end-arrow)');
       }
     }
   };
@@ -2304,6 +2428,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       return;
     }
   };
+  
   //更改属性div
   GraphCreator.prototype.changePropDiv = function(d){
     var thisGraph = this;
@@ -2314,7 +2439,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         '</div>'+
         '<div class="clearfix"></div>'+
         '<div> '+
-        '  <div name="type" class="prop-value"><span>类型:</span><span>null</span></div>'+
+        '  <div name="type" class="prop-value"><span>类型:</span><span>'+d.component+'</span></div>'+
         '  <div name="" class="prop-value"><span>执行者:</span><span>无</span></div>'+
         '</div>'+
         '<div class="clearfix"></div>');
@@ -2340,7 +2465,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         edgeId: workflow_id + '_Tra' + thisGraph.edgeNum++,
         postCondition: {transitionEventType: 'transitionClass'},
         source: mouseDownNode,
-        target: d
+        target: d,
+        drawLine: thisGraph.state.drawLine
       };
       var filtRes = thisGraph.paths.filter(function(d) {
         if (d.source === newEdge.target && d.target === newEdge.source) {
@@ -2502,7 +2628,20 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         return d === state.selectedEdge;
       })
       .attr("d", function(d) {
-        return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+        if (d.drawLine == 'drawLineBtn') {
+          return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+        }
+        if (d.drawLine == 'drawPolylineBtn') {
+          var start = {
+            x: d.source.x,
+            y: d.source.y
+          }
+          var des = {
+            x: d.target.x,
+            y: d.target.y
+          }
+          return thisGraph.getLink_d(start, des);
+        }
       });
     refresh(link);//兼容IE11
 
@@ -2512,7 +2651,20 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       .style('marker-end', 'url(#end-arrow)')
       .classed("link", true)
       .attr("d", function(d) {
-        return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+        if (d.drawLine == 'drawLineBtn') {
+          return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+        }
+        if (d.drawLine == 'drawPolylineBtn') {
+          var start = {
+            x: d.source.x,
+            y: d.source.y
+          }
+          var des = {
+            x: d.target.x,
+            y: d.target.y
+          }
+          return thisGraph.getLink_d(start, des);
+        }
       })
       .on("mousedown", function(d) {
         thisGraph.pathMouseDown.call(thisGraph, d3.select(this), d);

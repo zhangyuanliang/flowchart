@@ -56,7 +56,10 @@
 				<div><img src="icons/activity/list/type.receive.png"><span>路径活动</span></div>
 			</div>
 			<div class="components-btn noComponent clearfix" name="drawLineBtn" for-name="line">
-				<div><img src="icons/connector/sequenceflow.png" draggable="false"><span>线</span></div>
+				<div><img src="icons/connector/sequenceflow.png" draggable="false"><span>转移</span></div>
+			</div>
+			<div class="components-btn noComponent clearfix" name="drawPolylineBtn" for-name="line">
+				<div><img src="icons/connector/messageflow.png" draggable="false"><span>自转移</span></div>
 			</div>
 		</div>
 		<div class="full-right tab clearfix">
@@ -155,7 +158,7 @@
 				    </div>
 				    <div class="five wide field">
 					    <label>类型:</label>
-					    <input name="type" type="text" placeholder="类型" disabled="disabled">
+					    <input name="type" type="text" placeholder="类型" readonly>
 					</div>
 				</div>
 				<div class="ui divider hidden"></div>
@@ -2123,7 +2126,7 @@
 				</div>
 			</div>
     	</div>
-	</script>
+	</script><!-- Transition转移属性tpl-end -->
 
 	<script>
 		var Word = randomWord(false, 8);
@@ -2161,6 +2164,7 @@
 				}  
 			} 
 		};
+
 		function OnClick(event, treeId, treeNode) {
 			layer.close(treelayer);
 			$('.tab.active').find('.classifybtn').first().html(treeNode.name);
@@ -2188,6 +2192,7 @@
 			  	});
 			}
 		}
+
 		function onsuccess(event, treeId, treeNode, msg) {
 			/*var dataJson = JSON.parse(msg);
 			if(dataJson[0].path=='/root/jnszfgjjglzx'){
@@ -2221,6 +2226,7 @@
 					$(this).parents('.field').siblings().eq(1).removeClass('hideDiv');
 				}
 			});
+
 			//编辑工具(保存)
 			$('.editor-toolbar .icon.save').on('click', function() {
 				var dataTab = $('.full-right-btn .item.active').attr('data-tab');
@@ -2289,6 +2295,7 @@
 				$('#containerForm').submit();
 				
 			});
+
 			//控制属性显示
 			$('.component-name').on('click', function() {
 				if ($('.component-prop').is(':hidden')) {
@@ -2303,24 +2310,10 @@
 					$('.component-prop').toggle();
 				}
 			});
-			//点击左侧工具
-			/*$('#flowComponents .components-btn').on('click', function() {
-				$(this).siblings().removeClass('active').end().addClass('active');
-				if ('drawLineBtn' == $(this).attr('name')) {
-					$('#container').on('mouseover mouseout', '.conceptG', function(e) {alert()
-						if (e.type == 'mouseover') {
-	        				this.style.cursor = 'crosshair';
-	     				} else if (e.type == 'mouseout') {
-	        				this.style.cursor = 'default';
-	      				}
-					});
-				} else {
-					$('#container').off('mouseover mouseout', '.conceptG');
-				}
-			});*/
 		})
 	    
 	</script>
+
 	<script>
 		$(function() {
 			var initProp = '<div>'+
@@ -2344,6 +2337,7 @@
 			$('.pop-btn').popup();
 			//jquery插件滚动条
 			$(".content-div, .postCondi_extendedAttr, .conditionList, .conditionList2").mCustomScrollbar();
+
 			//活动属性semantic初始化
 			$('.prop_node .menu .item').tab();
 			$('.prop_node>.menu .item').on('click', function() {
@@ -2366,6 +2360,7 @@
 					})
 				}
 			})
+
 			//后置条件下的tab
 			$('.targetActivity .menu .item').on('click', function() {//防止切换切换标签时滚动条消失
 				var item = $(this).attr('data-tab');
@@ -2376,7 +2371,9 @@
 					$('.targetActivity .postCondi_extendedAttr').mCustomScrollbar("update");
 				}
 			})
+
 			$('select.dropdown').dropdown();
+
 			$('.ui.checkbox').checkbox({
 				onChecked: function() {
 					$(this).parents('.checkbox').find('input[name]').val(true);
@@ -2385,6 +2382,7 @@
 					$(this).parents('.checkbox').find('input[name]').val(false);
 				}
 			});
+
 			//checkbox 多人处理是否顺序执行 
 			$('.checkbox.assignmentsOrderDiv').checkbox({
     			onChecked: function() {
@@ -2395,6 +2393,7 @@
 					$(this).parents('.checkbox').find('input[name]').val(false);
 				}
 			});
+
 			//checkbox 是否多人处理
 			$('.checkbox.completeAllAssignmentsDiv').checkbox({
     			onChecked: function() {
@@ -2411,6 +2410,7 @@
 					$('.front_condition').find('input[name="isCreateNew"]').val($(this).attr('tabindex'));
 			    }
 			});
+
 			/* 活动属性-常规-定义 */
 			$(document).on('click', '.conventional .definitionBtn', function() {
 				$('.conventional_definition.modal').modal({
@@ -2428,6 +2428,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 活动属性-工具-添加 */
 			$(document).on('click', '.modal.prop_node .toolAddBtn', function() {
 				$('.tool_add.modal').modal({
@@ -2443,7 +2444,8 @@
 	          		}
 				}).modal('show');
 			})
-			/*  活动属性-工具-添加-扩展属性添加 */
+
+			/* 活动属性-工具-添加-扩展属性添加 */
 			$(document).on('click', '.modal.tool_add .actualParametersAdd2', function() {
 				$('.tool_extendAttr_add.modal').modal({
 					allowMultiple: true,
@@ -2458,7 +2460,8 @@
 	          		}
 				}).modal('show');
 			})
-			/*  活动属性-后置条件-扩展属性-添加 */
+
+			/* 活动属性-后置条件-扩展属性-添加 */
 			$(document).on('click', '.post_condition .extendAttrAddBtn', function() {
 				$('.postCondition_extendAttr_add.modal').modal({
 					allowMultiple: true,
@@ -2474,7 +2477,8 @@
 	          		}
 				}).modal('show');
 			})
-			/*  连线属性-扩展属性-添加 */
+
+			/* 连线属性-扩展属性-添加 */
 			$(document).on('click', '.prop_edge .extendAttrAddBtn', function() {
 				$('.postCondition_extendAttr_add.modal').modal({
 					allowMultiple: true,
@@ -2490,6 +2494,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 活动属性-后置条件-条件设置-关系设置 */
 			$(document).on('click', '.relationshipPlaBtn', function() {
 				var num = $('.workflowbeanDiv tbody tr').length;
@@ -2529,11 +2534,12 @@
 					layer.msg('请添加条件!', {time: 2000, icon:2});
 				}
 			})
+
 			/* 活动属性-扩展属性-添加 */
 			$(document).on('click', '.extended_attr .extendAttrAddBtn', function() {
 				$('.extendAttr_add.modal').modal({
 					allowMultiple: true,
-					autofocus: false,
+					autofocus: true,
 					duration: {},
 					onHidden: function() {
 	          			$('.modal.prop_node').dimmer('hide');
@@ -2544,6 +2550,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 超时限制-增加 */
 			$(document).on('click', '.modal.prop_node .timeoutLimitAddBtn', function() {
 				$('.timeoutLimit_add.modal').modal({
@@ -2559,6 +2566,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 监控信息-增加 */
 			/*$('.monitorinf_add.modal').modal({
 				allowMultiple: true,
@@ -2572,6 +2580,7 @@
           			$('.modal.prop_node').dimmer({closable: false}).dimmer('show');
           		}
 			}).modal('attach events', '.modal.prop_node .monitorinfAddBtn');//attach events 在firefox下存在问题*/
+
 			$(document).on('click', '.modal.prop_node .monitorinfAddBtn', function() {
 				$('.monitorinf_add.modal').modal({
 					allowMultiple: true,
@@ -2586,6 +2595,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 监控信息-增加-定义 */
 			$(document).on('click', '.modal.monitorinf_add .definitionBtn', function() {
 				$('.monitorinfAddDefinition.modal').modal({
@@ -2602,6 +2612,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 工具-添加-定义 */
 			$(document).on('click', '.modal.tool_add .definitionBtn', function() {
 				$('.tooldefinition.modal').modal({
@@ -2617,6 +2628,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 工具-添加-定义-添加 */
 			$(document).on('click', '.modal.tooldefinition .tooldefinitionAddBtn', function() {
 				$('.tooldefinition_add.modal').modal({
@@ -2632,6 +2644,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 工具-添加-定义-添加-添加 */
 			$(document).on('click', '.modal.tooldefinition_add .tooldefinitionAddAddBtn', function() {
 				$('.tooldefinition_add_add.modal').modal({
@@ -2647,6 +2660,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 工具-添加-添加 */
 			$(document).on('click', '.modal.tool_add .actualParametersAdd1', function() {
 				$('.actualParametersDiv.modal').modal({
@@ -2662,6 +2676,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 工具-添加-添加-定义 */
 			$(document).on('click', '.modal.actualParametersDiv .definitionBtn', function() {
 				$('.toolAddDefinition.modal').modal({
@@ -2677,6 +2692,7 @@
 	          		}
 				}).modal('show');
 			})
+
 			/* 工具-添加-添加-定义-添加 */
 			$(document).on('click', '.modal.toolAddDefinition .toolAddDefinitionAddBtn', function() {
 				$('.toolAddDefinitionAdd.modal').modal({
@@ -2692,6 +2708,7 @@
 	          		}
 				}).modal('show');
 			})
+
     		//点击显示树形结构div
 			$('input[name="definition_name"]').on('click', function() {
 				treelayer = layer.open({
@@ -2706,11 +2723,13 @@
 				zTree = $.fn.zTree.getZTreeObj("treeDemo");
 			});
 		})
+
 		//清空表单
 		function clearModal(selector) {
 			$(selector).find('input, textarea').val('');
     		$(selector).find('.ui.dropdown').dropdown('clear');
 		}
+
 		//刷新显示滚动条
 		function updateScrollbar() {
 			var dataTab = $(this).attr('data-tab');

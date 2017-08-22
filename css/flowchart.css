@@ -62,7 +62,7 @@ table { border-collapse:collapse }
     min-width: 100px; 
     min-height: 23px; 
 }
-.components-btn:hover { background: #d8d5d5 }
+.components-btn:hover { background: #d8d5d5; }
 .components-btn.active { background: #d8d5d5 }
 .components-btn img,span{ cursor: pointer }
 .components-btn img { float: left; margin: 4px 0 4px 3px }
@@ -117,7 +117,8 @@ table { border-collapse:collapse }
     padding-left: 7px;
     font-weight: bold;
 }
-.component-name:hover { cursor: pointer}
+.component-name:hover { cursor: pointer; }
+.component-name:hover i:first-child { color: #66C17B; }
 .component-prop { height: 114px; }
 .component-prop .prop-value {
     float: left;
