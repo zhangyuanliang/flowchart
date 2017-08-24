@@ -63,6 +63,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       .attr('fill', 'rgb(229, 172, 247)');
 
     thisGraph.svg = svg;
+    thisGraph.show_position = svg.append("text")
+      .attr({
+        'x': 1120,
+        'y': 15,
+        'fill': '#E1784B'
+      })
     thisGraph.svgG = svg.append("g")
       .classed(thisGraph.consts.graphClass, true);
     var svgG = thisGraph.svgG;
@@ -108,9 +114,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     svg.on("mouseup", function(d) {
       thisGraph.svgMouseUp.call(thisGraph, d);
     });
+    svg.on("mousemove", function(d) {
+      thisGraph.show_position.text('pos: '+d3.mouse(svgG.node())[0].toFixed(0)+', '+d3.mouse(svgG.node())[1].toFixed(0));
+    });
 
     // listen for dragging
     var dragSvg = d3.behavior.zoom()
+      .scaleExtent([0.3, 2])
       .on("zoom", function() {
         console.log('zoom triggered');
         if (d3.event.sourceEvent.shiftKey) {
@@ -133,7 +143,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         console.log('zoomend triggered');
         d3.select('body').style("cursor", "auto");
       });
-
+    thisGraph.dragSvg = dragSvg;
     svg.call(dragSvg).on("dblclick.zoom", null);
 
     // listen for resize
@@ -150,11 +160,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     d3.select("#reset-zoom").on("click", function() {
       d3.select(".graph")
         .transition() // start a transition
-              .duration(1000) // make it last 1 second
-              .attr('transform', "translate(1,0)");
+        .duration(1000) // make it last 1 second
+        .attr('transform', "translate(0,0) scale(1)");
 
       dragSvg.scale(1);
-      dragSvg.translate([1,0]);
+      dragSvg.translate([0,0]);
     });
 
     // handle download data
@@ -243,6 +253,21 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       position.x = parseInt(ev.originalEvent.offsetX),
       position.y = parseInt(ev.originalEvent.offsetY);
       
+      var transform = $(this).find('.graph').attr('transform');
+      if (transform) {
+        var result=[];
+        var p=/\(([^)]*)\)/g;
+        var ele;
+        while ((ele=p.exec(transform))!=null){
+           result.push(ele[1]);
+        }
+        var translate = result[0].split(',');
+        var scale = result[1].split(',')[0];
+        position.x = (position.x - translate[0])/scale;
+        position.y = (position.y - translate[1])/scale;
+
+      }
+
       var data = JSON.parse(ev.originalEvent.dataTransfer.getData('text')),
         shapeId = data.shapename + new Date().getTime(),
         isCreate = true;
@@ -388,6 +413,64 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         });
       }
     });
+    //放大、缩小按钮 scale(0.3-2)
+    d3.selectAll('.editor-toolbar #zoom-enlarge,#zoom-narrow').on('click', function() {
+      /*var transform = d3.select('svg .graph').attr('transform');
+      var id = this.id;
+      var tranlate, scale;
+      if (/scale\(([^)]*)\)/.test(transform)) {
+        transform = transform.replace(/scale\(([^)]*)\)/, function(v, v1) {
+          if (id == 'zoom-enlarge') {
+            if (v1 >= 2) return 'scale(2)';
+            return 'scale('+(parseFloat(v1)+0.1)+')';
+          } else {
+            if (v1 <= 0.3) return 'scale(0.3)';
+            return 'scale('+(parseFloat(v1)-0.1)+')';
+          }
+        })
+      } else {
+        if (id == 'zoom-enlarge') {
+          transform = 'translate(0,0) scale(1.1)';
+        } else {
+          transform = 'translate(0,0) scale(0.9)';
+        }
+      }
+      d3.select('.graph').attr('transform', transform);*/
+
+      var transform = d3.select('svg .graph').attr('transform');
+      var id = this.id;
+      var translate = [0, 0], 
+        scale = 0;
+
+      var regExp_scale = /scale\(([^)]*)\)/;
+      var regExp_trans = /translate\(([^)]*)\)/;
+
+      if (regExp_scale.test(transform) && regExp_trans.test(transform)) {
+        scale = regExp_scale.exec(transform)[1].split(',')[0];
+        translate = regExp_trans.exec(transform)[1].split(',');
+        if (id == 'zoom-enlarge') {
+            if (scale < 2) {
+              scale = parseFloat(scale)+0.1;
+            }
+          } else {
+            if (scale > 0.3) {
+              scale = parseFloat(scale)-0.1;
+            }
+          }
+      } else {
+        if (id == 'zoom-enlarge') {
+          scale = 1.1;
+        } else {
+          scale = 0.9;
+        }
+      }
+
+      var iTranslate = d3.interpolate(dragSvg.translate(), translate),
+        iScale = d3.interpolate(dragSvg.scale(), scale);
+      dragSvg.scale(iScale(scale))
+          .translate(iTranslate(translate));
+      thisGraph.zoomed();
+    })
 
     //右击菜单
     $('#rMenu .item').on('click', function() {
@@ -2539,8 +2622,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       state.justScaleTransGraph = false;
     } else if (state.graphMouseDown && d3.event.shiftKey) {
       // clicked not dragged from svg
-      console.log(thisGraph.svgG);
-      console.log(thisGraph.svgG.node());
       var xycoords = d3.mouse(thisGraph.svgG.node()),
         d = {
           id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
@@ -2567,11 +2648,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         };
       thisGraph.nodes.push(d);
       thisGraph.updateGraph();
-    } else if (state.shiftNodeDrag||state.drawLine) {
+    } else if (state.shiftNodeDrag || state.drawLine) {
       // dragged from node
       state.shiftNodeDrag = false;
       thisGraph.dragLine.classed("hidden", true);//win7 IE11下存在bug
-      
     }
     state.graphMouseDown = false;
   };
@@ -2719,11 +2799,30 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     // remove old nodes
     thisGraph.circles.exit().remove();
   };
-
+  /*
+  GraphCreator.prototype.zoomed = function(translate, scale) {
+    this.state.justScaleTransGraph = true;
+    if (translate && translate.length) d3.event.translate = translate;
+    if (scale) d3.event.scale = scale;
+    if (this.state.graphMouseDown) { //鼠标拖动graph
+      var transform = d3.select("." + this.consts.graphClass).attr("transform");
+      var scale = /scale\(([^)]*)\)/.exec(transform)[1];
+      d3.select("." + this.consts.graphClass)
+        .attr("transform", "translate(" + d3.event.translate + ") scale(" + scale + ")");
+    } else { //滚轮缩放
+      d3.select("." + this.consts.graphClass)
+        .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+      
+    }
+  };*/
   GraphCreator.prototype.zoomed = function() {
     this.state.justScaleTransGraph = true;
+    var translate = this.dragSvg.translate();
+    var scale = this.dragSvg.scale();
+    if (!translate[0]) translate = [0, 0];
+    if (!scale) scale = 1;
     d3.select("." + this.consts.graphClass)
-      .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+      .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
   };
 
   GraphCreator.prototype.updateWindow = function(svg) {
