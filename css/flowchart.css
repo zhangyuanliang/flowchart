@@ -15,6 +15,8 @@ table { border-collapse:collapse }
 .clearfix:after {content: "."; display: block; height:0; clear:both; visibility: hidden}
 .clearfix { *zoom:1 }
 
+.bg-gray { background: #d8d5d5; }
+
 .ui.menu {margin:0;}
 .ui.modal>.header {padding:0 0 0.7rem 0;}
 .field textarea {resize:none!important;}
@@ -32,16 +34,17 @@ table { border-collapse:collapse }
     font-size: 20px; 
     margin: 0 4px; 
 }
-.subheader .column:hover { cursor: pointer }
+.subheader .column:hover { cursor: pointer;}
 .subheader .divider { 
     display: inline-block; 
     height: 14px; 
     border-right: 1px solid #c7cacd; 
 }
-.editor-toolbar .icon:hover { color: #66C17B; }
+.editor-toolbar .icon { color: #3B5998 }
+.editor-toolbar .icon:hover { color: #21BA45; }
 
 .full {height: 93%}
-.full-left,.full-right { height: 574px; float: left }
+.full-left,.full-right { height: 594px; float: left }
 .full-left { width: 8%; padding: 5px; }
 .full-right { width: 92% }
 .full-right form { height: 574px }
