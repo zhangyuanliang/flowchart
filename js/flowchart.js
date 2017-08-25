@@ -261,8 +261,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         while ((ele=p.exec(transform))!=null){
            result.push(ele[1]);
         }
-        var translate = result[0].split(',');
-        var scale = result[1].split(',')[0];
+        var translate = result[0] && result[0].split(',') || [0, 0];
+        var scale = result[1] && result[1].split(',')[0] || 1;
         position.x = (position.x - translate[0])/scale;
         position.y = (position.y - translate[1])/scale;
 
@@ -352,6 +352,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                 var target = json.edges[i].target.id;
                 var edge = {};
                 edge.edgeId = json.edges[i].edgeId;
+                edge.drawLine = json.edges[i].drawLine;
+                edge.postCondition = json.edges[i].postCondition;
                 for (var j in json.nodes) {
                   var node = json.nodes[j].id
                   if (source == node) edge.source = nodes[j];
