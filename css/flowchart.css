@@ -65,8 +65,14 @@ table { border-collapse:collapse }
     min-width: 100px; 
     min-height: 23px; 
 }
-.components-btn:hover { background: #d8d5d5; }
-.components-btn.active { background: #d8d5d5 }
+.components-btn:hover { background: #e6e7f5; border-radius: 3px }
+.components-btn:not(.noComponent) span:hover:after{
+  content: '\00BB'; 
+  color: #21BA45;
+  margin-left: 5px
+}
+
+.components-btn.active { background: #e6e7f5;border-radius: 3px;}
 .components-btn img,span{ cursor: pointer }
 .components-btn img { float: left; margin: 4px 0 4px 3px }
 .components-btn span { float: left; padding-left: 5px; display: block; }
