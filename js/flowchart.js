@@ -65,7 +65,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     thisGraph.svg = svg;
     thisGraph.show_position = svg.append("text")
       .attr({
-        'x': 1120,
+        'x': 1107,
         'y': 15,
         'fill': '#E1784B'
       })
@@ -122,7 +122,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var dragSvg = d3.behavior.zoom()
       .scaleExtent([0.3, 2])
       .on("zoom", function() {
-        console.log('zoom triggered');
+        // console.log('zoom triggered');
         if (d3.event.sourceEvent.shiftKey) {
           // the internal d3 state is still changing
           return false;
@@ -132,7 +132,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         return true;
       })
       .on("zoomstart", function() {
-        console.log('zoomstart triggered');
+        // console.log('zoomstart triggered');
         var ael = d3.select("#" + thisGraph.consts.activeEditId).node();
         if (ael) {
           ael.blur();
@@ -140,7 +140,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         if (!d3.event.sourceEvent.shiftKey) d3.select('body').style("cursor", "move");
       })
       .on("zoomend", function() {
-        console.log('zoomend triggered');
+        // console.log('zoomend triggered');
         d3.select('body').style("cursor", "auto");
       });
     thisGraph.dragSvg = dragSvg;
@@ -194,7 +194,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       if (window.File && window.FileReader && window.FileList && window.Blob) {
         var uploadFile = this.files[0];
         var filereader = new window.FileReader();
-
+        
         filereader.onload = function() {
           var txtRes = filereader.result;
           // better error handling
@@ -236,12 +236,19 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
     $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable', 'true').on('dragstart', function(ev) {
       $(this).siblings().removeClass('active').end().addClass('active');
+      $('.full-right-top').css({
+          'border': '1px dashed #42d842'
+        })
+      /* 设置拖动过程显示图片
+      var icon = document.createElement('img');
+      icon.src = $(this).find('img').attr('src');
+      ev.originalEvent.dataTransfer.setDragImage(icon,10,10);*/
       var json_obj = {
         text: $(this).find('span').text(),
         shapename: $(this).attr('for-name'),
         component: $(this).attr('name'),
         type: $(this).attr('type')
-      }
+      };
       ev.originalEvent.dataTransfer.setData('text', JSON.stringify(json_obj));
       // $('#reset-zoom').trigger("click");
       
@@ -296,7 +303,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         };
       thisGraph.nodes.push(d);
       thisGraph.updateGraph();
-    }).on('dragover', function(ev) {
+      $('.full-right-top').css({
+        'border': ''
+      })
+    })
+    .on('dragover', function(ev) {
       ev.preventDefault();
     });
 
@@ -415,30 +426,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         });
       }
     });
+    
     //放大、缩小按钮 scale(0.3-2)
     d3.selectAll('.editor-toolbar #zoom-enlarge,#zoom-narrow').on('click', function() {
-      /*var transform = d3.select('svg .graph').attr('transform');
-      var id = this.id;
-      var tranlate, scale;
-      if (/scale\(([^)]*)\)/.test(transform)) {
-        transform = transform.replace(/scale\(([^)]*)\)/, function(v, v1) {
-          if (id == 'zoom-enlarge') {
-            if (v1 >= 2) return 'scale(2)';
-            return 'scale('+(parseFloat(v1)+0.1)+')';
-          } else {
-            if (v1 <= 0.3) return 'scale(0.3)';
-            return 'scale('+(parseFloat(v1)-0.1)+')';
-          }
-        })
-      } else {
-        if (id == 'zoom-enlarge') {
-          transform = 'translate(0,0) scale(1.1)';
-        } else {
-          transform = 'translate(0,0) scale(0.9)';
-        }
-      }
-      d3.select('.graph').attr('transform', transform);*/
-
+      /*
       var transform = d3.select('svg .graph').attr('transform');
       var id = this.id;
       var translate = [0, 0], 
@@ -452,11 +443,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         translate = regExp_trans.exec(transform)[1].split(',');
         if (id == 'zoom-enlarge') {
             if (scale < 2) {
-              scale = parseFloat(scale)+0.1;
+              scale = parseFloat(scale) + 0.1;
             }
           } else {
             if (scale > 0.3) {
-              scale = parseFloat(scale)-0.1;
+              scale = parseFloat(scale) - 0.1;
             }
           }
       } else {
@@ -466,12 +457,24 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           scale = 0.9;
         }
       }
-
       var iTranslate = d3.interpolate(dragSvg.translate(), translate),
-        iScale = d3.interpolate(dragSvg.scale(), scale);
-      dragSvg.scale(iScale(scale))
-          .translate(iTranslate(translate));
-      thisGraph.zoomed();
+        iScale = d3.interpolate(dragSvg.scale(), scale);*/
+      
+      var translate = dragSvg.translate(),
+        scale = dragSvg.scale(),
+        extent = dragSvg.scaleExtent(),
+        direction = 1,
+        factor = 0.1
+
+      direction = (this.id === 'zoom-enlarge') ? 1 : -1;
+      if ((scale <= extent[0] && direction < 0) || (scale >= extent[1] && direction > 0)) {
+        return;
+      } else {
+        scale = parseFloat(scale) + factor*direction;
+      }
+      dragSvg.scale(scale)
+          .translate(translate);
+      thisGraph.zoomed.call(thisGraph);
     })
 
     //右击菜单
@@ -2801,22 +2804,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     // remove old nodes
     thisGraph.circles.exit().remove();
   };
-  /*
-  GraphCreator.prototype.zoomed = function(translate, scale) {
-    this.state.justScaleTransGraph = true;
-    if (translate && translate.length) d3.event.translate = translate;
-    if (scale) d3.event.scale = scale;
-    if (this.state.graphMouseDown) { //鼠标拖动graph
-      var transform = d3.select("." + this.consts.graphClass).attr("transform");
-      var scale = /scale\(([^)]*)\)/.exec(transform)[1];
-      d3.select("." + this.consts.graphClass)
-        .attr("transform", "translate(" + d3.event.translate + ") scale(" + scale + ")");
-    } else { //滚轮缩放
-      d3.select("." + this.consts.graphClass)
-        .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-      
-    }
-  };*/
+  
   GraphCreator.prototype.zoomed = function() {
     this.state.justScaleTransGraph = true;
     var translate = this.dragSvg.translate();

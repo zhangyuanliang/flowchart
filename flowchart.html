@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<title>flowChart</title>
     <!-- <link rel="stylesheet" type="text/css" href="css/style.css" /> -->
-	<link type="text/css" href="Semantic-UI-2.2.11/dist/semantic.min.css" rel="stylesheet">
+	<link type="text/css" href="semantic-ui-2.2.13/dist/semantic.min.css" rel="stylesheet">
 	<link type="text/css" href="css/graph-creator.css" rel="stylesheet" />
 	<link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet">
 	<link type="text/css" href="ztree/css/metroStyle/metroStyle.css" rel="stylesheet">
@@ -63,50 +63,64 @@
 			</div>
 		</div>
 		<div class="full-right tab clearfix">
-		<form id="containerForm" method="post" action="http://localhost:8088/platform/wfdman/insert.do">
-			<div id="container" class="ui top attached tab active full-right-top view" data-tab="first">
-				<!-- svg -->
+			<div class="ui top attached tabular mini menu">
+			  	<a class="item active" data-tab="tab_first">
+			  		<i class="remove red icon"></i>过程
+			  	</a>
+			  	<a class="item" data-tab="tab_second">
+			  		<i class="remove red icon"></i>块活动
+			  	</a>
 			</div>
-			<div id="xpdlContainer" class="ui top attached tab view content-div" data-tab="second">
-				<xmp>
-					<!-- xpdl -->
-				</xmp>
-			</div>
-			<div id="xmlContainer" class="ui top attached tab view content-div" data-tab="third">
-				<xmp>
-					<!-- xml -->
-				</xmp>
-			</div>
-			<div class="full-right-btn ui bottom attached tabular mini menu">
-				<a class="item active" data-tab="first">图标视图</a>
-				<a class="item" data-tab="second">xpdl视图</a>
-				<a class="item" data-tab="third">xml视图</a>
-			</div>
-			<div id="propertiesWrapper" class="full-right-bottom">
-				<div class="component-name"><i class="angle double down icon"></i><span>普通活动</span></div>
-				<div class="component-prop content-div">
-					<!-- activity属性 -->
-				</div>
-			</div>
+			<div class="ui bottom attached tab active" data-tab="tab_first">
+			  	<form id="containerForm" method="post" action="http://localhost:8088/platform/wfdman/insert.do">
+					<div id="container" class="ui top attached tab active full-right-top view" data-tab="first">
+						<!-- svg -->
+					</div>
+					<div id="xpdlContainer" class="ui top attached tab view content-div" data-tab="second">
+						<xmp>
+							<!-- xpdl -->
+						</xmp>
+					</div>
+					<div id="xmlContainer" class="ui top attached tab view content-div" data-tab="third">
+						<xmp>
+							<!-- xml -->
+						</xmp>
+					</div>
+					<div class="full-right-btn ui bottom attached tabular mini menu">
+						<a class="item active" data-tab="first">图标视图</a>
+						<a class="item" data-tab="second">xpdl视图</a>
+						<a class="item" data-tab="third">xml视图</a>
+					</div>
+					<div id="propertiesWrapper" class="full-right-bottom">
+						<div class="component-name"><i class="angle double down icon"></i><span></span></div>
+						<div class="component-prop content-div">
+							<!-- activity属性 -->
+						</div>
+					</div>
 
-			<input name="xpdlcontent" type="hidden" value="">
-			<input name="xmlcontent" type="hidden" value="">
+					<input name="xpdlcontent" type="hidden" value="">
+					<input name="xmlcontent" type="hidden" value="">
 
-			<input type="hidden" id="wFID" name="wFID" value="">
-			<input type="hidden" id="wFType" name="wFType" value="money">
-			<input type="hidden" id="subType" name="subType" value="">
-			<input type="hidden" id="depart" name="depart" value="">
-			<input type="hidden" id="departID" name="departID" value="">
-			<input type="hidden" id="formName" name="formName" value="">
-			<input type="hidden" id="formId" name="formId" value="">
-			<input type="hidden" id="formType" name="formType" value="wfd_form">
-			<input type="hidden" id="mode" name="mode" value="">
-			<input type="hidden" id="dt" name="dt" onFocus="WdatePicker({dateFmt:'dd HH:mm',skin:'blue'});" value="">
-			<input type="hidden" id="dataObjectID" name="dataObjectID" value="">
-			<input type="hidden" id="securityID" name="securityID" value="">
-			<input type="hidden" id="securityName" name="securityName" value="">
-			<input type="hidden" id="orderNo" name="orderNo" value="">
-		</form>
+					<input type="hidden" id="wFID" name="wFID" value="">
+					<input type="hidden" id="wFType" name="wFType" value="money">
+					<input type="hidden" id="subType" name="subType" value="">
+					<input type="hidden" id="depart" name="depart" value="">
+					<input type="hidden" id="departID" name="departID" value="">
+					<input type="hidden" id="formName" name="formName" value="">
+					<input type="hidden" id="formId" name="formId" value="">
+					<input type="hidden" id="formType" name="formType" value="wfd_form">
+					<input type="hidden" id="mode" name="mode" value="">
+					<input type="hidden" id="dt" name="dt" onFocus="WdatePicker({dateFmt:'dd HH:mm',skin:'blue'});" value="">
+					<input type="hidden" id="dataObjectID" name="dataObjectID" value="">
+					<input type="hidden" id="securityID" name="securityID" value="">
+					<input type="hidden" id="securityName" name="securityName" value="">
+					<input type="hidden" id="orderNo" name="orderNo" value="">
+				</form>
+			</div>
+			<div class="ui bottom attached tab segment" data-tab="tab_second">
+			  	块活动页面
+			</div>
+			
 		</div>
 	</div>
 	<!-- 导入导出弹出层 -->
@@ -1760,7 +1774,7 @@
 	<script type="text/javascript" src="js/d3.v3.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/juicer-min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="layer/layer.js" charset="utf-8"></script>
-	<script type="text/javascript" src="Semantic-UI-2.2.11/dist/semantic.js" charset="utf-8"></script>
+	<script type="text/javascript" src="semantic-ui-2.2.13/dist/semantic.js" charset="utf-8"></script>
 	<script type="text/javascript" src="ztree/js/jquery.ztree.all.js"></script>
 	<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/vkbeautify.js" charset="utf-8"></script>
@@ -2299,13 +2313,13 @@
 			//控制属性显示
 			$('.component-name').on('click', function() {
 				if ($('.component-prop').is(':hidden')) {
-					$('.full-right-bottom ').css({height: '30%'});
-					$('.view').css({height: '67%'});
+					$('.full-right-bottom ').css({height: '26%'});
+					$('.view').css({height: '68%'});
 					$('.component-name .icon').removeClass('up').addClass('down');
 					$('.component-prop').toggle('slow');
 				} else {
 					$('.full-right-bottom ').css({height: '8%'});
-					$('.view').css({height: '87%'});
+					$('.view').css({height: '86%'});
 					$('.component-name .icon').removeClass('down').addClass('up');
 					$('.component-prop').toggle();
 				}
