@@ -1,6 +1,6 @@
 /*
- * JQuery zTree exedit v3.5.24
- * http://zTree.me/
+ * JQuery zTree exedit v3.5.29
+ * http://treejs.cn/
  *
  * Copyright (c) 2010 Hunter.z
  *
@@ -8,7 +8,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * email: hunter.z@263.net
- * Date: 2016-06-06
+ * Date: 2017-06-19
  */
 (function($){
 	//default consts of exedit
@@ -624,7 +624,7 @@
 				doc.unbind("mousemove", _docMouseMove);
 				doc.unbind("mouseup", _docMouseUp);
 				doc.unbind("selectstart", _docSelect);
-				body.css("cursor", "auto");
+				body.css("cursor", "");
 				if (tmpTarget) {
 					tmpTarget.removeClass(consts.node.TMPTARGET_TREE);
 					if (tmpTargetNodeId) $("#" + tmpTargetNodeId + consts.id.A, tmpTarget).removeClass(consts.node.TMPTARGET_NODE + "_" + consts.move.TYPE_PREV)

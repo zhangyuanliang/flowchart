@@ -234,25 +234,30 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       thisGraph.deleteGraph(false);
     });
 
-    $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable', 'true').on('dragstart', function(ev) {
-      $(this).siblings().removeClass('active').end().addClass('active');
-      $('.full-right-top').css({
-          'border': '1px dashed #42d842'
+    $('#flowComponents .components-btn[type]').not('.noComponent').attr('draggable', 'true')
+      .on('dragstart', function(ev) {
+        $(this).siblings().removeClass('active').end().addClass('active');
+        $('.full-right-top').css({
+            'border': '1px dashed #37F537'
+          })
+        /* 设置拖动过程显示图片
+        var icon = document.createElement('img');
+        icon.src = $(this).find('img').attr('src');
+        ev.originalEvent.dataTransfer.setDragImage(icon,10,10);*/
+        var json_obj = {
+          text: $(this).find('span').text(),
+          shapename: $(this).attr('for-name'),
+          component: $(this).attr('name'),
+          type: $(this).attr('type')
+        };
+        ev.originalEvent.dataTransfer.setData('text', JSON.stringify(json_obj));
+        // $('#reset-zoom').trigger("click");
+      })
+      .on('dragend', function(ev) {
+        $('.full-right-top').css({
+          'border': '1px dashed #FFF'
         })
-      /* 设置拖动过程显示图片
-      var icon = document.createElement('img');
-      icon.src = $(this).find('img').attr('src');
-      ev.originalEvent.dataTransfer.setDragImage(icon,10,10);*/
-      var json_obj = {
-        text: $(this).find('span').text(),
-        shapename: $(this).attr('for-name'),
-        component: $(this).attr('name'),
-        type: $(this).attr('type')
-      };
-      ev.originalEvent.dataTransfer.setData('text', JSON.stringify(json_obj));
-      // $('#reset-zoom').trigger("click");
-      
-    }); 
+      }); 
     $('#container').on('drop', function(ev) {
       ev.stopPropagation(); //阻止冒泡
       ev.preventDefault(); //阻止默认行为
@@ -303,13 +308,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         };
       thisGraph.nodes.push(d);
       thisGraph.updateGraph();
-      $('.full-right-top').css({
-        'border': ''
-      })
     })
     .on('dragover', function(ev) {
-      ev.preventDefault();
-    });
+        ev.preventDefault();
+      });
 
     //选择左侧工具
     $('#flowComponents .components-btn').on('click', function() {
@@ -758,7 +760,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               for (var i in responsible) {
                 for (var j in participants) {
                   if (responsible[i] == participants[j].conventional_definition_id) {
-                    tr += participants[j].conventional_definition_name?'<tr><td>'+(participants[j].conventional_definition_name+'-rol')+'</td></tr>':'<tr><td>'+(responsible[i]+'-rol')+'</td></tr>';
+                    tr += participants[j].conventional_definition_name?'<tr><td>'+(participants[j].conventional_definition_name+'-rol')+'</td></tr>':
+                      '<tr><td>'+(responsible[i]+'-rol')+'</td></tr>';
                   }
                 }
               }
@@ -1153,7 +1156,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     //常规-定义
     $('.conventional').on('click', '.definitionBtn', function(event) {
       var rol_id = $('.conventional select[name="definition_role"]').siblings('.text').attr('definition_id');
-      // var rol_id = $('.conventional select[name="definition_role"]').dropdown('get value');
       if (rol_id) { // 编辑
         $('.conventional_definition input[name="conventional_def_operate"]').val(1);//页面标记 1：代表编辑
         var participants = thisGraph.participants;
@@ -1164,14 +1166,17 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               $(this).val(participant[$(this).attr('name')]);
             });
             for (var j in participant.typeName) {
+              var itemValue_show = participant.itemValue[j].split('|')[1]?participant.itemValue[j].split('|')[1]:'',
+                itemValue = participant.itemValue[j]?participant.itemValue[j]:'',
+                itemName = participant.itemName[j].split('|')[1];
               $('.conventional_definition .definition_condition tbody').append(
                   '<tr>'+
-                  '  <td name="typeName">'+participant.typeName[j]+'</td>'+
-                  '  <td name="itemName">'+participant.itemName[j]+'</td>'+
-                  '  <td name="itemValue">'+participant.itemValue[j]+'</td>'+
-                  '  <td name="secLevelS">'+participant.secLevelS[j]+'</td>'+
-                  '  <td name="secLevelE">'+participant.secLevelE[j]+'</td>'+
-                  '  <td name="roleName">'+participant.roleName[j]+'</td>'+
+                  '  <td name="typeName" value="'+participant.typeName[j]+'">'+participant.typeName[j]+'</td>'+
+                  '  <td name="itemName" value="'+participant.itemName[j]+'">'+itemName+'</td>'+
+                  '  <td name="itemValue" value="'+itemValue+'">'+itemValue_show+'</td>'+
+                  '  <td name="secLevelS" value="'+participant.secLevelS[j]+'">'+participant.secLevelS[j]+'</td>'+
+                  '  <td name="secLevelE" value="'+participant.secLevelE[j]+'">'+participant.secLevelE[j]+'</td>'+
+                  '  <td name="roleName" value="'+participant.roleName[j]+'">'+participant.roleName[j]+'</td>'+
                   '</tr>');
             }
           }
@@ -1181,22 +1186,25 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         conventional_par++;
       }
     });
-    
-    
+
     //常规-定义-高级-增加条件
     $('.conventional_definition .definition_addBtn').on('click', function() {
       var typeName = $('.conventional_definition [data-tab="definition_2"]>.menu>.item.active').text(),
         data_tab = $('.conventional_definition [data-tab="definition_2"] .tab.active').attr('data-tab'),
         type = $('.conventional_definition div[data-tab="'+data_tab+'"] select[name="definition_type"]').val(),
-        name = $('.conventional_definition div[data-tab="'+data_tab+'"] input[name="definition_name"]').val();
+        name = $('.conventional_definition div[data-tab="'+data_tab+'"] [name="definition_name"]').val() || '';
       var params = {};
       $('.conventional_definition div[data-tab="'+data_tab+'"]').find('input[name],select').each(function() {
         params[$(this).attr('name')] = $(this).val();
-      })
+      });
       if (data_tab == 'definition_2/a') {//类型--一般
-        if (!type||!name) {
-          layer.msg('请选择类型和名称!', {time: 2000, icon: 2});
-          return false;
+        if (!type) {
+          layer.msg('请选择类型!', {time: 2000, icon: 2});
+          return;
+        }
+        if (type != 'allParty|所有人【人】' && !name) {
+          layer.msg('请选择名称!', {time: 2000, icon: 2});
+          return;
         }
       } else {
         if (!type) {
@@ -1204,10 +1212,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           return false;
         }
       }
-
+      /*
       var definition_type = '';
       if (data_tab == 'definition_2/a') {
         definition_type = params.definition_type==1? "部门【部门】":params.definition_type==2? "部门【人】":params.definition_type==3? "部门【默认】":params.definition_type==4? "部门【领导】":params.definition_type==5? "角色【人】":params.definition_type==6? "角色【角色】":params.definition_type==7? "所有人【人】":"";
+        // definition_type = params.definition_type;
       } else if (data_tab == 'definition_2/b') {
         definition_type = params.definition_type==1? "创建人本人":params.definition_type==2? "创建人领导":params.definition_type==3? "创建人下属":params.definition_type==4? "创建人部门人员":params.definition_type==5? "创建人部门领导":"";
       } else if (data_tab == 'definition_2/c') {
@@ -1216,16 +1225,16 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         definition_type = params.definition_type==1? "前一环节创建人本人":params.definition_type==2? "前一环节创建人上级":"";
       } else if (data_tab == 'definition_2/e') {
         definition_type = params.definition_type==1? "处理人本人":params.definition_type==2? "处理人上级":params.definition_type==3? "处理人下属":params.definition_type==4? "处理人部门人员":params.definition_type==5? "处理人部门领导":"";
-      }
+      }*/
       $('.conventional_definition [name="conventional_definition_participant"]').val("");//清除-自定义参数者
       $('.conventional_definition .definition_condition tbody').append(
                 '<tr>'+
-                '  <td name="typeName">'+typeName+'</td>'+
-                '  <td name="itemName">'+definition_type+'</td>'+
-                '  <td name="itemValue">'+(params.definition_name? params.definition_name:"")+'</td>'+
-                '  <td name="secLevelS">'+params.definition_param1+'</td>'+
-                '  <td name="secLevelE">'+params.definition_param2+'</td>'+
-                '  <td name="condition"></td>'+
+                '  <td name="typeName" value="'+typeName+'">'+typeName+'</td>'+
+                '  <td name="itemName" value="'+type+'">'+(type.split('|')[1])+'</td>'+
+                '  <td name="itemValue" value="'+name+'">'+(name?name.split('|')[1]?name.split('|')[1]:name:'')+'</td>'+
+                '  <td name="secLevelS" value="'+params.definition_param1+'">'+params.definition_param1+'</td>'+
+                '  <td name="secLevelE" value="'+params.definition_param2+'">'+params.definition_param2+'</td>'+
+                '  <td name="condition" value=""></td>'+
                 '</tr>');
       $(".conventional_definition .definition_condition").mCustomScrollbar("update");
       $(".conventional_definition .definition_condition").mCustomScrollbar("scrollTo", "bottom", {
@@ -1258,7 +1267,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $('.conventional_definition div[data-tab="definition_2"] tbody').find('tr').each(function() {
           $(this).find('td').each(function(){
             participant[$(this).attr('name')] = participant[$(this).attr('name')] || [];
-            participant[$(this).attr('name')].push($(this).text());
+            participant[$(this).attr('name')].push($(this).attr('value'));
           });
           participant['roleName'] = participant['roleName'] || []
           participant['roleName'].push('party');//常规定义参与者 角色默认是party
@@ -2388,7 +2397,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
   };
 
   GraphCreator.prototype.deleteGraph = function(skipPrompt) {
-    var thisGraph = this,
+    /*var thisGraph = this,
       doDelete = true;
     if (!skipPrompt) {
       doDelete = window.confirm("确认清空？");
@@ -2397,7 +2406,20 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       thisGraph.nodes = [];
       thisGraph.edges = [];
       thisGraph.updateGraph();
-    }
+    }*/
+    var thisGraph = this;
+    layer.confirm('确认清空？', {
+      icon: 0,
+      btn: ['确定','取消'], //按钮
+      offset: '180px'
+    }, function() {
+      thisGraph.nodes = [];
+      thisGraph.edges = [];
+      thisGraph.updateGraph();
+      layer.msg('删除成功', {icon: 1, offset: '180px', time: 600});
+    }, function() {
+      
+    });
   };
 
   /* select all text in element: taken from http://stackoverflow.com/questions/6139107/programatically-select-text-in-a-contenteditable-html-element */

@@ -1,4 +1,3 @@
-
 p{
   text-align: center;
   overflow: overlay;
@@ -95,6 +94,9 @@ g.selected circle{
 g.selected:hover circle{
   fill: #e8d0ef;
 }
+g.conceptG text{    
+  font-size: 13px;
+}
 
 path.link {
   fill: none;
@@ -105,6 +107,7 @@ path.link {
 
 path.link:hover{
   stroke: rgb(94, 196, 204);
+  /*stroke-width: 4px;*/
 }
 
 g.connect-node circle{
@@ -118,4 +121,5 @@ path.link.hidden{
 
 path.link.selected {
   stroke: rgb(229, 172, 247);
+  /*stroke-width: 4px;*/
 }

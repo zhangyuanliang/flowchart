@@ -30,7 +30,7 @@
 		<div class="column pop-btn" data-content="导入json" data-position="bottom center" data-variation="mini"><i class="sign in icon"></i></div>
 		<div class="column pop-btn small popup" data-content="导出json" data-position="bottom center" data-variation="mini"><i class="sign out icon"></i></div>
 		<div class="divider"></div>
-		<div class="column pop-btn" data-content="将左侧活动拖至编辑区" data-position="bottom center" data-variation="mini"><i class="help circle outline icon"></i></div>
+		<div class="column pop-btn" id="helper" data-content="将左侧活动拖至编辑区" data-position="bottom center" data-variation="mini"><i class="help circle outline icon"></i></div>
 	</div>
 	<div class="full clearfix">
 		<div id="flowComponents" class="full-left">
@@ -673,18 +673,20 @@
 		    				<label>类型:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">部门【部门】</option>
-		      					<option value="2">部门【人】</option>
-		      					<option value="3">部门【默认】</option>
-		      					<option value="4">部门【领导】</option>
-		      					<option value="5">角色【人】</option>
-		      					<option value="6">角色【角色】</option>
-		      					<option value="7">所有人【人】</option>
+		      					<option value="human|人">人</option>
+		      					<option value="orgOrg|部门【部门】">部门【部门】</option>
+		      					<option value="orgHuman|部门【人】">部门【人】</option>
+		      					<option value="orgDefault|部门【默认】">部门【默认】</option>
+		      					<option value="orgLeader|部门【领导】">部门【领导】</option>
+		      					<option value="roleHuman|角色【人】">角色【人】</option>
+		      					<option value="roleRole|角色【角色】">角色【角色】</option>
+		      					<option value="allParty|所有人【人】">所有人【人】</option>
 							</select>      					
 		                </div>
 		                <div class="five wide field">
 					      	<label>名称:</label>
-					      	<input type="text" name="definition_name" placeholder="名称">
+					      	<input type="text" name="def_name_show" placeholder="名称" readonly>
+					      	<input type="hidden" name="definition_name" placeholder="名称">
 					    </div>
 					    <div class="five wide field">
 					      	<label>附加参数1:</label>
@@ -704,11 +706,11 @@
 		    				<label>类型:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">创建人本人</option>
-		      					<option value="2">创建人领导</option>
-		      					<option value="3">创建人下属</option>
-		      					<option value="4">创建人部门人员</option>
-		      					<option value="5">创建人部门领导</option>
+		      					<option value="self|创建人本人">创建人本人</option>
+		      					<option value="directleader|创建人领导">创建人领导</option>
+		      					<option value="directundering|创建人下属">创建人下属</option>
+		      					<option value="branch|创建人部门人员">创建人部门人员</option>
+		      					<option value="branchLeading|创建人部门领导">创建人部门领导</option>
 							</select>      					
 		                </div>
 					    <div class="five wide field">
@@ -729,11 +731,11 @@
 		    				<label>类型:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">发送人本人</option>
-		      					<option value="2">发送人领导</option>
-		      					<option value="3">发送人下属</option>
-		      					<option value="4">发送人部门人员</option>
-		      					<option value="5">发送人部门领导</option>
+		      					<option value="self|发送人本人">发送人本人</option>
+		      					<option value="directleader|发送人领导">发送人领导</option>
+		      					<option value="directundering|发送人下属">发送人下属</option>
+		      					<option value="org|发送人部门人员">发送人部门人员</option>
+		      					<option value="departUpperLeading|发送人部门领导">发送人部门领导</option>
 							</select>      					
 		                </div>
 					    <div class="five wide field">
@@ -754,8 +756,8 @@
 		    				<label>类型:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">前一环节创建人本人</option>
-		      					<option value="2">前一环节创建人上级</option>
+		      					<option value="preActCreSelf|前一环节创建人本人">前一环节创建人本人</option>
+		      					<option value="preActCreLeader|前一环节创建人上级">前一环节创建人上级</option>
 							</select>      					
 		                </div>
 					    <div class="five wide field">
@@ -776,17 +778,17 @@
 		    				<label>类型:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">处理人本人</option>
-		      					<option value="2">处理人上级</option>
-		      					<option value="3">处理人下属</option>
-		      					<option value="4">处理人部门人员</option>
-		      					<option value="5">处理人部门领导</option>
+		      					<option value="historyactivity|处理人本人">处理人本人</option>
+		      					<option value="historyleader|处理人上级">处理人上级</option>
+		      					<option value="historyunderling|处理人下属">处理人下属</option>
+		      					<option value="hsitoryDepartLeader|处理人部门领导">处理人部门领导</option>
+		      					<option value="hsitoryDepartMember|处理人部门人员">处理人部门人员</option>
 							</select>      					
 		                </div>
 		                <div class="five wide field">
 		    				<label>名称:</label>
 		                	<select name="definition_name" class="ui search dropdown">
-		      					<option value="1">普通活动</option>
+		      					<option value="idxxx|普通活动">普通活动</option>
 							</select>      					
 		                </div>
 					    <div class="five wide field">
@@ -2151,70 +2153,6 @@
 		var creat_time = new Date().pattern("yyyy-MM-dd HH:mm:ss");
 		var conventional_par = 1;
 
-		var setting = {
-			view: {
-				dblClickExpand: false
-				//dblClickExpand: true
-			},
-			check: {
-				enable: false
-			},
-			callback: {
-				/* onRightClick: OnRightClick,
-				onDblClick: OnDbClick,*/
-				onClick: OnClick,
-				onAsyncSuccess: onsuccess 
-			},
-			async: {  
-				autoParam: ["id=node", "value=parentId"],  
-				contentType: "application/x-www-form-urlencoded",  
-				enable: true,  
-				type: "post",  
-				url: "http://localhost:8088/platform/organise/organiseTree.do"  
-			},
-			data:{  
-				simpleData: {  
-					enable:true  
-				}  
-			} 
-		};
-
-		function OnClick(event, treeId, treeNode) {
-			layer.close(treelayer);
-			$('.tab.active').find('.classifybtn').first().html(treeNode.name);
-			$('.tab.active').find('.classifybtn').first().attr("treeId", treeNode.id);
-			var dataTab = $('.tab.active').attr("data-tab");
-			if (dataTab == 'second') {
-				$('div[data-tab="second"] input').val("");
-				$.ajax({
-			  		url: "../organise/organiseTree.do",
-			  		type: "post",
-			  		data: {"type": treeNode.id},
-			  		success: function(result) {
-			  			$('#hasAnswerCont').empty();
-			  			if (result.data.length != 0) {
-				  			//显示数据
-							$('#hasAnswerCont').html(juicer($('#hasAnswerTpl').html(), result));
-							$('.ui.radio.checkbox').checkbox();
-			  			} else {
-			  				$('#hasAnswerCont').html('<div class="no-info">暂无信息...</div>');
-			  			}
-			  		},
-			  		error: function(data) {
-			  			layer.msg('服务器繁忙,请稍后再试...!', {time: 2000, icon:0});
-			  		}
-			  	});
-			}
-		}
-
-		function onsuccess(event, treeId, treeNode, msg) {
-			/*var dataJson = JSON.parse(msg);
-			if(dataJson[0].path=='/root/jnszfgjjglzx'){
-				var node = zTree.getNodeByParam("path", "/root/jnszfgjjglzx", null);
-				zTree.expandNode(node, true);
-			}*/
-		}
-	
 		$(function() {
 			//数据表格添加点击选中行
 			$('.toolgrid,.extended_attr,.post_condition,.prop_edge').on('click', 'tbody tr', function() {
@@ -2723,19 +2661,96 @@
 				}).modal('show');
 			})
 
+			//常规-定义-高级-一般 类型onChange事件
+			$('.conventional_definition [data-tab="definition_2/a"] select[name=definition_type]').on('change', function() {
+				$(this).parents('[data-tab="definition_2/a"]').find('input').val('');
+			})
+
     		//点击显示树形结构div
-			$('input[name="definition_name"]').on('click', function() {
+			$('input[name="def_name_show"]').on('click', function() {
+				var def_type = $('.conventional_definition [data-tab="definition_2/a"] select[name=definition_type]').val();
+				if (!def_type) {
+					layer.msg('先选择类型！', {time: 2000, icon:0});
+					return;
+				}
+				//根据类型 定义url
+				var url = '';
+				if (def_type == 'human|人') {
+					url = 'platform/person/userTree.do?state=';
+				} else if (def_type.indexOf('org') != -1) {
+					url = 'platform/organise/organiseTree.do?state=';
+				} else if (def_type.indexOf('role') != -1) {
+					url = 'platform/role/query.do?hyper=false';
+				} else if (def_type == 'allParty|所有人【人】') {
+					layer.msg('不需要填写！', {time: 2000, icon:4});
+					return;
+				}
+
+				var setting = {
+					view: {
+						dblClickExpand: false
+						//dblClickExpand: true
+					},
+					check: {
+						enable: true,
+						chkStyle: "radio",
+						radioType: "all"
+					},
+					callback: {
+						/* onRightClick: OnRightClick,
+						onDblClick: OnDbClick,*/
+						// onClick: OnClick,
+						onAsyncSuccess: onsuccess 
+					},
+					async: {  
+						autoParam: ["id=node", "value=parentId"], 
+						otherParam: {}, 
+						contentType: "application/x-www-form-urlencoded;charset=UTF-8",  
+						enable: true,  
+						type: "post",  
+						url: url,
+						dataFilter: ajaxDataFilter
+					},
+					data:{  
+						simpleData: {
+							enable: true,
+							/*idKey: "id",
+							pIdKey: "value",*/
+							rootPId: "xnode-40"
+						} 
+					} 
+				};
+
 				treelayer = layer.open({
 				  	type: 1,
 				  	title: 'PersonTree',
 				  	skin: 'layui-layer-rim', //边框
 				  	area: ['300px', '350px'], //宽高
+				  	offset: ['167px', '587px'],
 				  	content: '<div><ul id="treeDemo" class="ztree"></ul></div>'
 				});
 				/* ztree */
 				$.fn.zTree.init($("#treeDemo"), setting);
 				zTree = $.fn.zTree.getZTreeObj("treeDemo");
 			});
+
+			//工具栏-帮助
+			$('#helper').on('click', function() {
+				layer.open({
+					type: 1,
+					shade: false,
+					title: false, //不显示标题
+					offset: ['91px', '394px'],
+					content: '<ul class="layer_notice" style="display: block;">'+
+							 '  <li><a href="">1. 将左侧活动拖至编辑区</a></li>'+
+							 '  <li><a href="">2. 选中"转移"或"自转移"，编辑区活动之间连线</a></li>'+
+							 '  <li><a href="">3. 右击活动和线都有自己的属性 </a></li>'+
+							 '</ul>', //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
+					cancel: function(){
+					  // layer.msg('捕获就是从页面已经存在的元素上，包裹layer的结构', {time: 5000, icon:6});
+					}
+				});
+			})
 		})
 
 		//清空表单
@@ -2756,6 +2771,33 @@
 			if (dataTab == 'second') { //xpdl视图
 				var customScrollbar = $("#xpdlContainer").find(".mCSB_scrollTools");
 				$("#xpdlContainer").mCustomScrollbar("update");
+			}
+		}
+		//zTree 数据过滤
+		function ajaxDataFilter(treeId, parentNode, responseData) {
+		    if (responseData) {
+		      for(var i =0; i < responseData.length; i++) {
+		        responseData[i].name = responseData[i].text;
+		        responseData[i].open = responseData[i].expanded;
+		        responseData[i].isParent = !responseData[i].leaf;
+		        responseData[i].nocheck = responseData[i].checked == false ? false : true;
+		      }
+		    }
+		    return responseData;
+		};
+		//zTree 点击节点
+		function OnClick(event, treeId, treeNode) {
+			layer.close(treelayer);
+			$('.conventional_definition input[name=def_name_show]').val(treeNode.name);
+			$('.conventional_definition input[name=definition_name]').val(treeNode.value + '|' + treeNode.name);
+		}
+		//zTree onsuccess
+		function onsuccess(event, treeId, treeNode, msg) {
+			var dataJson = JSON.parse(msg);
+			if (!dataJson.length) return;
+			if(dataJson[0].id == 'root-root' && dataJson[0].expanded){
+				var node = zTree.getNodeByParam("id", dataJson[0].id);
+				zTree.expandNode(node, true);
 			}
 		}
 	</script>
