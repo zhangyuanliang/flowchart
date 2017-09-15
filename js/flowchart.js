@@ -7,9 +7,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     console.log('thisGraph:');
     console.log(thisGraph);
 
-    thisGraph.idct = 0;
-    thisGraph.edgeNum = 1;
-
     thisGraph.nodes = nodes || [];
     thisGraph.edges = edges || [];
     thisGraph.participants = participants || [];
@@ -68,7 +65,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         'x': 1107,
         'y': 15,
         'fill': '#E1784B'
-      })
+      });
     thisGraph.svgG = svg.append("g")
       .classed(thisGraph.consts.graphClass, true);
     var svgG = thisGraph.svgG;
@@ -91,14 +88,14 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           y: d.y
         };
       })
-      .on("dragstart", function(){d3.select(this).select("circle").attr("r", thisGraph.consts.nodeRadius+1);})
+      .on("dragstart", function() {d3.select(this).select("circle").attr("r", thisGraph.consts.nodeRadius + thisGraph.consts.nodeRadiusVary);})
       .on("drag", function(args) {
         thisGraph.state.justDragged = true;
         thisGraph.dragmove.call(thisGraph, args);
       })
       .on("dragend", function(args) {
         // args = circle that was dragged
-        d3.select(this).select("circle").attr("r", thisGraph.consts.nodeRadius-1);
+        d3.select(this).select("circle").attr("r", thisGraph.consts.nodeRadius - thisGraph.consts.nodeRadiusVary);
       });
 
     // listen for key events
@@ -202,7 +199,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             var jsonObj = JSON.parse(txtRes);
             thisGraph.deleteGraph(true);
             thisGraph.nodes = jsonObj.nodes;
-            thisGraph.setIdCt(jsonObj.nodes.length + 1);
+            // thisGraph.setIdCt(jsonObj.nodes.lessssngth + 1);
             var newEdges = jsonObj.edges;
             newEdges.forEach(function(e, i) {
               newEdges[i] = {
@@ -239,7 +236,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $(this).siblings().removeClass('active').end().addClass('active');
         $('.full-right-top').css({
             'border': '1px dashed #37F537'
-          })
+          });
         /* 设置拖动过程显示图片
         var icon = document.createElement('img');
         icon.src = $(this).find('img').attr('src');
@@ -256,21 +253,21 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       .on('dragend', function(ev) {
         $('.full-right-top').css({
           'border': '1px dashed #FFF'
-        })
+        });
       }); 
     $('#container').on('drop', function(ev) {
       ev.stopPropagation(); //阻止冒泡
       ev.preventDefault(); //阻止默认行为
       var position = {};
-      position.x = parseInt(ev.originalEvent.offsetX),
+      position.x = parseInt(ev.originalEvent.offsetX);
       position.y = parseInt(ev.originalEvent.offsetY);
       
       var transform = $(this).find('.graph').attr('transform');
       if (transform) {
-        var result=[];
-        var p=/\(([^)]*)\)/g;
+        var result = [];
+        var p = /\(([^)]*)\)/g;
         var ele;
-        while ((ele=p.exec(transform))!=null){
+        while ((ele=p.exec(transform)) != null) {
            result.push(ele[1]);
         }
         var translate = result[0] && result[0].split(',') || [0, 0];
@@ -284,7 +281,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         shapeId = data.shapename + new Date().getTime(),
         isCreate = true;
       var d = {
-          id: Word+'_node_'+randomWord(false, 4)+thisGraph.idct++,
+          id: seqer_nodeID.gensym(),
           title: data.text,
           component: data.component,
           type: data.type,
@@ -317,7 +314,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     $('#flowComponents .components-btn').on('click', function() {
       $(this).siblings().removeClass('active').end().addClass('active');
       var nodeName = $(this).attr('name');
-      if ('drawLineBtn' == nodeName || 'drawPolylineBtn' == nodeName) {
+      if ('NOROUTING' == nodeName || 'SIMPLEROUTING' == nodeName) {
         thisGraph.state.drawLine = nodeName;
         $('#container').on('mouseover mouseout', '.conceptG', function(e) {
           if (e.type == 'mouseover') {
@@ -360,20 +357,19 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               var edges = [];
               var nodes =json.nodes;
 
-              for (var i in json.edges) {
-                var source = json.edges[i].source.id;
-                var target = json.edges[i].target.id;
+              json.edges.forEach(function(item) {
+                var source = item.source.id;
+                var target = item.target.id;
                 var edge = {};
-                edge.edgeId = json.edges[i].edgeId;
-                edge.drawLine = json.edges[i].drawLine;
-                edge.postCondition = json.edges[i].postCondition;
-                for (var j in json.nodes) {
-                  var node = json.nodes[j].id
-                  if (source == node) edge.source = nodes[j];
-                  if (target == node) edge.target = nodes[j];
-                }
+                edge.edgeId = item.edgeId;
+                edge.drawLine = item.drawLine;
+                edge.postCondition = item.postCondition;
+                json.nodes.forEach(function(node) {
+                  if (source == node.id) edge.source = node;
+                  if (target == node.id) edge.target = node;
+                });
                 edges.push(edge);
-              }
+              });
               thisGraph.nodes = thisGraph.nodes.concat(nodes);
               thisGraph.edges = thisGraph.edges.concat(edges);
               graph.updateGraph();
@@ -403,7 +399,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       var selectedNode = thisGraph.state.selectedNode,
         selectedEdge = thisGraph.state.selectedEdge;
       if (!selectedNode && !selectedEdge) {
-        layer.msg('请选中元素！', {time: 2000, icon: 2, offset: '180px'});
+        layer.msg('请选中元素！', {time: 2000, icon: 0, offset: '180px'});
         return;
       } else {
         //询问框
@@ -431,42 +427,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     
     //放大、缩小按钮 scale(0.3-2)
     d3.selectAll('.editor-toolbar #zoom-enlarge,#zoom-narrow').on('click', function() {
-      /*
-      var transform = d3.select('svg .graph').attr('transform');
-      var id = this.id;
-      var translate = [0, 0], 
-        scale = 0;
-
-      var regExp_scale = /scale\(([^)]*)\)/;
-      var regExp_trans = /translate\(([^)]*)\)/;
-
-      if (regExp_scale.test(transform) && regExp_trans.test(transform)) {
-        scale = regExp_scale.exec(transform)[1].split(',')[0];
-        translate = regExp_trans.exec(transform)[1].split(',');
-        if (id == 'zoom-enlarge') {
-            if (scale < 2) {
-              scale = parseFloat(scale) + 0.1;
-            }
-          } else {
-            if (scale > 0.3) {
-              scale = parseFloat(scale) - 0.1;
-            }
-          }
-      } else {
-        if (id == 'zoom-enlarge') {
-          scale = 1.1;
-        } else {
-          scale = 0.9;
-        }
-      }
-      var iTranslate = d3.interpolate(dragSvg.translate(), translate),
-        iScale = d3.interpolate(dragSvg.scale(), scale);*/
-      
       var translate = dragSvg.translate(),
         scale = dragSvg.scale(),
         extent = dragSvg.scaleExtent(),
         direction = 1,
-        factor = 0.1
+        factor = 0.1;
 
       direction = (this.id === 'zoom-enlarge') ? 1 : -1;
       if ((scale <= extent[0] && direction < 0) || (scale >= extent[1] && direction > 0)) {
@@ -477,7 +442,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       dragSvg.scale(scale)
           .translate(translate);
       thisGraph.zoomed.call(thisGraph);
-    })
+    });
 
     //右击菜单
     $('#rMenu .item').on('click', function() {
@@ -522,11 +487,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               if (item.edgeId == jsonObj.edgeId) {
                 edge = item;
               }
-            })
+            });
           } else {
             edge = thisGraph.state.selectedEdge;
           }
-          var postCondition = {};
+          var postCondition = {transitionRuleType: 'Script_Rule'};
           var $transferInf = $(selector).find('div[data-tab="four/a"]');//转移信息
           $transferInf.find("input:not(.hidden), select, textarea").each(function() {
             postCondition[$(this).attr('name')] = $(this).val();
@@ -551,8 +516,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                   ' <fieldCondition type="'+json_obj.fieldCondition_type+'">'+
                   '   <expression key="'+json_obj.key+'" sign="'+json_obj.sign_one+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_one+'"><![CDATA['+json_obj.displayValue_two+']]></expression>'+
                   '   <expression key="'+json_obj.key+'" sign="'+json_obj.sign_two+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_two+'"><![CDATA['+json_obj.displayValue_two+']]></expression>'+
-                  ' </fieldCondition>'
-              }) 
+                  ' </fieldCondition>';
+              });
               fieldConditions_type = $(selector).find('.conditionDiv select[name=fieldConditions_type]').parent().dropdown('get value');
             }
             condixml = '<FieldConditions type="'+fieldConditions_type+'">'+ fieldCondition +'</FieldConditions>';
@@ -562,25 +527,25 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           if (conditype == 'EXCEPTION') {//类型选择异常
             postCondition.condiException = $(selector).find('.exceptionDiv select[name=condiException]').parent().dropdown('get value');
           }
-          if (conditype == 'WORKFLOWBEAN') {//类型选择业务对象转移
-            var tr = $(selector).find('.workflowbeanDiv tbody').find('tr');
+          if (conditype == 'WORKFLOWBEAN') { //类型选择业务对象转移
+            var w_tr = $(selector).find('.workflowbeanDiv tbody').find('tr');
             var beanCondition = '',
-              condixml = '',
+              w_condixml = '',
               beanConditions_type = '';
-            if (tr.length) {
-              tr.each(function() {
+            if (w_tr.length) {
+              w_tr.each(function() {
                 var json_obj = JSON.parse($(this).attr('jsonstr'));
                 beanCondition += 
                   '<beanCondition code="'+json_obj.code+'" type="'+json_obj.beanConditions_type+'" bean="'+json_obj.bean+'" paramField="'+json_obj.paramField+'">'+
                   '  <expression key="'+json_obj.key+'" sign="'+json_obj.sign_one+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_one+'"><![CDATA['+json_obj.displayValue_one+']]></expression>'+
                   '  <expression key="'+json_obj.key+'" sign="'+json_obj.sign_two+'" type="'+json_obj.type+'" displayValue="'+json_obj.displayValue_two+'"><![CDATA['+json_obj.displayValue_two+']]></expression>'+
-                  '</beanCondition>'
-              })
+                  '</beanCondition>';
+              });
               beanConditions_type = $(selector).find('.workflowbeanDiv input[name=beanConditions_type]').val();
             }
-            condixml = '<beanConditions type="'+beanConditions_type+'">'+ beanCondition +'</beanConditions>';
-            condixml = Base64.encode(condixml);
-            postCondition.condixml = condixml;
+            w_condixml = '<beanConditions type="'+beanConditions_type+'">'+ beanCondition +'</beanConditions>';
+            w_condixml = Base64.encode(w_condixml);
+            postCondition.condixml = w_condixml;
           }
           if (conditype == 'USERDEFINE') {//类型选择用户自定义
             postCondition.condition_data = $(selector).find('.userdefineDiv input').val();
@@ -600,7 +565,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             thisGraph.state.selectedNode.postCondition = {splitType: splitType};
           }
         }
-      }
+      };
 
       //展示-后置条件或转移属性
       var showTransition = function(selector, transition) {
@@ -616,14 +581,16 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $(selector).find('input[name="targetTitle"]').val(transition.target.title);
         $(selector).find('textarea[name="description"]').val(transition.postCondition && transition.postCondition.description || '');
         //遍历扩展属性
-        transition.postCondition.extendedAttrs && transition.postCondition.extendedAttrs.forEach(function(item) {
-          var extendedAttr = JSON.parse(item);
-          var data = {name: extendedAttr.name, value: extendedAttr.value};
-          data = {data:data, jsonstr:JSON.stringify(data)};
-          var html = juicer($('#extended_attr_tpl').html(), data);
-          $('.transferInf_extended_attr tbody').append(html).find('.ui.checkbox').checkbox();
-          $(".transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar("update");
-        });
+        if (transition.postCondition.extendedAttrs) {
+          transition.postCondition.extendedAttrs.forEach(function(item) {
+            var extendedAttr = JSON.parse(item);
+            var data = {name: extendedAttr.name, value: extendedAttr.value};
+            data = {data:data, jsonstr:JSON.stringify(data)};
+            var html = juicer($('#extended_attr_tpl').html(), data);
+            $('.transferInf_extended_attr tbody').append(html).find('.ui.checkbox').checkbox();
+            $(".transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar("update");
+          });
+        }
         //遍历条件设置-类型（条件）下列表
         if (transition.postCondition && transition.postCondition.conditype == 'CONDITION') {
           if (transition.postCondition.condixml) {//condixml base64
@@ -641,7 +608,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
               fieldCondition.displayValue_two = $(this).find('expression').eq(1).attr('displayValue');
               var tr = thisGraph.getConditionList(fieldCondition);
               $(selector).find('.conditionDiv tbody').append(tr);
-            })
+            });
             $(selector).find('.conditionDiv tbody').data('fieldConditions_type', fieldConditions_obj.fieldConditions_type);
           }
         } else {
@@ -669,7 +636,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
               var tr = thisGraph.getConditionList(beanCondition, num);
               $(selector).find('.workflowbeanDiv tbody').append(tr);
-            })
+            });
             $(selector).find('.workflowbeanDiv tbody').data('fieldConditions_type', beanConditions_obj.fieldConditions_type);
           }
         } else {
@@ -683,7 +650,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           $(selector).find('input[name="transitionEvent"]').val(transition.postCondition.transitionEvent);
         }
 
-      }
+      };
 
       //属性弹出层(节点)
       if (item == 'propMenu' && selectedNode) {
@@ -696,23 +663,23 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             $('.extended_attr tbody tr').each(function() {
               var jsonstr = $(this).attr('jsonstr');
               thisGraph.state.selectedNode.extendAttr.push(jsonstr);
-            })
+            });
             //更新-高级 属性
             thisGraph.state.selectedNode.highLevel = {};
             var highLevel = {};
             $('.prop_node .highLevel').find('input').each(function() {
               highLevel[$(this).attr('name')] = $(this).val();
-            })
+            });
             thisGraph.state.selectedNode.highLevel = highLevel;
             //更新-超时限制
             $('.timeout_limit').find('input[name], select[name]').each(function() {
               thisGraph.state.selectedNode.timeoutLimit[$(this).attr('name')] = $(this).val();
-            })
+            });
             thisGraph.state.selectedNode.timeoutLimit.deadline = [];
             $('.timeout_limit tbody tr').each(function() {
               var jsonstr = $(this).attr('jsonstr');
               thisGraph.state.selectedNode.timeoutLimit.deadline.push(jsonstr);
-            })
+            });
             //更新-后置条件
             updatePostCondi('.post_condition');
 
@@ -720,7 +687,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             thisGraph.state.selectedNode.frontCondition = {};
             $('.front_condition > div:not(".hideDiv")').find('input:not(:radio)[name], select').each(function() {
               thisGraph.state.selectedNode.frontCondition[$(this).attr('name')] = $(this).val();
-            })
+            });
             //更新-工具
 
             //更新-常规
@@ -728,22 +695,19 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             var conventional = {};
             $('.prop_node .conventional').find('input[name], textarea, select').each(function() {
               conventional[$(this).attr('name')] = $(this).val();
-            })
+            });
             if (conventional.ID != selectedNode.id) {
               selectedNode.id = conventional.ID;
             }
             if (conventional.name != selectedNode.title) {
               selectedNode.title = conventional.name;
             }
-            var $role = $('.conventional select[name="definition_role"]');
-            if ($role.dropdown('get text')[0] != '(空)') {
-              conventional.performer = $role.siblings('.text').attr('definition_id');
-              conventional.participantID = $role.dropdown('get text')[0];
-            } else {
-              conventional.performer = '';
-              conventional.participantID = '';
+            var $role = $('.conventional select[name="definition_role"]').parent();
+            conventional.performer = $role.children('.text').attr('definition_id') || '';
+            var role_txt = $role.dropdown('get text'); //Semantic存在bug，重构dropdown不能取value
+            if (role_txt !='请选择' && role_txt !='(空)') {
+              conventional.participantID = $role.dropdown('get text');
             }
-
             thisGraph.state.selectedNode.conventional = conventional;
 
           },
@@ -751,20 +715,19 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             $('.prop_node .menu .item[data-tab="one"]').trigger('click');
             var node = thisGraph.state.selectedNode;
             //展示-监控信息
-            var participants = thisGraph.participants;
             $('.monitorinf select[name="isResponsibleTem"]').dropdown('set selected', node.monitorinf.isResponsibleTem);
             var responsible = node.monitorinf.responsible;
 
             if (responsible && responsible.length) {
               var tr = '';
-              for (var i in responsible) {
-                for (var j in participants) {
-                  if (responsible[i] == participants[j].conventional_definition_id) {
-                    tr += participants[j].conventional_definition_name?'<tr><td>'+(participants[j].conventional_definition_name+'-rol')+'</td></tr>':
-                      '<tr><td>'+(responsible[i]+'-rol')+'</td></tr>';
+              responsible.forEach(function(resp) {
+                thisGraph.participants.forEach(function(participant) {
+                  if (resp == participant.conventional_definition_id) {
+                    tr += participant.conventional_definition_name?'<tr><td>'+(participant.conventional_definition_name+'-rol')+'</td></tr>':
+                      '<tr><td>'+(resp+'-rol')+'</td></tr>';
                   }
-                }
-              }
+                });
+              });
               $('.monitorinf tbody').append(tr);
             }
             //展示-高级
@@ -774,7 +737,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                   $(this).val(node.highLevel[i]);
                 }
               }
-            })
+            });
             //展示-超时限制
             $('.timeout_limit').find('input').each(function() {
               for (var i in node.timeoutLimit) {
@@ -782,36 +745,36 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
                   $(this).val(node.timeoutLimit[i]);
                 }
               }
-            })
+            });
             $('.timeout_limit').find('select').each(function() {
               for (var i in node.timeoutLimit) {
                 if ($(this).attr('name') == i) {
                   $(this).dropdown('set selected', node.timeoutLimit[i]);
                 }
               }
-            })
+            });
             var deadline_strs = node.timeoutLimit.deadline;
             if (deadline_strs && deadline_strs.length) {
-              var tr = '';
-              for (var i in deadline_strs) {
-                var deadline_obj = JSON.parse(deadline_strs[i]);
-                tr += '<tr jsonstr= '+deadline_strs[i]+'><td>'+deadline_obj.deadlineCondition+'</td></tr>';
-              }
-              $('.timeout_limit tbody').append(tr);
+              var d_tr = '';
+              deadline_strs.forEach(function(deadline_str){
+                var deadline_obj = JSON.parse(deadline_str);
+                d_tr += '<tr jsonstr= '+deadline_str+'><td>'+deadline_obj.deadlineCondition+'</td></tr>';
+              });
+              $('.timeout_limit tbody').append(d_tr);
             }
             //展示-扩展属性集
             var extendAttr_strs = node.extendAttr;
             if (extendAttr_strs && extendAttr_strs.length) {
-              var tr = '';
-              for (var i in extendAttr_strs) {
-                var extendAttr_obj = JSON.parse(extendAttr_strs[i]);
+              var e_tr = '';
+              extendAttr_strs.forEach(function(extendAttr_str) {
+                var extendAttr_obj = JSON.parse(extendAttr_str);
                 var data = {
                   data: extendAttr_obj, 
-                  jsonstr: extendAttr_strs[i]
+                  jsonstr: extendAttr_str
                 };
-                tr += juicer($('#extended_attr_tpl').html(), data);
-              }
-              $('.extended_attr tbody').append(tr).find('.ui.checkbox').checkbox();
+                e_tr += juicer($('#extended_attr_tpl').html(), data);
+              });
+              $('.extended_attr tbody').append(e_tr).find('.ui.checkbox').checkbox();
             }
             //展示-后置条件
             $('.post_condition .targetActivity').html($('#transition_tpl').html());
@@ -819,7 +782,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             $(".targetActivity .transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar();
             $('.targetActivity .conditionList,.conditionList2').mCustomScrollbar();
             var postCondition = {targetActivities: []};
-            thisGraph.edges.forEach(function(edge) {
+            thisGraph.edges.filter(function(edge) {
+              return (edge.source.type != 'start' && edge.target.type != 'end');
+            }).forEach(function(edge) {
               if (edge.source == node) {
                 postCondition.targetActivities.push({'activity': edge.target, 'transition': edge});
               }
@@ -876,14 +841,14 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             $('.conventional').find('select').not($('input[name="definition_role"]')).each(function() {
               for (var key in conventional) {
                 if (key == $(this).attr('name')) {
-                  $(this).dropdown('set selected', conventional[key])
+                  $(this).dropdown('set selected', conventional[key]);
                 }
               }
             });
             $('.conventional').find('.checkbox').each(function() {
               var value = $(this).find('input[name]').val();
               if (value && value !="false") $(this).checkbox('check');
-            })
+            });
             $('.conventional input[name="ID"]').val(node.id);
             $('.conventional input[name="name"]').val(node.title);
             if (conventional.performer) {
@@ -911,7 +876,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             $('.conventional .definition_field').on('click', '.item', function() {
               var definition_id = $(this).attr('data-value') != "0" ? $(this).attr('data-value') : '';
               $('.conventional select[name="definition_role"]').siblings('.text').attr('definition_id', definition_id);
-            })
+            });
 
           },
           onHidden: function() {
@@ -971,7 +936,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       e.preventDefault();
       $('#flowComponents div[name="selectBtn"]').trigger('click');
       $('#container .conceptG').css('cursor', 'default');//防止在活动块上右击存在问题
-      $("#rMenu").css({"top":(e.clientY-2)+"px", "left":(e.clientX-2)+"px"});
+      $("#rMenu").css({
+        "top": (e.clientY-2)+"px", 
+        "left": (e.clientX-2)+"px"
+      });
       var selectedNode = thisGraph.state.selectedNode,
         selectedEdge = thisGraph.state.selectedEdge;
 
@@ -985,8 +953,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       } else if (selectedEdge) {
         $("#rMenu").show();
       }
-      
-    })
+    });
 
     $('svg').on('click', function() {
       $('#rMenu').hide();
@@ -1026,19 +993,19 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         });
       }
       $('.postCondition_extendAttr_add.modal input').val("");
-    })
+    });
 
     //后置条件-扩展属性集-编辑
     $('.targetActivity').on('click', '.transferInf_extended_attr .extendAttrEditBtn', function() {
       var selectedTr = $(this).parents('.grid').find('tbody tr.active');
-      if (selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0}); return false}
+      if (selectedTr.length < 1) {layer.msg('请选择一行!', {time: 2000, icon: 0}); return false;}
       var jsonstr = $(this).parents('.grid').find('tbody tr.active').attr('jsonstr');
       var json = JSON.parse(jsonstr);
       $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_name"]').val(json.name);
       $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_value"]').val(json.value);
       $('.postCondition_extendAttr_add.modal input[name="extendAttr_add_operate"]').val("1");
       $('.transferInf_extended_attr .extendAttrAddBtn').trigger('click');
-    })
+    });
     //后置条件-扩展属性集-删除
     $('.targetActivity').on('click', '.transferInf_extended_attr .extendAttrDelBtn', function() {
       var tr = $(this).parents('.grid').find('tbody tr.active');
@@ -1046,9 +1013,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         tr.remove();
         $(".transferInf_extended_attr .postCondi_extendedAttr").mCustomScrollbar("update");
       } else {
-        layer.msg('请选择一行!', {time: 2000, icon:0});
+        layer.msg('请选择一行!', {time: 2000, icon: 0});
       }
-    })
+    });
 
     //扩展属性集-添加
     $('.extendAttr_add .green.button').on('click', function() {
@@ -1063,7 +1030,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         return false;
       }
       var data = {name:name, value:value};
-      data = {data:data, jsonstr:JSON.stringify(data)}
+      data = {data:data, jsonstr:JSON.stringify(data)};
       var html = juicer($('#extended_attr_tpl').html(), data);
       var operate = $('.extendAttr_add.modal input[name="extendAttr_add_operate"]').val();
       if (operate) {
@@ -1075,12 +1042,12 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $('.extended_attr tbody').append(html).find('.ui.checkbox').checkbox();
       }
       $('.extendAttr_add.modal input').val("");
-    })
+    });
 
     //扩展属性集-编辑
     $('.extended_attr .extendAttrEditBtn').on('click', function() {
       var selectedTr = $(this).parents('.grid').find('tbody tr.active');
-      if (selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon:0});return false}
+      if (selectedTr.length<1) {layer.msg('请选择一行!', {time: 2000, icon: 0}); return false;}
       var jsonstr = $(this).parents('.grid').find('tbody tr.active').attr('jsonstr');
       var json = JSON.parse(jsonstr);
       $('.extendAttr_add.modal input[name="extendAttr_add_name"]').val(json.name);
@@ -1088,7 +1055,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       $('.extendAttr_add.modal input[name="extendAttr_add_operate"]').val("1");
       $('.extended_attr .extendAttrAddBtn').trigger('click');
       // $('.extendAttr_add.modal').modal('show'); //会关闭一级弹窗
-    })
+    });
 
     //扩展属性集-删除
     $('.extended_attr .extendAttrDelBtn').on('click', function() {
@@ -1096,22 +1063,22 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       if (tr.length > 0) {
         tr.remove();
       } else {
-        layer.msg('请选择一行!', {time: 2000, icon:0});
+        layer.msg('请选择一行!', {time: 2000, icon: 0});
       }
-    })
+    });
 
     //超时限制-增加-确定
     $('.timeoutLimit_add .green.button').on('click', function() {
       var deadline = {};
       $('.timeoutLimit_add').find('input[name], select').each(function() {
         deadline[$(this).attr('name')] =$(this).val();
-      })
+      });
       if (!deadline.deadlineCondition) {
         layer.msg('请输入持续时间！', {time: 2000, icon:2});
         return false;
       }
       if (!deadline.exceptionName) {
-        layer.msg('请输入异常名称！', {time: 2000, icon:2});
+        layer.msg('请输入异常名称！', {time: 2000, icon: 2});
         return false;
       }
       var operate = $('.timeoutLimit_add.modal input[name="timeoutLimit_add_operate"]').val();
@@ -1124,7 +1091,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $(".timeout_limit_grid .content-div").mCustomScrollbar("update");
         $(".timeout_limit_grid .content-div").mCustomScrollbar("scrollTo", "bottom", {scrollInertia: 1500});
       }
-    })
+    });
 
     //超时限制-删除
     $('.timeoutLimitRemoveBtn').on('click', function() {
@@ -1133,25 +1100,25 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         tr.remove();
         $(".timeout_limit_grid .content-div").mCustomScrollbar("update");
       } else {
-        layer.msg('请选择一行!', {time: 2000, icon:0});
+        layer.msg('请选择一行!', {time: 2000, icon: 0});
       }
-    })
+    });
 
     //超时限制-编辑
     $('.timeoutLimitEditBtn').on('click', function(){
       var tr = $(this).parents('.grid').find('tbody tr.active');
       if (tr.length == 0) {
-        layer.msg('请选择一行!', {time: 2000, icon:0});
+        layer.msg('请选择一行!', {time: 2000, icon: 0});
         return false;
       }
       var data = JSON.parse(tr.attr('jsonstr'));
-      for (var item in data) {
-        $('.timeoutLimit_add').find('input[name="'+item+'"]').val(data[item]);
+      for (var key in data) {
+        $('.timeoutLimit_add').find('input[name="'+key+'"]').val(data[key]);
       }
       $('.timeoutLimit_add').find('select').dropdown('set selected', data.execution);
       $('.timeoutLimit_add.modal input[name="timeoutLimit_add_operate"]').val("1");
       $('.timeoutLimitAddBtn').trigger('click');
-    })
+    });
 
     //常规-定义
     $('.conventional').on('click', '.definitionBtn', function(event) {
@@ -1159,37 +1126,37 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       if (rol_id) { // 编辑
         $('.conventional_definition input[name="conventional_def_operate"]').val(1);//页面标记 1：代表编辑
         var participants = thisGraph.participants;
-        for (var i in participants) {
-          if (participants[i].conventional_definition_id == rol_id) {
-            var participant = participants[i];
+        thisGraph.participants.forEach(function(participant) {
+          if (participant.conventional_definition_id == rol_id) {
             $('.conventional_definition div[data-tab="definition_1"]').find('input[name]:not(".hidden"), textarea').each(function() {
               $(this).val(participant[$(this).attr('name')]);
             });
-            for (var j in participant.typeName) {
-              var itemValue_show = participant.itemValue[j].split('|')[1]?participant.itemValue[j].split('|')[1]:'',
-                itemValue = participant.itemValue[j]?participant.itemValue[j]:'',
-                itemName = participant.itemName[j].split('|')[1];
-              $('.conventional_definition .definition_condition tbody').append(
-                  '<tr>'+
-                  '  <td name="typeName" value="'+participant.typeName[j]+'">'+participant.typeName[j]+'</td>'+
-                  '  <td name="itemName" value="'+participant.itemName[j]+'">'+itemName+'</td>'+
-                  '  <td name="itemValue" value="'+itemValue+'">'+itemValue_show+'</td>'+
-                  '  <td name="secLevelS" value="'+participant.secLevelS[j]+'">'+participant.secLevelS[j]+'</td>'+
-                  '  <td name="secLevelE" value="'+participant.secLevelE[j]+'">'+participant.secLevelE[j]+'</td>'+
-                  '  <td name="roleName" value="'+participant.roleName[j]+'">'+participant.roleName[j]+'</td>'+
-                  '</tr>');
+            if (participant.typeName) {
+              participant.typeName.forEach(function(item, i) {
+                var itemValue_show = participant.itemValue[i].split('|')[1]? participant.itemValue[i].split('|')[1]:'',
+                  itemValue = participant.itemValue[i]? participant.itemValue[i]:'',
+                  itemName = participant.itemName[i].split('|')[1];
+                $('.conventional_definition .definition_condition tbody').append(
+                    '<tr>'+
+                    '  <td name="typeName" value="'+item+'">'+item.split('|')[1]+'</td>'+
+                    '  <td name="itemName" value="'+participant.itemName[i]+'">'+itemName+'</td>'+
+                    '  <td name="itemValue" value="'+itemValue+'">'+itemValue_show+'</td>'+
+                    '  <td name="secLevelS" value="'+participant.secLevelS[i]+'">'+participant.secLevelS[i]+'</td>'+
+                    '  <td name="secLevelE" value="'+participant.secLevelE[i]+'">'+participant.secLevelE[i]+'</td>'+
+                    '  <td name="roleName" value="'+participant.roleName[i]+'">'+participant.roleName[i]+'</td>'+
+                    '</tr>');
+              });
             }
           }
-        }
+        });
       } else { //增加
-        $('.conventional_definition input[name="conventional_definition_id"]').val(workflow_id + "_Par" + conventional_par);
-        conventional_par++;
+        $('.conventional_definition input[name="conventional_definition_id"]').val(seqer_participantID.gensym());
       }
     });
 
     //常规-定义-高级-增加条件
     $('.conventional_definition .definition_addBtn').on('click', function() {
-      var typeName = $('.conventional_definition [data-tab="definition_2"]>.menu>.item.active').text(),
+      var typeName = $('.conventional_definition [data-tab="definition_2"]>.menu>.item.active').attr('value'),
         data_tab = $('.conventional_definition [data-tab="definition_2"] .tab.active').attr('data-tab'),
         type = $('.conventional_definition div[data-tab="'+data_tab+'"] select[name="definition_type"]').val(),
         name = $('.conventional_definition div[data-tab="'+data_tab+'"] [name="definition_name"]').val() || '';
@@ -1199,42 +1166,28 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       });
       if (data_tab == 'definition_2/a') {//类型--一般
         if (!type) {
-          layer.msg('请选择类型!', {time: 2000, icon: 2});
+          layer.msg('请选择类型!', {time: 2000, icon: 0});
           return;
         }
         if (type != 'allParty|所有人【人】' && !name) {
-          layer.msg('请选择名称!', {time: 2000, icon: 2});
+          layer.msg('请选择名称!', {time: 2000, icon: 0});
           return;
         }
       } else {
         if (!type) {
-          layer.msg('请选择类型!', {time: 2000, icon: 2});
+          layer.msg('请选择类型!', {time: 2000, icon: 0});
           return false;
         }
       }
-      /*
-      var definition_type = '';
-      if (data_tab == 'definition_2/a') {
-        definition_type = params.definition_type==1? "部门【部门】":params.definition_type==2? "部门【人】":params.definition_type==3? "部门【默认】":params.definition_type==4? "部门【领导】":params.definition_type==5? "角色【人】":params.definition_type==6? "角色【角色】":params.definition_type==7? "所有人【人】":"";
-        // definition_type = params.definition_type;
-      } else if (data_tab == 'definition_2/b') {
-        definition_type = params.definition_type==1? "创建人本人":params.definition_type==2? "创建人领导":params.definition_type==3? "创建人下属":params.definition_type==4? "创建人部门人员":params.definition_type==5? "创建人部门领导":"";
-      } else if (data_tab == 'definition_2/c') {
-        definition_type = params.definition_type==1? "发送人本人":params.definition_type==2? "发送人领导":params.definition_type==3? "发送人下属":params.definition_type==4? "发送人部门人员":params.definition_type==5? "发送人部门领导":"";
-      } else if (data_tab == 'definition_2/d') {
-        definition_type = params.definition_type==1? "前一环节创建人本人":params.definition_type==2? "前一环节创建人上级":"";
-      } else if (data_tab == 'definition_2/e') {
-        definition_type = params.definition_type==1? "处理人本人":params.definition_type==2? "处理人上级":params.definition_type==3? "处理人下属":params.definition_type==4? "处理人部门人员":params.definition_type==5? "处理人部门领导":"";
-      }*/
       $('.conventional_definition [name="conventional_definition_participant"]').val("");//清除-自定义参数者
       $('.conventional_definition .definition_condition tbody').append(
                 '<tr>'+
-                '  <td name="typeName" value="'+typeName+'">'+typeName+'</td>'+
+                '  <td name="typeName" value="'+typeName+'">'+(typeName.split('|')[1])+'</td>'+
                 '  <td name="itemName" value="'+type+'">'+(type.split('|')[1])+'</td>'+
                 '  <td name="itemValue" value="'+name+'">'+(name?name.split('|')[1]?name.split('|')[1]:name:'')+'</td>'+
                 '  <td name="secLevelS" value="'+params.definition_param1+'">'+params.definition_param1+'</td>'+
                 '  <td name="secLevelE" value="'+params.definition_param2+'">'+params.definition_param2+'</td>'+
-                '  <td name="condition" value=""></td>'+
+                '  <td name="condition" value="fw=="></td>'+
                 '</tr>');
       $(".conventional_definition .definition_condition").mCustomScrollbar("update");
       $(".conventional_definition .definition_condition").mCustomScrollbar("scrollTo", "bottom", {
@@ -1249,7 +1202,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         select.remove();
         $(".definition_condition").mCustomScrollbar("update");
       } else {
-        layer.msg('请选择一行!', {time: 2000, icon: 2});
+        layer.msg('请选择一行!', {time: 2000, icon: 0});
       }
     });
 
@@ -1269,18 +1222,24 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             participant[$(this).attr('name')] = participant[$(this).attr('name')] || [];
             participant[$(this).attr('name')].push($(this).attr('value'));
           });
-          participant['roleName'] = participant['roleName'] || []
-          participant['roleName'].push('party');//常规定义参与者 角色默认是party
+          participant.roleName = participant.roleName || [];
+          participant.roleName.push('party');//常规定义参与者 角色默认是party
+          //以下几个属性不知道从哪里获取...???
+          participant.isAppData = participant.isAppData || [];
+          participant.isAppData.push('false');
+          participant.condition = participant.condition || [];
+          participant.condition.push('');
+          participant.conditionXml = participant.conditionXml || [];
+          participant.conditionXml.push('');
         });
       }
 
       if (operate) {// 1：编辑
-        for (var i in thisGraph.participants) {
-          var p = thisGraph.participants[i];
-          if (p.conventional_definition_id == currentId) {
+        thisGraph.participants.forEach(function(item, i) {
+          if (item.conventional_definition_id == currentId) {
             thisGraph.participants[i] = participant;
           }
-        }
+        });
       } else {// '':保存
         thisGraph.participants.push(participant);
       }
@@ -1296,13 +1255,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       if (selected.length) {
         var definition_id = selected.attr('definition_id');
         var responsible = thisGraph.state.selectedNode.monitorinf.responsible;
-        for (var i in responsible) {
-          if (responsible[i] == definition_id) responsible.splice(i, 1);
-        }
+        responsible.forEach(function(resp, i) {
+          if (resp == definition_id) responsible.splice(i, 1);
+        });
         selected.remove();
         $(".monitorinf_grid .content-div").mCustomScrollbar("update");
       } else {
-        layer.msg('请选择一行', {time: 2000, icon: 2});
+        layer.msg('请选择一行', {time: 2000, icon: 0});
       }
     });
 
@@ -1310,14 +1269,16 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     $('.monitorinf .monitorinfEditBtn').on('click', function() {
       var selected = $('.monitorinf').find('tbody tr.active');
       if (selected.length) {
-        var rol = selected.find('td').text()
+        var rol = selected.find('td').text(),
+          rol_id = selected.attr('definition_id');
         $('.monitorinf_add input[name="monitorinf_add_operate"]').val(1);
         $('.monitorinf_add select[name="definition_role"]').dropdown('set text', rol);
+        $('.monitorinf_add select[name="definition_role"]').siblings('.text').attr('definition_id', rol_id);
         $(this).siblings('.monitorinfAddBtn').trigger('click');
       } else {
-        layer.msg('请选择一行', {time: 2000, icon: 2});
+        layer.msg('请选择一行', {time: 2000, icon: 0});
       }
-    })
+    });
 
     //监控信息-增加-定义
     $('.monitorinf_add .definitionBtn').on('click', function() {
@@ -1327,74 +1288,70 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         $('.monitorinfAddDefinition input[name="monitorinf_add_operate"]').val(operate);//隐藏域：1代表编辑 空代表增加
         var monitorinf = thisGraph.state.selectedNode.monitorinf;
         var participants = thisGraph.participants;
-        for (var i in participants) {
-          if (participants[i].conventional_definition_id == rol) {
-            var participant = participants[i];
+        participants.forEach(function(p) {
+          if (p.conventional_definition_id == rol) {
             $('.monitorinfAddDefinition div[data-tab="definition_one"]').find('input[name]:not(".hidden"), textarea').each(function() {
-              $(this).val(participant[$(this).attr('name')]);
+              $(this).val(p[$(this).attr('name')]);
             });
             $('.monitorinfAddDefinition div[data-tab="definition_one"]').find('select').each(function() {
-              $(this).dropdown('set selected', participant[$(this).attr('name')]);
+              $(this).dropdown('set selected', p[$(this).attr('name')]);
             });
-            for (var j in participant.typeName) {
-              $('.monitorinfAddDefinition .definition_condition tbody').append(
-                  '<tr>'+
-                  '  <td name="typeName">'+participant.typeName[j]+'</td>'+
-                  '  <td name="itemName">'+participant.itemName[j]+'</td>'+
-                  '  <td name="itemValue">'+participant.itemValue[j]+'</td>'+
-                  '  <td name="secLevelS">'+participant.secLevelS[j]+'</td>'+
-                  '  <td name="secLevelE">'+participant.secLevelE[j]+'</td>'+
-                  '  <td name="roleName">'+participant.roleName[j]+'</td>'+
-                  '</tr>');
+            if (p.typeName) {
+              p.typeName.forEach(function(tn, j) {
+                var itemValue = p.itemValue[j]?p.itemValue[j].split('|')[1]?
+                                  p.itemValue[j].split('|')[1]:p.itemValue[j]:'';
+                $('.monitorinfAddDefinition .definition_condition tbody').append(
+                    '<tr>'+
+                    '  <td name="typeName" value="'+tn+'">'+tn.split('|')[1]+'</td>'+
+                    '  <td name="itemName" value="'+p.itemName[j]+'">'+p.itemName[j].split('|')[1]+'</td>'+
+                    '  <td name="itemValue" value="'+itemValue+'">'+itemValue+'</td>'+
+                    '  <td name="secLevelS" value="'+p.secLevelS[j]+'">'+p.secLevelS[j]+'</td>'+
+                    '  <td name="secLevelE" value="'+p.secLevelE[j]+'">'+p.secLevelE[j]+'</td>'+
+                    '  <td name="roleName" value="'+p.roleName[j]+'">'+p.roleName[j]+'</td>'+
+                    '</tr>');
+              });
             }
           }
-        }
+        });
       } else { //增加
-        $('.monitorinfAddDefinition input[name="conventional_definition_id"]').val(workflow_id +"_Par"+ conventional_par);
-        conventional_par++;
+        $('.monitorinfAddDefinition input[name="conventional_definition_id"]').val(seqer_participantID.gensym());
       }
-    })
+    });
 
     //监控信息-增加-定义-高级-增加条件
     $('.monitorinfAddDefinition .monitorinfDefintionAddBtn').on('click', function() {
-      var typeName = $('.monitorinfAddDefinition [data-tab="definition_two"]>.menu>.item.active').text(),
+      var typeName = $('.monitorinfAddDefinition [data-tab="definition_two"]>.menu>.item.active').attr('value'),
         data_tab = $('.monitorinfAddDefinition [data-tab="definition_two"] .tab.active').attr('data-tab'),
         type = $('.monitorinfAddDefinition div[data-tab="'+data_tab+'"] select[name="definition_type"]').val(),
-        name = $('.monitorinfAddDefinition div[data-tab="'+data_tab+'"] input[name="definition_name"]').val();
+        name = $('.monitorinfAddDefinition div[data-tab="'+data_tab+'"] [name="definition_name"]').val() || '';
       var params = {};
-      $('.monitorinfAddDefinition div[data-tab="'+data_tab+'"]').find('input[name],select').each(function(){
+      $('.monitorinfAddDefinition div[data-tab="'+data_tab+'"]').find('input[name],select').each(function() {
         params[$(this).attr('name')] = $(this).val();
-      })
+      });
       if (data_tab == 'definition_two/a') {//类型--一般
-        if (!type || !name) {
-          layer.msg('请选择类型和名称!', {time: 2000, icon: 2});
-          return false;
+        if (!type) {
+          layer.msg('请选择类型!', {time: 2000, icon: 0});
+          return;
+        }
+        if (type != 'allParty|所有人【人】' && !name) {
+          layer.msg('请选择名称!', {time: 2000, icon: 0});
+          return;
         }
       } else {
         if (!type) {
-          layer.msg('请选择类型!', {time: 2000, icon: 2});
+          layer.msg('请选择类型!', {time: 2000, icon: 0});
           return false;
         }
       }
-      var definition_type = '';
-      if (data_tab == 'definition_two/a') {
-        definition_type = params.definition_type==1? "部门【部门】":params.definition_type==2? "部门【人】":params.definition_type==3? "部门【默认】":params.definition_type==4? "部门【领导】":params.definition_type==5? "角色【人】":params.definition_type==6? "角色【角色】":params.definition_type==7? "所有人【人】":"";
-      } else if (data_tab == 'definition_two/b') {
-        definition_type = params.definition_type==1? "当前处理人领导":params.definition_type==2? "当前处理人部门领导":"";
-      } else if (data_tab == 'definition_two/c') {
-        definition_type = params.definition_type==1? "发送人本人":params.definition_type==2? "发送人领导":params.definition_type==3? "发送人下属":params.definition_type==4? "发送人部门人员":params.definition_type==5? "发送人部门领导":"";
-      } else if (data_tab == 'definition_two/d') {
-        definition_type = params.definition_type==1? "前一环节创建人本人":params.definition_type==2? "前一环节创建人上级":"";
-      } 
       $('.monitorinfAddDefinition [name="conventional_definition_participant"]').val("");//清除-自定义参数者
       $('.monitorinfAddDefinition .definition_condition tbody').append(
                 '<tr>'+
-                '  <td name="typeName">'+typeName+'</td>'+
-                '  <td name="itemName">'+definition_type+'</td>'+
-                '  <td name="itemValue">'+(params.definition_name? params.definition_name:"")+'</td>'+
-                '  <td name="secLevelS">'+params.definition_param1+'</td>'+
-                '  <td name="secLevelE">'+params.definition_param2+'</td>'+
-                '  <td name="roleName">'+params.definition_role+'</td>'+
+                '  <td name="typeName" value="'+typeName+'">'+typeName.split('|')[1]+'</td>'+
+                '  <td name="itemName" value="'+type+'">'+(type.split('|')[1])+'</td>'+
+                '  <td name="itemValue" value="'+name+'">'+(name?name.split('|')[1]?name.split('|')[1]:name:'')+'</td>'+
+                '  <td name="secLevelS" value="'+params.definition_param1+'">'+params.definition_param1+'</td>'+
+                '  <td name="secLevelE" value="'+params.definition_param2+'">'+params.definition_param2+'</td>'+
+                '  <td name="roleName" value="'+params.definition_role+'">'+params.definition_role+'</td>'+
                 '</tr>');
       $(".monitorinfAddDefinition .definition_condition").mCustomScrollbar("update");
       $(".monitorinfAddDefinition .definition_condition").mCustomScrollbar("scrollTo", "bottom", {
@@ -1409,7 +1366,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         select.remove();
         $(".monitorinfAddDefinition  .definition_condition").mCustomScrollbar("update");
       } else {
-        layer.msg('请选择一行!', {time: 2000, icon: 2});
+        layer.msg('请选择一行!', {time: 2000, icon: 0});
       }
     });
 
@@ -1422,19 +1379,25 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         participant[$(this).attr('name')] = $(this).val();
       });
       $('.monitorinfAddDefinition div[data-tab="definition_two"] tbody').find('tr').each(function() {
-        $(this).find('td').each(function() {
+        $(this).find('td').each(function(){
           participant[$(this).attr('name')] = participant[$(this).attr('name')] || [];
-          participant[$(this).attr('name')].push($(this).text());
+          participant[$(this).attr('name')].push($(this).attr('value'));
         });
+        //以下几个属性不知道从哪里获取...???
+        participant.isAppData = participant.isAppData || [];
+        participant.isAppData.push('false');
+        participant.condition = participant.condition || [];
+        participant.condition.push('');
+        participant.conditionXml = participant.conditionXml || [];
+        participant.conditionXml.push('');
       });
       
       if (operate) {// 1：编辑
-        for (var i in thisGraph.participants) {
-          var p = thisGraph.participants[i];
-          if (p.conventional_definition_id == currentId) {
+        thisGraph.participants.forEach(function(item, i) {
+          if (item.conventional_definition_id == currentId) {
             thisGraph.participants[i] = participant;
           }
-        }
+        });
       } else {// '': 保存
         thisGraph.participants.push(participant);
       }
@@ -1446,7 +1409,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
     //监控信息-增加-确定
     $('.monitorinf_add .green.button').on('click', function() {
-      var operate = $('.monitorinf_add input[name="monitorinf_add_operate"]').val();//operate:1为编辑
+      var operate = $('.monitorinf_add input[name="monitorinf_add_operate"]').val();//operate: 1为编辑
       var definition_rol = $('.monitorinf_add .dropdown .text').text(),
           definition_id = $('.monitorinf_add .dropdown .text').attr('definition_id');
       if (operate) {//编辑
@@ -1459,7 +1422,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         node.monitorinf.responsible = node.monitorinf.responsible || [];
         node.monitorinf.responsible.push(definition_id);
       }
-    })
+    });
 
     //后置条件-条件设置-类型
     $('.targetActivity').on('change', 'select[name=conditype]', function() {
@@ -1482,9 +1445,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           targetActivity$.find('.exceptionDiv select[name=condiException]:parent').dropdown('set selected', '请选择异常');
         }
         if (show_cls == '.workflowbeanDiv') {//显示-按业务对象转移-默认选定
-          var fieldConditions_type = targetActivity$.find('.workflowbeanDiv tbody').data('fieldConditions_type');
-          if (fieldConditions_type) {
-            targetActivity$.find('.workflowbeanDiv input[name=beanConditions_type]').val(fieldConditions_type);
+          var fieldConditions_type2 = targetActivity$.find('.workflowbeanDiv tbody').data('fieldConditions_type');
+          if (fieldConditions_type2) {
+            targetActivity$.find('.workflowbeanDiv input[name=beanConditions_type]').val(fieldConditions_type2);
           } else {
             targetActivity$.find('.workflowbeanDiv input[name=beanConditions_type]').val('AND');
           }
@@ -1500,7 +1463,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       } else {
         $(this).parents('.fields').siblings('.myitem').addClass('hideDiv');
       }
-    })
+    });
 
     //后置条件-条件设置-类型(条件)-字段
     $('.targetActivity').on('change', '.conditionDiv select[name=key]', function() {
@@ -1529,7 +1492,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
             }).dropdown('set selected', '=');
         }
       }
-    })
+    });
 
     //后置条件-条件设置-类型(条件)-增加条件
     $('.targetActivity').on('click', '.conditionDiv .condition_addBtn', function() {
@@ -1544,11 +1507,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       });
 
       if (!condition.key || condition.key == '0') {
-        layer.msg('请选择字段！', {time: 2000, icon:2});
+        layer.msg('请选择字段！', {time: 2000, icon: 0});
         return false;
       }
       if (!condition.displayValue_one && !condition.displayValue_two) {//存在一个参考值即可
-        layer.msg('条件参数不全！', {time: 2000, icon:2});
+        layer.msg('条件参数不全！', {time: 2000, icon: 0});
         return false;
       }
 
@@ -1569,7 +1532,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         tr.remove();
         conditionDiv$.find('.conditionList').mCustomScrollbar('update');
       } else {
-        layer.msg('请选择一行!', {time: 2000, icon:0});
+        layer.msg('请选择一行!', {time: 2000, icon: 0});
       }
     });
 
@@ -1607,7 +1570,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       var workflowbeanDiv$ = $(this).parents('.workflowbeanDiv');
       var bean = workflowbeanDiv$.find('select[name=bean]').val();
       if (!bean || bean == '0') {
-        layer.msg('请选择业务对象！', {time: 2000, icon:2});
+        layer.msg('请选择业务对象！', {time: 2000, icon: 0});
         return false;
       }
       var condition = {};
@@ -1620,11 +1583,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       });
 
       if (!condition.key || condition.key == '0') {
-        layer.msg('请选择方法！', {time: 2000, icon:2});
+        layer.msg('请选择方法！', {time: 2000, icon: 0});
         return false;
       }
       if (!condition.displayValue_one && !condition.displayValue_two) {//存在一个参考值即可
-        layer.msg('条件参数不全！', {time: 2000, icon:2});
+        layer.msg('条件参数不全！', {time: 2000, icon: 0});
         return false;
       }
       var num = workflowbeanDiv$.find('tbody tr').length==0? 1:parseInt($('.workflowbeanDiv tbody tr:last').find('td:first').text())+1;
@@ -1635,7 +1598,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       workflowbeanDiv$.find('.conditionList2').mCustomScrollbar('scrollTo', 'bottom', {
         scrollInertia: 1500
       });
-    })
+    });
 
     //后置条件-条件设置-类型(按业务对象转移)-删除条件
     $('.targetActivity').on('click', '.workflowbeanDiv .condition_removeBtn', function() {
@@ -1645,9 +1608,9 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         tr.remove();
         workflowbeanDiv$.find('.conditionList2').mCustomScrollbar('update');
       } else {
-        layer.msg('请选择一行!', {time: 2000, icon:0});
+        layer.msg('请选择一行!', {time: 2000, icon: 0});
       }
-    })
+    });
 
     //后置条件-条件设置-类型(按业务对象转移)-关系设置-分组
     $('.relationshipPlacement .relationshipGroup').on('click', function() {
@@ -1655,17 +1618,17 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       var condition_no = $('.relationshipPlacement .condition_no').find('input[name][value=true]');
       var relationship = $('.relationshipPlacement .radio.checkbox.checked').children('input').attr('tabindex');
       if (!condition_no.length || !relationship) {
-        layer.msg('请选择条件代号或关系!', {time: 2000, icon:0});
+        layer.msg('请选择条件代号或关系!', {time: 2000, icon: 0});
         return false;
       }
       condition_no.each(function() {
         names.push($(this).attr('name'));
         $(this).parent('.checkbox').remove();
-      })
+      });
       var beanConditions_type = '';
       names.forEach(function(item) {
         beanConditions_type += item + relationship;
-      })
+      });
       beanConditions_type = '(' + beanConditions_type.replace(/(\&\&$)|(\|\|$)/, '') + ')';
 
       $('.relationshipPlacement input[name=beanConditions_type]').val(beanConditions_type);
@@ -1686,7 +1649,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           }
         });
 
-    })
+    });
 
     //后置条件-条件设置-类型(按业务对象转移)-关系设置-重置
     $('.relationshipPlacement .relationshipReset').on('click', function() {
@@ -1712,13 +1675,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           $(this).parents('.checkbox').find('input[name]').val(false);
         }
       });
-    })
+    });
 
     //后置条件-条件设置-类型(按业务对象转移)-关系设置-确定
     $('.relationshipPlacement .green.button').on('click', function() {
       var beanConditions_type = $('.relationshipPlacement input[name=beanConditions_type]').val();
       $('.workflowbeanDiv  input[name=beanConditions_type]').val(beanConditions_type);
-    })
+    });
     
 
   };
@@ -1745,7 +1708,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
              '  <td>'+displayCondi.sign_two+'</td>'+
              '  <td>'+displayCondi.displayValue_two+'</td>'+
              '  <td>'+displayCondi.type+'</td>'+
-             '</tr>'
+             '</tr>';
     if (condition.bean) {//类型：按业务对象转移
       displayCondi.bean = condition.bean=='System_Wf_Source_Party'? '发送人':condition.bean=='System_cre_id'?'创建人':'';
       displayCondi.paramField = condition.paramField!='0'? condition.paramField:'默认';
@@ -1772,10 +1735,10 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
            '  <td class="two wide">'+displayCondi.sign_two+'</td>'+
            '  <td class="two wide">'+displayCondi.displayValue_two+'</td>'+
            '  <td class="two wide">'+displayCondi.type+'</td>'+
-           '</tr>'
+           '</tr>';
     }
     return tr;
-  }
+  };
 
   // 获取activity的ExtendedAttributes
   GraphCreator.prototype.getExtendedAttributes = function(node, deadlineXpdl, conventionalXpdl) {
@@ -1788,47 +1751,47 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     if (highLevel) {
       highLevelXpdl += highLevel.activityEndEvent?'<ExtendedAttribute Name="ActivityEndEvent" Value="'+highLevel.activityEndEvent+'"/>':'';
       highLevelXpdl += highLevel.activityCreateEvent?'<ExtendedAttribute Name="ActivityCreateEvent" Value="'+highLevel.activityCreateEvent+'"/>':'';
-      highLevelXpdl += highLevel.finishRule?'<ExtendedAttribute Name="FinishRule" Value="'+highLevel.finishRule+'"/>':'';
+      highLevelXpdl += highLevel.finishRule?'<ExtendedAttribute Name="FinishRule" Value="'+highLevel.finishRule+'"/>':'<ExtendedAttribute Name="FinishRule"/>';
     } else {
-      highLevelXpdl = '<ExtendedAttribute Name="deadline" />'
+      highLevelXpdl = '<ExtendedAttribute Name="deadline" />';
     }
     isCreateNew = node.frontCondition.isCreateNew?'<ExtendedAttribute Name="isCreateNew" Value="'+node.frontCondition.isCreateNew+'"/>':'';
-    voteModel = node.frontCondition.voteModel!="0"&&node.frontCondition.voteText?'<ExtendedAttribute Name="syncType" Value="'+node.frontCondition.voteModel+'|'+node.frontCondition.voteText+'"/>':'';
-    responsible = node.monitorinf.responsible?'<ExtendedAttribute Name="responsible" Value="'+node.monitorinf.responsible.join(',')+'"/>':'<ExtendedAttribute Name="responsible"/>'
+    voteModel = node.frontCondition.voteModel!="0" && node.frontCondition.voteText?'<ExtendedAttribute Name="syncType" Value="'+node.frontCondition.voteModel+'|'+node.frontCondition.voteText+'"/>':'';
+    responsible = node.monitorinf.responsible?'<ExtendedAttribute Name="responsible" Value="'+
+                    node.monitorinf.responsible.join(',')+'"/>':'<ExtendedAttribute Name="responsible"/>';
 
     var ExtendedAttributes = 
-            '<ExtendedAttributes>'
-          +     conventionalXpdl.isMulInstance
-          + '   <ExtendedAttribute Name="isResponsibleTem" Value="'+node.monitorinf.isResponsibleTem+'"/>'
-          +     responsible
-          +     conventionalXpdl.mustActivity
-          +     isCreateNew
-          +     voteModel
-          +     conventionalXpdl.taskAssignMode
-          +     conventionalXpdl.assignmentsOrder
-          +     conventionalXpdl.completeAllAssignments
-          +     conventionalXpdl.autoAcceptAllAssignments
-          +     conventionalXpdl.isResponsible
-          +     highLevelXpdl
-          +     deadlineXpdl.deadline
-          + '   <ExtendedAttribute Name="FinishRule"/>'
-          + '   <ExtendedAttribute Name="warnTimeiFrequency"/>'
-          +     deadlineXpdl.warnTime
-          +     deadlineXpdl.warnAgentClassName
-          +     deadlineXpdl.limitAgentClassName
-          +     conventionalXpdl.participantID
-          + '   <ExtendedAttribute Name="XOffset" Value="'+node.x+'"/>'
-          + '   <ExtendedAttribute Name="YOffset" Value="'+node.y+'"/>';
+            '<ExtendedAttributes>'+
+                conventionalXpdl.isMulInstance+
+            '   <ExtendedAttribute Name="isResponsibleTem" Value="'+node.monitorinf.isResponsibleTem+'"/>'+
+                responsible+
+                voteModel+
+                conventionalXpdl.mustActivity+
+                isCreateNew+
+                conventionalXpdl.taskAssignMode+
+                conventionalXpdl.assignmentsOrder+
+                conventionalXpdl.completeAllAssignments+
+                conventionalXpdl.autoAcceptAllAssignments+
+                conventionalXpdl.isResponsible+
+                deadlineXpdl.deadline+
+                highLevelXpdl+
+            '   <ExtendedAttribute Name="warnTimeiFrequency"/>'+
+                deadlineXpdl.warnTime+
+                deadlineXpdl.warnAgentClassName+
+                deadlineXpdl.limitAgentClassName+
+                conventionalXpdl.participantID+
+            '   <ExtendedAttribute Name="XOffset" Value="'+node.x+'"/>'+
+            '   <ExtendedAttribute Name="YOffset" Value="'+node.y+'"/>';
     if (extendAttr) {
-      for (var i in extendAttr) {
+      extendAttr.forEach(function(ext) {
         ExtendedAttributes +=
-            '   <ExtendedAttribute Name="'+JSON.parse(extendAttr[i]).name+'" Value="'+JSON.parse(extendAttr[i]).value+'"/>'
-      }
+            '   <ExtendedAttribute Name="'+JSON.parse(ext).name+'" Value="'+JSON.parse(ext).value+'"/>';
+      });
     }
     ExtendedAttributes +=
             '</ExtendedAttributes>';
     return ExtendedAttributes;
-  }
+  };
 
   //获取常规相应的xpdl
   GraphCreator.prototype.conventionalXpdl = function(node) {
@@ -1838,17 +1801,17 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     conventionalXpdl.startMode = conventional.startMode=='automatic'?'<StartMode><Automatic/></StartMode>':'<StartMode><Manual/></StartMode>';
     conventionalXpdl.finishMode = conventional.finishMode=='automatic'?'<FinishMode><Automatic/></FinishMode>':'<FinishMode><Manual/></FinishMode>';
     conventionalXpdl.isMulInstance = conventional.isMulInstance?'<ExtendedAttribute Name="isMulInstance" Value="true"/>':'<ExtendedAttribute Name="isMulInstance" Value="false"/>';
-    conventionalXpdl.isResponsible = conventional.isResponsible?'<ExtendedAttribute Name="isResponsible" Value="true"/>':'<ExtendedAttribute Name="isResponsible" Value="false"/>'
-    conventionalXpdl.autoAcceptAllAssignments = conventional.autoAcceptAllAssignments?'<ExtendedAttribute Name="autoAcceptAllAssignments" Value="true"/>':'<ExtendedAttribute Name="autoAcceptAllAssignments" Value="false"/>'    
+    conventionalXpdl.isResponsible = '<ExtendedAttribute Name="isResponsible" Value="'+conventional.isResponsible+'"/>';
+    conventionalXpdl.autoAcceptAllAssignments = '<ExtendedAttribute Name="autoAcceptAllAssignments" Value="'+conventional.autoAcceptAllAssignments+'"/>';   
     conventionalXpdl.completeAllAssignments = conventional.completeAllAssignments?'<ExtendedAttribute Name="completeAllAssignments" Value="true"/>':'<ExtendedAttribute Name="completeAllAssignments" Value="false"/>';
-    conventionalXpdl.assignmentsOrder = conventional.assignmentsOrder?'<ExtendedAttribute Name="assignmentsOrder" Value="true"/>':'<ExtendedAttribute Name="assignmentsOrder" Value="false"/>'
+    conventionalXpdl.assignmentsOrder = conventional.assignmentsOrder?'<ExtendedAttribute Name="assignmentsOrder" Value="true"/>':'<ExtendedAttribute Name="assignmentsOrder" Value="false"/>';
     conventionalXpdl.description = conventional.description?'<Description>'+conventional.description+'</Description>':'';
     conventionalXpdl.taskAssignMode = '<ExtendedAttribute Name="taskAssignMode" Value="'+conventional.taskAssignMode+'"/>';
-    conventionalXpdl.mustActivity = conventional.mustActivity?'<ExtendedAttribute Name="MustActivity" Value="true"/>':'<ExtendedAttribute Name="MustActivity" Value="false"/>';
+    conventionalXpdl.mustActivity = '<ExtendedAttribute Name="MustActivity" Value="'+conventional.mustActivity+'"/>';
     conventionalXpdl.participantID = conventional.participantID?'<ExtendedAttribute Name="ParticipantID" Value="'+conventional.participantID+'"/>':'<ExtendedAttribute Name="ParticipantID"/>';
     conventionalXpdl.performer = conventional.performer?'<Performer>'+conventional.performer+'</Performer>':'';
     return conventionalXpdl;
-  }
+  };
 
   //获取超时限制相应的xpdl 
   GraphCreator.prototype.deadlineXpdl = function(node) {
@@ -1857,36 +1820,38 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       deadlineXpdl = {};
     deadlineXpdl.limit = timeoutLimit.limitTime?'<Limit>'+timeoutLimit.limitTime+'</Limit>':'';
     deadlineXpdl.warnTime = timeoutLimit.warnTime?'<ExtendedAttribute Name="warnTime" Value="'+timeoutLimit.warnTime+'"/>':'<ExtendedAttribute Name="warnTime"/>';
-    deadlineXpdl.warnAgentClassName = timeoutLimit.warnAgentClassName?'<ExtendedAttribute Name="warnAgentClassName" Value="'+timeoutLimit.warnAgentClassName+'"/>':'<ExtendedAttribute Name="warnAgentClassName"/>'
-    deadlineXpdl.limitAgentClassName = timeoutLimit.limitAgentClassName?'<ExtendedAttribute Name="limitAgentClassName" Value="'+timeoutLimit.limitAgentClassName+'"/>':'<ExtendedAttribute Name="limitAgentClassName"/>';
+    deadlineXpdl.warnAgentClassName = timeoutLimit.warnAgentClassName?'<ExtendedAttribute Name="warnAgentClassName" Value="'+timeoutLimit.warnAgentClassName+'"/>':'<ExtendedAttribute Name="warnAgentClassName"/>';
+    deadlineXpdl.limitAgentClassName = timeoutLimit.limitAgentClassName?'<ExtendedAttribute Name="LimitAgentClassName" Value="'+timeoutLimit.limitAgentClassName+'"/>':'<ExtendedAttribute Name="LimitAgentClassName"/>';
     var Deadlines = '',
       deadlines_arr = [];
-    for (var i in timeoutLimit.deadline) {
-      var deadline = JSON.parse(timeoutLimit.deadline[i]);
-      deadlines_arr.push(deadline.exceptionName+','+deadline.deadlineCondition);
-      if (deadline.execution == '') {
-        Deadlines += '<Deadline>'
-                   + '    <DeadlineCondition>'+deadline.deadlineCondition+'</DeadlineCondition>'
-                   + '    <ExceptionName>'+deadline.exceptionName+'</ExceptionName>'
-                   + '</Deadline>'
-      }
-      if (deadline.execution == 'SYNCHR') {
-        Deadlines += '<Deadline Execution="SYNCHR">'
-                   + '    <DeadlineCondition>'+deadline.deadlineCondition+'</DeadlineCondition>'
-                   + '    <ExceptionName>'+deadline.exceptionName+'</ExceptionName>'
-                   + '</Deadline>'
-      }
-      if (deadline.execution == 'ASYNCHR') {
-        Deadlines += '<Deadline Execution="ASYNCHR">'
-                   + '    <DeadlineCondition>'+deadline.deadlineCondition+'</DeadlineCondition>'
-                   + '    <ExceptionName>'+deadline.exceptionName+'</ExceptionName>'
-                   + '</Deadline>'
-      }
+    if (timeoutLimit.deadline) {
+      timeoutLimit.deadline.forEach(function(dl, i) {
+        var deadline = JSON.parse(dl);
+        deadlines_arr.push(deadline.exceptionName+','+deadline.deadlineCondition);
+        if (deadline.execution == '') {
+          Deadlines += '<Deadline>' +
+                       '    <DeadlineCondition>'+deadline.deadlineCondition+'</DeadlineCondition>' +
+                       '    <ExceptionName>'+deadline.exceptionName+'</ExceptionName>' +
+                       '</Deadline>';
+        }
+        if (deadline.execution == 'SYNCHR') {
+          Deadlines += '<Deadline Execution="SYNCHR">' +
+                       '    <DeadlineCondition>'+deadline.deadlineCondition+'</DeadlineCondition>' +
+                       '    <ExceptionName>'+deadline.exceptionName+'</ExceptionName>' +
+                       '</Deadline>';
+        }
+        if (deadline.execution == 'ASYNCHR') {
+          Deadlines += '<Deadline Execution="ASYNCHR">' +
+                       '    <DeadlineCondition>'+deadline.deadlineCondition+'</DeadlineCondition>' +
+                       '    <ExceptionName>'+deadline.exceptionName+'</ExceptionName>' +
+                       '</Deadline>';
+        }
+      });
     }
     deadlineXpdl.deadlines = Deadlines;
     deadlineXpdl.deadline = deadlines_arr.length>0?'<ExtendedAttribute Name="deadline" Value="'+deadlines_arr.join('|')+'"/>':'<ExtendedAttribute Name="deadline"/>';
     return deadlineXpdl;
-  }
+  };
 
   //获取activity进出线的数量
   GraphCreator.prototype.activityInOutNum = function(node) {
@@ -1903,7 +1868,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       if ( source != "startComponent" && target != "endComponent") {
         if (edge.source == node){
           numOut++;
-          transitionRefs += '<TransitionRef Id="'+edge.edgeId+'"/>'
+          transitionRefs += '<TransitionRef Id="'+edge.edgeId+'"/>';
         } else if (edge.target == node){
           numIn++;
         }
@@ -1913,67 +1878,69 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     activity_inOut.numOut = numOut;
     activity_inOut.transitionRefs = transitionRefs;
     return activity_inOut;
-  }
+  };
 
   //获取TransitionRestrictions相应的xpdl
   GraphCreator.prototype.getTransitionRestrictions = function(node, activity_inOut) {
     var join = node.frontCondition.convergeType?'<Join Type="'+node.frontCondition.convergeType+'"/>':'<Join Type="XOR"/>';
     var TransitionRestrictions = '';
     if (activity_inOut.numIn > 1 || activity_inOut.numOut > 1 || node.frontCondition.convergeType) {
-      TransitionRestrictions += '<TransitionRestrictions>'
-                              + '    <TransitionRestriction>'
+      TransitionRestrictions += '<TransitionRestrictions>'+
+                                '    <TransitionRestriction>';
       if (activity_inOut.numIn > 1 || node.frontCondition.convergeType) {  
-        TransitionRestrictions +=      join
+        TransitionRestrictions +=      join;
       }
       if (activity_inOut.numOut > 1) {
-        TransitionRestrictions += '    <Split Type="XOR">'
-                                + '        <TransitionRefs>'
-                                +              activity_inOut.transitionRefs
-                                + '        </TransitionRefs>'
-                                + '    </Split>'
+        TransitionRestrictions += '    <Split Type="XOR">' +
+                                  '        <TransitionRefs>' +
+                                               activity_inOut.transitionRefs +
+                                  '        </TransitionRefs>' +
+                                  '    </Split>';
       }
-      TransitionRestrictions += '    </TransitionRestriction>'
-                              + '</TransitionRestrictions>'
+      TransitionRestrictions += '    </TransitionRestriction>'+
+                                '</TransitionRestrictions>';
     }
     return TransitionRestrictions;
-  }
+  };
 
   //生成参与者相应的xpdl
   GraphCreator.prototype.getParticipants = function() { //??细节还有问题：1.isAppData; 2.condition,conditionXml;
     var thisGraph = this;
-    if (thisGraph.participants.length == 0) return false;
+    if (thisGraph.participants.length == 0) return '';
 
     var xpdl = '',
       participantsXpdl = '';
-    for (var i in thisGraph.participants) {
-      var participant = thisGraph.participants[i],
-        extendedAttr = '';
-      if (participant && participant.conventional_definition_participant) {
-        extendedAttr  = '<ExtendedAttribute Name="PartyBeanld" Value="'+participant.conventional_definition_participant+'"/>'
+
+    thisGraph.participants.forEach(function(p) {
+      var extendedAttr = '',
+        description = p.conventional_definition_description? '<Description>'+p.conventional_definition_description+'</Description>':'',
+        p_name = p.conventional_definition_name?' Name="'+p.conventional_definition_name+'"':'';
+      if (p && p.conventional_definition_participant) {
+        extendedAttr  = '<ExtendedAttribute Name="PartyBeanId" Value="'+p.conventional_definition_participant+'"/>';
       } else {
-        extendedAttr += '<ExtendedAttribute Name="typeName" Value="'+(participant.typeName?participant.typeName.join(','):"")+'"/>'
-                      + '<ExtendedAttribute Name="isAppData" Value="false"/>'
-                      + '<ExtendedAttribute Name="itemName" Value="'+(participant.itemName?participant.itemName.join(','):"")+'"/>'
-                      + '<ExtendedAttribute Name="itemValue" Value="'+(participant.itemValue?participant.itemValue.join(','):"")+'"/>'
-                      + '<ExtendedAttribute Name="secLevelS" Value="'+(participant.secLevelS?participant.secLevelS.join(','):"")+'"/>'
-                      + '<ExtendedAttribute Name="secLevelE" Value="'+(participant.secLevelE?participant.secLevelE.join(','):"")+'"/>'
-                      + (participant.condition?'<ExtendedAttribute Name="condition"><![CDATA['+participant.condition.join(',')+'fw==]]></ExtendedAttribute>':'<ExtendedAttribute Name="condition"/>')
-                      + '<ExtendedAttribute Name="conditionXml"/>'
-                      + '<ExtendedAttribute Name="roleName" Value="'+(participant.roleName?participant.roleName.join(','):"")+'"/>'
+        extendedAttr += '<ExtendedAttribute Name="typeName" Value="'+(p.typeName?p.typeName.join(','):"")+'"/>'+
+                        '<ExtendedAttribute Name="isAppData" Value="'+(p.isAppData?p.isAppData.join(','):"")+'"/>'+
+                        '<ExtendedAttribute Name="itemName" Value="'+(p.itemName?p.itemName.join(','):"")+'"/>'+
+                        '<ExtendedAttribute Name="itemValue" Value="'+(p.itemValue?p.itemValue.join(','):"")+'"/>'+
+                        '<ExtendedAttribute Name="secLevelS" Value="'+(p.secLevelS?p.secLevelS.join(','):"")+'"/>'+
+                        '<ExtendedAttribute Name="secLevelE" Value="'+(p.secLevelE?p.secLevelE.join(','):"")+'"/>'+
+                        '<ExtendedAttribute Name="condition"><![CDATA['+p.condition.join(',')+']]></ExtendedAttribute>'+
+                        '<ExtendedAttribute Name="conditionXml"><![CDATA['+p.conditionXml.join(',')+']]></ExtendedAttribute>'+
+                        '<ExtendedAttribute Name="roleName" Value="'+(p.roleName?p.roleName.join(','):"")+'"/>';
       }
-      participantsXpdl += '<Participant Id="'+participant.conventional_definition_id+'" Name="'+(participant.conventional_definition_name || "")+'">'
-                        + '    <ParticipantType Type="ROLE"/>'
-                        + '    <Description>'+participant.conventional_definition_participant+'</Description>'
-                        + '    <ExtendedAttributes>'
-                        +         extendedAttr
-                        + '    </ExtendedAttributes>'
-                        + '</Participant>'
-    }
-    xpdl += '<Participants>'
-          +     participantsXpdl
-          + '</Participants>'
+      participantsXpdl += '<Participant Id="'+p.conventional_definition_id+'"'+p_name+'>'+
+                          '    <ParticipantType Type="ROLE"/>'+
+                               description+
+                          '    <ExtendedAttributes>'+
+                                  extendedAttr+
+                          '    </ExtendedAttributes>'+
+                          '</Participant>';
+    });
+    xpdl += '<Participants>'+
+               participantsXpdl+
+           '</Participants>';
     return xpdl;
-  }
+  };
 
   //生成所有activity xml添加至xmlContainer
   GraphCreator.prototype.emergeAllXmlContent = function() {
@@ -1982,22 +1949,21 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           end = '  <text-limit/>'+
                 '</WorkflowProcess>';
 
-    var nodes = thisGraph.nodes,
-      curText = start,
+    var curText = start,
       activity = '';
-    for (var i in nodes) {
-      if (nodes[i].type == 'activity') {
-        activity = '<activity Id="'+nodes[i].id+'" Name="'+nodes[i].title+'" form-id="" formdisplayschema="" hisformdisplayschema="">'+
+    thisGraph.nodes.forEach(function(node) {
+      if (node.type == 'activity') {
+        activity = '<activity Id="'+node.id+'" Name="'+node.title+'" form-id="" formdisplayschema="" hisformdisplayschema="">'+
                    '  <operations/>'+
                    '  <text-limit/>'+
                    '</activity>';
         curText += activity;
       }
-    }
+    });
     curText += end;
     curText = vkbeautify.xml(curText);
     return curText;
-  }
+  };
 
   //生成所有activity xml添加至xpdlContainer
   GraphCreator.prototype.emergeAllxpdlContent = function() {
@@ -2005,8 +1971,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var nodes = thisGraph.nodes;
     var edges = thisGraph.edges;
     var activitySets = '';
-    if(nodes.length>0){
-      activitySets = //不清楚什么时候设置??
+    if (nodes.length > 0) {
+      activitySets = //不清楚什么时候设置??应该是子流程
           '<ActivitySets>'+
           '   <ActivitySet Id="Package_8VRAH3EM_Wor1_Ase1"/>'+
           '</ActivitySets>';
@@ -2025,270 +1991,260 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           nodes_act.push(node);
         }
         if (node.type == 'start') {
-          for (var i in edges) {
-            if (edges[i].source == node) {
-               nodes_start += '<ExtendedAttribute Name="StartOfWorkflow" Value="none;'+edges[i].target.id+';'+node.x+';'+node.y+';NOROUTING"/>'
+          edges.forEach(function(edge) {
+            if (edge.source == node) {
+              nodes_start += '<ExtendedAttribute Name="StartOfWorkflow" Value="'+node.id+';'+edge.target.id+';'+node.x+';'+node.y+';'+edge.drawLine+'"/>';
             }
-          }
+          });
         }
         if (node.type == 'end') {
-          for (var i in edges) {
-            if (edges[i].target == node) {
-               nodes_end += '<ExtendedAttribute Name="EndOfWorkflow" Value="none;'+edges[i].source.id+';'+node.x+';'+node.y+';NOROUTING"/>'
+          edges.forEach(function(edge) {
+            if (edge.target == node) {
+              nodes_end += '<ExtendedAttribute Name="EndOfWorkflow" Value="'+node.id+';'+edge.source.id+';'+node.x+';'+node.y+';'+edge.drawLine +'"/>';
             }
-          }
+          });
         }
-    })
-    nodes_act.forEach(function (node) {
+    });
+    nodes_act.forEach(function(node) {
       var activity_inOut = thisGraph.activityInOutNum(node);
       var deadlineXpdl = thisGraph.deadlineXpdl(node);
       var conventionalXpdl = thisGraph.conventionalXpdl(node);
       switch (node.component) {
         case "activityComponent"://普通活动
-          activities 
-             += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
-              +      deadlineXpdl.limit
-              +      conventionalXpdl.description
-              + '    <Implementation>'
-              + '        <No/>'
-              + '    </Implementation>'
-              +      conventionalXpdl.performer
-              +      conventionalXpdl.startMode
-              +      conventionalXpdl.finishMode
-              + '    <Priority/>'
-              +      deadlineXpdl.deadlines
-              +      thisGraph.getTransitionRestrictions(node, activity_inOut)
-              +      thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)
-              + '</Activity>';
+          activities += '<Activity Id="'+node.id+'" Name="'+node.title+'">'+
+                             deadlineXpdl.limit+
+                             conventionalXpdl.description+
+                        '    <Implementation>'+
+                        '        <No/>'+
+                        '    </Implementation>'+
+                             conventionalXpdl.performer+
+                             conventionalXpdl.startMode+
+                             conventionalXpdl.finishMode+
+                        '    <Priority/>'+
+                             deadlineXpdl.deadlines+
+                             thisGraph.getTransitionRestrictions(node, activity_inOut)+
+                             thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)+
+                        '</Activity>';
           break;
         case "blockActivity": //块活动
-          activities
-             += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
-              +      deadlineXpdl.limit
-              +      conventionalXpdl.description
-              + '    <BlockActivity BlockId="Package_H00387DJ_Wor1_Ase2"/>'
-              +      conventionalXpdl.performer
-              +      conventionalXpdl.startMode
-              +      conventionalXpdl.finishMode
-              + '    <Priority/>'
-              +      deadlineXpdl.deadlines
-              +      thisGraph.getTransitionRestrictions(node, activity_inOut)
-              +      thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)
-              + '</Activity>';   
+          activities += '<Activity Id="'+node.id+'" Name="'+node.title+'">' +
+                             deadlineXpdl.limit +
+                             conventionalXpdl.description +
+                        '    <BlockActivity BlockId="Package_H00387DJ_Wor1_Ase2"/>' +
+                             conventionalXpdl.performer +
+                             conventionalXpdl.startMode +
+                             conventionalXpdl.finishMode +
+                        '    <Priority/>' +
+                             deadlineXpdl.deadlines +
+                             thisGraph.getTransitionRestrictions(node, activity_inOut) +
+                             thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl) +
+                        '</Activity>';   
           break;
         case "subFlowActivity": //子活动
-          activities
-             += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
-              +      deadlineXpdl.limit
-              +      conventionalXpdl.description
-              + '    <Implementation>'
-              + '        <SubFlow Execution="SYNCHR" Id="Package_6MT7F8C0_Wor4"/>'//subFlowId是什么东西??
-              + '    </Implementation>'
-              +      conventionalXpdl.performer
-              +      conventionalXpdl.startMode
-              +      conventionalXpdl.finishMode
-              + '    <Priority/>'
-              +      deadlineXpdl.deadlines
-              +      thisGraph.getTransitionRestrictions(node, activity_inOut)
-              +      thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)
-              + '</Activity>';
+          activities += '<Activity Id="'+node.id+'" Name="'+node.title+'">' +
+                             deadlineXpdl.limit +
+                             conventionalXpdl.description +
+                        '    <Implementation>' +
+                        '        <SubFlow Execution="SYNCHR" Id="Package_6MT7F8C0_Wor4"/>' + //subFlowId是什么东西?? 
+                        '    </Implementation>' +
+                             conventionalXpdl.performer +
+                             conventionalXpdl.startMode +
+                             conventionalXpdl.finishMode +
+                        '    <Priority/>' +
+                             deadlineXpdl.deadlines +
+                             thisGraph.getTransitionRestrictions(node, activity_inOut) +
+                             thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl) +
+                        '</Activity>';
           break;
         case "routeActivity": //路径活动
-          activities
-             += '<Activity Id="'+node.id+'" Name="'+node.title+'">'
-              +      deadlineXpdl.limit
-              +      conventionalXpdl.description
-              + '    <Route/>'
-              +      conventionalXpdl.performer
-              +      conventionalXpdl.startMode
-              +      conventionalXpdl.finishMode
-              + '    <Priority/>'
-              +      deadlineXpdl.deadlines
-              +      thisGraph.getTransitionRestrictions(node, activity_inOut)
-              +      thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl)
-              + '</Activity>';
+          activities += '<Activity Id="'+node.id+'" Name="'+node.title+'">' +
+                             deadlineXpdl.limit +
+                             conventionalXpdl.description +
+                        '    <Route/>' +
+                             conventionalXpdl.performer +
+                             conventionalXpdl.startMode +
+                             conventionalXpdl.finishMode +
+                        '    <Priority/>' +
+                             deadlineXpdl.deadlines +
+                             thisGraph.getTransitionRestrictions(node, activity_inOut) +
+                             thisGraph.getExtendedAttributes(node, deadlineXpdl, conventionalXpdl) +
+                        '</Activity>';
           break;
         }
     });
     var transitions = "";
-    edges.forEach(function(edge) {
-      var postCondition = edge.postCondition;
-      var description = postCondition.description? '<Discription>'+postCondition.description+'</Discription>':'';
+    edges.filter(function (edge, index, self) {
+      return (edge.source.type != 'start' && edge.target.type != 'end');
+    }).forEach(function(edge) {
+      var p = edge.postCondition;
+      var description = p.description? '<Description>'+p.description+'</Description>':'';
       var extendedAttrsXpdl = '';
-      postCondition.extendedAttrs && postCondition.extendedAttrs.forEach(function(item) {
-        var extendedAttr = JSON.parse(item);
-        extendedAttrsXpdl += '<ExtendedAttribute Name="'+extendedAttr.name+'" Value="'+extendedAttr.value+'"/>'
-      })
-      var TransitionEventXpdl = postCondition.transitionEvent? '<ExtendedAttribute Name="TransitionEvent"><![CDATA['+postCondition.transitionEvent+']]></ExtendedAttribute>':'';
-      var conditype = postCondition.conditype || '';
+      if (p.extendedAttrs) {
+        p.extendedAttrs.forEach(function(item) {
+          var extendedAttr = JSON.parse(item);
+          extendedAttrsXpdl += '<ExtendedAttribute Name="'+extendedAttr.name+'" Value="'+extendedAttr.value+'"/>';
+        });
+      }
+      var transitionRuleType = p.transitionRuleType? '<ExtendedAttribute Name="TransitionRuleType" Value="'+p.transitionRuleType+'"/>':'<ExtendedAttribute Name="TransitionRuleType"/>';
+      var transitionEventXpdl = p.transitionEvent? '<ExtendedAttribute Name="TransitionEvent"><![CDATA['+p.transitionEvent+']]></ExtendedAttribute>':'';
+      var conditype = p.conditype || '';
       var conditypeXpdl = conditype? '<ExtendedAttribute Name="conditype" Value="'+conditype+'"/>':'<ExtendedAttribute Name="conditype"/>';
-      var condixml = postCondition.condixml || '';
+      var condixml = p.condixml || '';
       var condixmlXpdl = condixml? '<ExtendedAttribute Name="condixml" Value="'+condixml+'"/>':'';
       var condition = '',
         condiException = '';
       if (conditype == 'CONDITION' || conditype == 'WORKFLOWBEAN') {
         condition = '<Condition Type="CONDITION"><![CDATA[()]]></Condition>';
       } else if (conditype) {
-        condition = '<Condition Type="'+conditype+'"/>'
+        condition = '<Condition Type="'+conditype+'"/>';
       } else {
         condition = '<Condition/>';
       }
       if (conditype == 'EXCEPTION') {
-        condiException = edge.postCondition.condiException? '<ExtendedAttribute Name="condiException" Value="'+edge.postCondition.condiException+'"/>':'';
+        condiException = p.condiException? '<ExtendedAttribute Name="condiException" Value="'+p.condiException+'"/>':'';
       }
-      transitions
-        += '<Transition From="'+edge.source.id+'" Id="'+edge.edgeId+'" '+(postCondition.edgeName? 'Name="'+postCondition.edgeName+'"':'')+' To="'+edge.target.id+'">'
-         +      condition
-         +      description
-         + '    <ExtendedAttributes>'
-         +          condiException
-         +          condixmlXpdl
-         + '        <ExtendedAttribute Name="TransitionRuleType"/>'
-         +          TransitionEventXpdl
-         + '        <ExtendedAttribute Name="TransitionEventType" Value="'+postCondition.transitionEventType+'"/>'
-         +          conditypeXpdl
-         + '        <ExtendedAttribute Name="RoutingType" Value="NOROUTING"/>'
-         +          extendedAttrsXpdl
-         + '    </ExtendedAttributes>'
-         + '</Transition>'
+      transitions +=  '<Transition From="'+edge.source.id+'" Id="'+edge.edgeId+'" '+(p.edgeName? 'Name="'+p.edgeName+'"':'')+' To="'+edge.target.id+'">' +
+                          condition +
+                          description +
+                      '   <ExtendedAttributes>' +
+                              condiException +
+                              condixmlXpdl +
+                              transitionRuleType +
+                              transitionEventXpdl +
+                      '       <ExtendedAttribute Name="TransitionEventType" Value="'+p.transitionEventType+'"/>' +
+                              conditypeXpdl +
+                      '       <ExtendedAttribute Name="RoutingType" Value="'+edge.drawLine+'"/>' +
+                              extendedAttrsXpdl +
+                      '    </ExtendedAttributes>' +
+                      '</Transition>';
     });
-    var str
-        = '<WorkflowProcesses>'
-        + '   <WorkflowProcess AccessLevel="PUBLIC" Id="'+workflow_id+'" Name="'+workflow_name+'">'
-        + '       <ProcessHeader DurationUnit="D">'
-        + '           <Created>'+creat_time+'</Created>'
-        + '           <Priority/>'
-        + '       </ProcessHeader>'
-        + '       <RedefinableHeader PublicationStatus="UNDER_TEST">'
-        + '           <Author>管理员</Author>'
-        + '           <Version>1.0</Version>'
-        + '       </RedefinableHeader>'
-        +         thisGraph.getParticipants()
-        + '       <Applications>'
-        + '           <Application Id="workflow_DefaultToolAgent" Name="执行其他的toolagent">'
-        + '               <Description>执行其他的toolagent</Description>'
-        + '               <FormalParameters>'
-        + '                   <FormalParameter Id="ToolAgentClass" Index="0" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <ExternalReference location="java.lang.String"/>'
-        + '                       </DataType>'
-        + '                       <Description>其他组件名称</Description>'
-        + '                   </FormalParameter>'
-        + '               </FormalParameters>'
-        + '               <ExtendedAttributes>'
-        + '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.DefaultToolAgent"/>'
-        + '                   <ExtendedAttribute Name="ToolAgentClass"/>'
-        + '               </ExtendedAttributes>'
-        + '           </Application>'
-        + '           <Application Id="workflow_sendMailToolAgent" Name="发送邮件">'
-        + '               <Description>发送电子邮件</Description>'
-        + '               <FormalParameters>'
-        + '                   <FormalParameter Id="body" Index="body" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <BasicType Type="STRING"/>'
-        + '                       </DataType>'
-        + '                       <Description>邮件正文</Description>'
-        + '                   </FormalParameter>'
-        + '                   <FormalParameter Id="subject" Index="subject" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <BasicType Type="STRING"/>'
-        + '                       </DataType>'
-        + '                       <Description>邮件标题</Description>'
-        + '                   </FormalParameter>'
-        + '                   <FormalParameter Id="to" Index="to" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <BasicType Type="STRING"/>'
-        + '                       </DataType>'
-        + '                       <Description>邮件地址,多个使用 , 分割</Description>'
-        + '                   </FormalParameter>'
-        + '               </FormalParameters>'
-        + '               <ExtendedAttributes>'
-        + '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.sendMailToolAgent"/>'
-        + '               </ExtendedAttributes>'
-        + '           </Application>'
-        + '           <Application Id="workflow_dbToolAgent" Name="修改数据">'
-        + '               <Description>修改数据库数据</Description>'
-        + '               <FormalParameters>'
-        + '                   <FormalParameter Id="tableName" Index="0" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <ExternalReference location="java.lang.String"/>'
-        + '                       </DataType>'
-        + '                       <Description>数据表名称</Description>'
-        + '                   </FormalParameter>'
-        + '                   <FormalParameter Id="dbdata" Index="1" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <ExternalReference location="java.lang.Object"/>'
-        + '                       </DataType>'
-        + '                       <Description>需要操作的数据可以是一个String,pojo或者Map</Description>'
-        + '                   </FormalParameter>'
-        + '                   <FormalParameter Id="DbActionType" Index="2" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <BasicType Type="INTEGER"/>'
-        + '                       </DataType>'
-        + '                       <Description>对数据库的操作类型，取值：1 增加 2 修改 3 删除</Description>'
-        + '                   </FormalParameter>'
-        + '                   <FormalParameter Id="Condition" Index="3" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <ExternalReference location="java.lang.Object"/>'
-        + '                       </DataType>'
-        + '                       <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>'
-        + '                   </FormalParameter>'
-        + '               </FormalParameters>'
-        + '               <ExtendedAttributes>'
-        + '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.dbToolAgent"/>'
-        + '                   <ExtendedAttribute Name="DataTableName"/>'
-        + '               </ExtendedAttributes>'
-        + '           </Application>'
-        + '           <Application Id="workflow_fetchDataAgent" Name="获取数据">'
-        + '               <Description>获取数据库数据</Description>'
-        + '               <FormalParameters>'
-        + '                   <FormalParameter Id="Condition" Index="1" Mode="IN">'
-        + '                       <DataType>'
-        + '                           <ExternalReference location="java.lang.Object"/>'
-        + '                       </DataType>'
-        + '                       <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>'
-        + '                   </FormalParameter>'
-        + '               </FormalParameters>'
-        + '               <ExtendedAttributes>'
-        + '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.fetchDataAgent"/>'
-        + '                   <ExtendedAttribute Name="DataTableName"/>'
-        + '               </ExtendedAttributes>'
-        + '           </Application>'
-        + '       </Applications>'
+    transitions = transitions?'<Transitions>' + transitions + '</Transitions>' : '';
+    var str = '<WorkflowProcesses>' +
+              '   <WorkflowProcess AccessLevel="PUBLIC" Id="'+workflow_id+'" Name="'+workflow_name+'">' +
+              '       <ProcessHeader DurationUnit="D">' +
+              '           <Created>'+creat_time+'</Created>' +
+              '           <Priority/>' +
+              '       </ProcessHeader>' +
+              '       <RedefinableHeader PublicationStatus="UNDER_TEST">' +
+              '           <Author>管理员</Author>' +
+              '           <Version>1.0</Version>' +
+              '       </RedefinableHeader>' +
+                      thisGraph.getParticipants() +
+              '       <Applications>' +
+              '           <Application Id="workflow_DefaultToolAgent" Name="执行其他的toolagent">' +
+              '               <Description>执行其他的toolagent</Description>' +
+              '               <FormalParameters>' +
+              '                   <FormalParameter Id="ToolAgentClass" Index="0" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <ExternalReference location="java.lang.String"/>' +
+              '                       </DataType>' +
+              '                       <Description>其他组件名称</Description>' +
+              '                   </FormalParameter>' +
+              '               </FormalParameters>' +
+              '               <ExtendedAttributes>' +
+              '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.DefaultToolAgent"/>' +
+              '                   <ExtendedAttribute Name="ToolAgentClass"/>' +
+              '               </ExtendedAttributes>' +
+              '           </Application>' +
+              '           <Application Id="workflow_sendMailToolAgent" Name="发送邮件">' +
+              '               <Description>发送电子邮件</Description>' +
+              '               <FormalParameters>' +
+              '                   <FormalParameter Id="body" Index="body" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <BasicType Type="STRING"/>' +
+              '                       </DataType>' +
+              '                       <Description>邮件正文</Description>' +
+              '                   </FormalParameter>' +
+              '                   <FormalParameter Id="subject" Index="subject" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <BasicType Type="STRING"/>' +
+              '                       </DataType>' +
+              '                       <Description>邮件标题</Description>' +
+              '                   </FormalParameter>' +
+              '                   <FormalParameter Id="to" Index="to" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <BasicType Type="STRING"/>' +
+              '                       </DataType>' +
+              '                       <Description>邮件地址,多个使用 , 分割</Description>' +
+              '                   </FormalParameter>' +
+              '               </FormalParameters>' +
+              '               <ExtendedAttributes>' +
+              '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.sendMailToolAgent"/>' +
+              '               </ExtendedAttributes>' +
+              '           </Application>' +
+              '           <Application Id="workflow_dbToolAgent" Name="修改数据">' +
+              '               <Description>修改数据库数据</Description>' +
+              '               <FormalParameters>' +
+              '                   <FormalParameter Id="tableName" Index="0" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <ExternalReference location="java.lang.String"/>' +
+              '                       </DataType>' +
+              '                       <Description>数据表名称</Description>' +
+              '                   </FormalParameter>' +
+              '                   <FormalParameter Id="dbdata" Index="1" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <ExternalReference location="java.lang.Object"/>' +
+              '                       </DataType>' +
+              '                       <Description>需要操作的数据可以是一个String,pojo或者Map</Description>' +
+              '                   </FormalParameter>' +
+              '                   <FormalParameter Id="DbActionType" Index="2" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <BasicType Type="INTEGER"/>' +
+              '                       </DataType>' +
+              '                       <Description>对数据库的操作类型，取值：1 增加 2 修改 3 删除</Description>' +
+              '                   </FormalParameter>' +
+              '                   <FormalParameter Id="Condition" Index="3" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <ExternalReference location="java.lang.Object"/>' +
+              '                       </DataType>' +
+              '                       <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>' +
+              '                   </FormalParameter>' +
+              '               </FormalParameters>' +
+              '               <ExtendedAttributes>' +
+              '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.dbToolAgent"/>' +
+              '                   <ExtendedAttribute Name="DataTableName"/>' +
+              '               </ExtendedAttributes>' +
+              '           </Application>' +
+              '           <Application Id="workflow_fetchDataAgent" Name="获取数据">' +
+              '               <Description>获取数据库数据</Description>' +
+              '               <FormalParameters>' +
+              '                   <FormalParameter Id="Condition" Index="1" Mode="IN">' +
+              '                       <DataType>' +
+              '                           <ExternalReference location="java.lang.Object"/>' +
+              '                       </DataType>' +
+              '                       <Description>数据操作条件，可以为pojo或者Map,为数据的操作条件</Description>' +
+              '                   </FormalParameter>' +
+              '               </FormalParameters>' +
+              '               <ExtendedAttributes>' +
+              '                   <ExtendedAttribute Name="ToolAgentClassName" Value="workflow.fetchDataAgent"/>' +
+              '                   <ExtendedAttribute Name="DataTableName"/>' +
+              '               </ExtendedAttributes>' +
+              '           </Application>' +
+              '       </Applications>';
     if (nodes_act.length > 0) {
-      str
-       += '       <Activities>'
-        +             activities
-        + '       </Activities>'
+      str += '       <Activities>' +
+                         activities +
+             '       </Activities>';
     }
-    if (edges.length > 0) {
-      str
-       += '       <Transitions>'
-        +             transitions     
-        + '       </Transitions>'
-    }
-    str
-       += '       <ExtendedAttributes>'
-        + '           <ExtendedAttribute Name="IsMain" Value="true"/>'
-        + '           <ExtendedAttribute Name="warnTimeiFrequency"/>'
-        + '           <ExtendedAttribute Name="warnTime"/>'
-        + '           <ExtendedAttribute Name="warnAgentClassName"/>'
-        + '           <ExtendedAttribute Name="LimitAgentClassName"/>'
-        + '           <ExtendedAttribute Name="initFormPlugin" Value="wfd_form.xml"/>'
-        + '           <ExtendedAttribute Name="initReserve"/>'
-        + '           <ExtendedAttribute Name="initType" Value="money"/>'
-        + '           <ExtendedAttribute Name="initAuthor" Value="管理员"/>'
-        +             nodes_start
-        +             nodes_end
-        + '       </ExtendedAttributes>'
-        + '   </WorkflowProcess>'
-        + '</WorkflowProcesses>'
+    
+    str += transitions +
+           '       <ExtendedAttributes>' +
+           '           <ExtendedAttribute Name="IsMain" Value="true"/>' +
+           '           <ExtendedAttribute Name="warnTimeiFrequency"/>' +
+           '           <ExtendedAttribute Name="warnTime"/>' +
+           '           <ExtendedAttribute Name="warnAgentClassName"/>' +
+           '           <ExtendedAttribute Name="LimitAgentClassName"/>' +
+           '           <ExtendedAttribute Name="initFormPlugin" Value="wfd_self.xml"/>' +
+           '           <ExtendedAttribute Name="initReserve"/>' +
+           '           <ExtendedAttribute Name="initType" Value="money"/>' +
+           '           <ExtendedAttribute Name="initAuthor" Value="管理员"/>' +
+                       nodes_start +
+                       nodes_end +
+           '       </ExtendedAttributes>' +
+           '   </WorkflowProcess>' +
+           '</WorkflowProcesses>';
     str = vkbeautify.xml(str);
     return str;
-  }
-
-  GraphCreator.prototype.setIdCt = function(idct) {
-    this.idct = idct;
   };
 
   GraphCreator.prototype.consts = {
@@ -2300,7 +2256,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     BACKSPACE_KEY: 8,
     DELETE_KEY: 46,
     ENTER_KEY: 13,
-    nodeRadius: 34
+    nodeRadius: 34,
+    nodeRadiusVary: 1
   };
   /**
    * 获取link样式 [添加线样式 start:连线起点 des:连线终点]
@@ -2369,7 +2326,19 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     }
     return link;
-  }
+  };
+
+  // 判断node有无连线
+  GraphCreator.prototype.hasLinked = function(node) {
+    var thisGraph = this;
+    var hasLinked = false;
+    thisGraph.edges.forEach(function(edge) {
+      if (edge.source.id == node.id || edge.target.id == node.id) {
+        hasLinked = true;
+      }
+    });
+    return hasLinked;
+  };
 
   /* PROTOTYPE FUNCTIONS */
   GraphCreator.prototype.dragmove = function(d) {
@@ -2377,14 +2346,14 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var drawLine = thisGraph.state.drawLine;
     var link;
     if (thisGraph.state.shiftNodeDrag || thisGraph.state.drawLine) {
-      if (drawLine == 'drawLineBtn') { // 直线
+      if (drawLine == 'NOROUTING') { // 直线
         link = thisGraph.dragLine.attr('d', 'M' + d.x + ',' + d.y + 'L' + d3.mouse(thisGraph.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
       }
-      if (drawLine == 'drawPolylineBtn') { // 折线
+      if (drawLine == 'SIMPLEROUTING') { // 折线
         var des = {
           x: d3.mouse(this.svgG.node())[0], 
           y: d3.mouse(this.svgG.node())[1]
-        }
+        };
         var link_d = thisGraph.getLink_d(d, des);
         link = thisGraph.dragLine.attr('d', link_d);
       }
@@ -2393,20 +2362,18 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       d.x += d3.event.dx;
       d.y += d3.event.dy;
       thisGraph.updateGraph();
+      /*
+      //防止circle脱出svg范围(放大缩小后还存在问题，待修改...)
+      var radius = thisGraph.consts.nodeRadius + thisGraph.consts.nodeRadiusVary,
+        svg_width = $('svg').width(),
+        svg_heigh = $('svg').height();
+      d.x = Math.max(Math.min(d3.event.x, svg_width-radius), radius);
+      d.y = Math.max(Math.min(d3.event.y, svg_heigh-radius), radius);
+      thisGraph.updateGraph();*/
     }
   };
 
   GraphCreator.prototype.deleteGraph = function(skipPrompt) {
-    /*var thisGraph = this,
-      doDelete = true;
-    if (!skipPrompt) {
-      doDelete = window.confirm("确认清空？");
-    }
-    if (doDelete) {
-      thisGraph.nodes = [];
-      thisGraph.edges = [];
-      thisGraph.updateGraph();
-    }*/
     var thisGraph = this;
     layer.confirm('确认清空？', {
       icon: 0,
@@ -2529,7 +2496,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     state.mouseDownNode = d;
 
     if (d3.event.shiftKey || thisGraph.state.drawLine) {
-        // Automatically create node when they shift + drag?
+      if ( d.type == 'start') {
+        if (thisGraph.hasLinked(d)) { 
+          layer.msg('已有连线！', {time: 2000, icon: 0, offset: '180px'});
+          return; 
+        }
+      }
+      // Automatically create node when they shift + drag?
       state.shiftNodeDrag = d3.event.shiftKey;
       // reposition dragged directed edge
       var link = thisGraph.dragLine.classed('hidden', false)
@@ -2553,7 +2526,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         '  <div name="" class="prop-value"><span>执行者:</span><span>无</span></div>'+
         '</div>'+
         '<div class="clearfix"></div>');
-  }
+  };
 
   // mouseup on nodes
   GraphCreator.prototype.circleMouseUp = function(d3node, d) {
@@ -2570,9 +2543,18 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     thisGraph.dragLine.classed("hidden", true);
 
     if (mouseDownNode !== d) {
+      if (d.type == 'start') {// 连线指向开始
+        layer.msg('不允许！', {time: 2000, icon: 0, offset: '180px'});
+        return;
+      }
+      if (mouseDownNode.type == 'start') {
+        if (thisGraph.hasLinked(mouseDownNode)) { 
+          return; 
+        }
+      }
       // we're in a different node: create new edge for mousedown edge and add to graph
       var newEdge = {
-        edgeId: workflow_id + '_Tra' + thisGraph.edgeNum++,
+        edgeId: seqer_edgeID.gensym(),
         postCondition: {transitionEventType: 'transitionClass'},
         source: mouseDownNode,
         target: d,
@@ -2590,13 +2572,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       }
     } else {
       // we're in the same node
+      var prevNode = state.selectedNode;
       if (state.justDragged) {
         // dragged, not clicked
         state.justDragged = false;
         if (state.selectedEdge) {
           thisGraph.removeSelectFromEdge();
         }
-        var prevNode = state.selectedNode;
         if (!prevNode || prevNode.id !== d.id) {
           thisGraph.replaceSelectNode(d3node, d);
           thisGraph.changePropDiv(d);//添加更改属性div
@@ -2607,18 +2589,11 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       } else {
         // clicked, not dragged
         if (d3.event.shiftKey) {
-          // shift-clicked node: edit text content
-        //   var d3txt = thisGraph.changeTextOfNode(d3node, d);
-        //   var txtNode = d3txt.node();
-        //   thisGraph.selectElementContents(txtNode);
-        //   txtNode.focus();
 
         } else {
           if (state.selectedEdge) {
             thisGraph.removeSelectFromEdge();
           }
-          var prevNode = state.selectedNode;
-
           if (!prevNode || prevNode.id !== d.id) {
             thisGraph.replaceSelectNode(d3node, d);
             thisGraph.changePropDiv(d);//添加更改属性div
@@ -2651,7 +2626,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       // clicked not dragged from svg
       var xycoords = d3.mouse(thisGraph.svgG.node()),
         d = {
-          id: Word+'_node_'+randomWord(false,4)+thisGraph.idct++,
+          id: seqer_nodeID.gensym(),
           title: '普通活动',
           component: 'activityComponent',
           type: 'activity',
@@ -2735,18 +2710,18 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         return d === state.selectedEdge;
       })
       .attr("d", function(d) {
-        if (d.drawLine == 'drawLineBtn') {
+        if (d.drawLine == 'NOROUTING') {
           return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
         }
-        if (d.drawLine == 'drawPolylineBtn') {
+        if (d.drawLine == 'SIMPLEROUTING') {
           var start = {
             x: d.source.x,
             y: d.source.y
-          }
+          };
           var des = {
             x: d.target.x,
             y: d.target.y
-          }
+          };
           return thisGraph.getLink_d(start, des);
         }
       });
@@ -2758,18 +2733,18 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       .style('marker-end', 'url(#end-arrow)')
       .classed("link", true)
       .attr("d", function(d) {
-        if (d.drawLine == 'drawLineBtn') {
+        if (d.drawLine == 'NOROUTING') {
           return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
         }
-        if (d.drawLine == 'drawPolylineBtn') {
+        if (d.drawLine == 'SIMPLEROUTING') {
           var start = {
             x: d.source.x,
             y: d.source.y
-          }
+          };
           var des = {
             x: d.target.x,
             y: d.target.y
-          }
+          };
           return thisGraph.getLink_d(start, des);
         }
       })
@@ -2895,50 +2870,16 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 })(window.d3, window.saveAs, window.Blob, vkbeautify);
 
 /**
- * [generateUUID 返回一串序列码]
- * @return {String} [uuid]
- */
-function generateUUID() {
-    var d = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-    });
-    return uuid;
-};
-/** 
- * randomWord 产生任意长度随机字母数字组合
- * randomFlag-是否任意长度 min-任意长度最小位[固定位数] max-任意长度最大位
- * xuanfeng 2014-08-28
- */
-function randomWord(randomFlag, min, max) {
-    var str = "",
-        range = min,
-        arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-    if(randomFlag){
-        range = Math.round(Math.random() * (max-min)) + min;
-    }
-    for(var i=0; i<range; i++){
-        pos = Math.round(Math.random() * (arr.length-1));
-        str += arr[pos];
-    }
-    return str;
-}
-/**
+ * svg
  * refresh 连线兼容IE11
  * @param  {[type]} link [改变attr后的dragLine]
  */
 function refresh(link) {
   if (/(MSIE 10)|(Trident)/.test(navigator.appVersion)) {
-    /*var svgNode = link.node();
-    if (svgNode) {
-      svgNode.parentNode.insertBefore(svgNode, svgNode);
-    }*/
     if (link[0] instanceof Array) {
       link[0].forEach(function(item) {
         item.parentNode.insertBefore(item, item);
-      })
+      });
     } else if (link[0]) {
       var svgNode = link.node();
       svgNode.parentNode.insertBefore(svgNode, svgNode);

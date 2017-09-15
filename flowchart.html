@@ -8,6 +8,7 @@
 	<link type="text/css" href="css/graph-creator.css" rel="stylesheet" />
 	<link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet">
 	<link type="text/css" href="ztree/css/metroStyle/metroStyle.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="laypage/skin/laypage.css" />
 	<link type="text/css" href="css/flowchart.css" rel="stylesheet"/>
 </head>
 <body>
@@ -55,10 +56,10 @@
 			<div class="components-btn clearfix" name="routeActivity" type="activity" for-name="">
 				<div><img src="icons/activity/list/type.receive.png"><span>路径活动</span></div>
 			</div>
-			<div class="components-btn noComponent clearfix" name="drawLineBtn" for-name="line">
+			<div class="components-btn noComponent clearfix" name="NOROUTING" for-name="line">
 				<div><img src="icons/connector/sequenceflow.png" draggable="false"><span>转移</span></div>
 			</div>
-			<div class="components-btn noComponent clearfix" name="drawPolylineBtn" for-name="line">
+			<div class="components-btn noComponent clearfix" name="SIMPLEROUTING" for-name="line">
 				<div><img src="icons/connector/messageflow.png" draggable="false"><span>自转移</span></div>
 			</div>
 		</div>
@@ -406,8 +407,8 @@
 				  		</div>
 				    	<div class="three wide column">
 				    		<div class="ui vertical">
-						    	<button class="ui positive basic mini button toolAddBtn"><i class="icon plus"></i> 添 加</button>
-								<button class="ui primary basic mini button showDialog"><i class="icon write"></i> 编 辑</button>
+						    	<button class="ui positive basic mini button"><i class="icon plus"></i> 添 加</button>
+								<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
 								<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
 						  	</div>
 				    	</div>
@@ -522,7 +523,7 @@
 				</div>
 				<div class="five wide field">
     				<label>到达限制时间执行代理:</label>
-                	<select name="warnAgentClassName" class="ui search dropdown">
+                	<select name="limitAgentClassName" class="ui search dropdown">
       					<option value="">请选择</option>
       					<option value="">(空)</option>
       					<option value="workflow.sendNext">自动提交</option>
@@ -536,7 +537,7 @@
 				</div>
 				<div class="five wide field">
     				<label>到达警告时间执行代理:</label>
-                	<select name="limitAgentClassName" class="ui search dropdown">
+                	<select name="warnAgentClassName" class="ui search dropdown">
       					<option value="">请选择</option>
       					<option value="">(空)</option>
       					<option value="workflow.sendNext">自动提交</option>
@@ -632,7 +633,7 @@
 		</div>
 	</div><!-- 属性弹出层 end -->
 	<!-- 活动属性-常规-定义 -->
-	<div class="ui coupled small modal tab conventional_definition">
+	<div class="ui coupled small modal tab conventional_definition def_common">
   	  	<div class="ui pointing secondary menu">
 		  	<a class="item active" data-tab="definition_1">常规</a>
 		  	<a class="item" data-tab="definition_2">高级</a>
@@ -660,11 +661,11 @@
 		</div>
 		<div class="ui tab segment" data-tab="definition_2">
 			<div class="ui top attached tabular mini menu">
-	    	  	<a class="active item" data-tab="definition_2/a">一般</a>
-	    	  	<a class="item" data-tab="definition_2/b">创建人</a>
-	    	  	<a class="item" data-tab="definition_2/c">发送人</a>
-	    	  	<a class="item" data-tab="definition_2/d">前一环节创建人</a>
-	    	  	<a class="item" data-tab="definition_2/e">历史环节处理人</a>
+	    	  	<a class="active item" data-tab="definition_2/a" value="commonly|一般">一般</a>
+	    	  	<a class="item" data-tab="definition_2/b" value="creator|创建人">创建人</a>
+	    	  	<a class="item" data-tab="definition_2/c" value="sender|发送人">发送人</a>
+	    	  	<a class="item" data-tab="definition_2/d" value="preActCreater|前一环节创建人">前一环节创建人</a>
+	    	  	<a class="item" data-tab="definition_2/e" value="historyactselect|历史环节处理人">历史环节处理人</a>
 	    	</div>
 	    	<div class="ui bottom attached active tab segment" data-tab="definition_2/a">
 				<div class="ui mini form">
@@ -686,7 +687,7 @@
 		                <div class="five wide field">
 					      	<label>名称:</label>
 					      	<input type="text" name="def_name_show" placeholder="名称" readonly>
-					      	<input type="hidden" name="definition_name" placeholder="名称">
+					      	<input type="hidden" name="definition_name" placeholder="名称" value="|">
 					    </div>
 					    <div class="five wide field">
 					      	<label>附加参数1:</label>
@@ -827,7 +828,7 @@
 			  	</div>
 			</div>
 		</div>
-		<div class="actions inverted segment">
+		<div class="actions inverted segment clearfix">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
@@ -932,15 +933,15 @@
 			  		</div>
 			    	<div class="three wide column">
 			    		<div class="ui vertical">
-					    	<button class="ui positive basic mini button toolAddBtn actualParametersAdd2"><i class="icon plus"></i> 添 加</button>
-							<button class="ui primary basic mini button showDialog"><i class="icon write"></i> 编 辑</button>
+					    	<button class="ui positive basic mini button actualParametersAdd2"><i class="icon plus"></i> 添 加</button>
+							<button class="ui primary basic mini button"><i class="icon write"></i> 编 辑</button>
 							<button class="ui negative basic mini button"><i class="icon remove"></i> 删 除</button>
 					  	</div>
 			    	</div>
 			  	</div>
     		</div>
 			<div class="ui divider hidden"></div>
-    		<div class="actions inverted segment">
+    		<div class="actions inverted segment clearfix">
 				<button class="ui right floated green inverted ok button">
 					<i class="checkmark icon"></i>确定
 				</button>
@@ -972,7 +973,7 @@
             	</div>
             </div>
   	  	</div>
-    	<div class="actions inverted segment">
+    	<div class="actions inverted segment clearfix">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
@@ -1030,7 +1031,7 @@
 		  	</div>
 		</div>
 		<div class="ui divider hidden"></div>
-    	<div class="actions inverted segment">
+    	<div class="actions inverted segment clearfix">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
@@ -1127,7 +1128,7 @@
     		</div>
 
 			<div class="ui divider hidden"></div>
-    		<div class="actions inverted segment">
+    		<div class="actions inverted segment clearfix">
 				<button class="ui right floated green inverted ok button">
 					<i class="checkmark icon"></i>确定
 				</button>
@@ -1194,7 +1195,7 @@
 		  	</div>
 		</div>
 		<div class="ui horizontal divider"></div>
-    	<div class="actions inverted segment">
+    	<div class="actions inverted segment clearfix">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
@@ -1344,7 +1345,7 @@
 	        </div>
 		</div>
 		<div class="ui divider hidden"></div>
-    	<div class="actions inverted segment">
+    	<div class="actions inverted segment clearfix">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
@@ -1367,7 +1368,7 @@
 			    </div>
   	  		</div>
 			<div class="ui divider hidden"></div>
-    		<div class="actions inverted segment">
+    		<div class="actions inverted segment clearfix">
 				<button class="ui right floated green inverted ok button">
 					<i class="checkmark icon"></i>确定
 				</button>
@@ -1392,7 +1393,7 @@
 			    </div>
   	  		</div>
 			<div class="ui divider hidden"></div>
-    		<div class="actions inverted segment">
+    		<div class="actions inverted segment clearfix">
 				<button class="ui right floated green inverted ok button">
 					<i class="checkmark icon"></i>确定
 				</button>
@@ -1468,7 +1469,7 @@
 			    </div>
   	  		</div>
 			<div class="ui divider hidden"></div>
-    		<div class="actions inverted segment">
+    		<div class="actions inverted segment clearfix">
 				<button class="ui right floated green inverted ok button">
 					<i class="checkmark icon"></i>确定
 				</button>
@@ -1502,7 +1503,7 @@
 		    <input type="hidden" name="timeoutLimit_add_operate" value="">
   	  	</div>
 		<div class="ui divider hidden"></div>
-    	<div class="actions inverted segment">
+    	<div class="actions inverted segment clearfix">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
@@ -1529,7 +1530,7 @@
             	</div>
             </div>
   	  	</div>
-    	<div class="actions inverted segment">
+    	<div class="actions inverted segment clearfix">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
@@ -1539,7 +1540,7 @@
 		</div>		
   	</div>
   	<!-- 监控信息-增加-定义 -->
-  	<div class="ui coupled small modal tab monitorinfAddDefinition">
+  	<div class="ui coupled small modal tab monitorinfAddDefinition def_common">
   	  	<div class="ui pointing secondary menu">
 		  	<a class="item active" data-tab="definition_one">常规</a>
 		  	<a class="item" data-tab="definition_two">高级</a>
@@ -1569,17 +1570,17 @@
 		      			<option value="history">历史参与者</option>
 		      			<option value="responsible">监控者</option>
 		      			<option value="share">共享</option>
-					</select>      					
-		        </div>
+					</select>     					
+		        </div> 
 		        <input type="hidden" class="hidden" name="monitorinf_add_operate" value="">
 			</div>
 		</div>
 		<div class="ui tab segment" data-tab="definition_two">
 			<div class="ui top attached tabular mini menu">
-	    	  	<a class="active item" data-tab="definition_two/a">一般</a>
-	    	  	<a class="item" data-tab="definition_two/b">当前处理人</a>
-	    	  	<a class="item" data-tab="definition_two/c">发送人</a>
-	    	  	<a class="item" data-tab="definition_two/d">前一环节创建人</a>
+	    	  	<a class="active item" data-tab="definition_two/a" value="commonly|一般">一般</a>
+	    	  	<a class="item" data-tab="definition_two/b" value="processer|当前处理人">当前处理人</a>
+	    	  	<a class="item" data-tab="definition_two/c" value="sender|发送人">发送人</a>
+	    	  	<a class="item" data-tab="definition_two/d" value="preActCreater|前一环节创建人">前一环节创建人</a>
 	    	</div>
 	    	<div class="ui bottom attached active tab segment" data-tab="definition_two/a">
 				<div class="ui mini form">
@@ -1588,18 +1589,20 @@
 		    				<label>类型:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">部门【部门】</option>
-		      					<option value="2">部门【人】</option>
-		      					<option value="3">部门【默认】</option>
-		      					<option value="4">部门【领导】</option>
-		      					<option value="5">角色【人】</option>
-		      					<option value="6">角色【角色】</option>
-		      					<option value="7">所有人【人】</option>
+		      					<option value="human|人">人</option>
+		      					<option value="orgOrg|部门【部门】">部门【部门】</option>
+		      					<option value="orgHuman|部门【人】">部门【人】</option>
+		      					<option value="orgDefault|部门【默认】">部门【默认】</option>
+		      					<option value="orgLeader|部门【领导】">部门【领导】</option>
+		      					<option value="roleHuman|角色【人】">角色【人】</option>
+		      					<option value="roleRole|角色【角色】">角色【角色】</option>
+		      					<option value="allParty|所有人【人】">所有人【人】</option>
 							</select>      					
 		                </div>
-		                <div class="five wide field">
+		                <div class="eight wide field">
 					      	<label>名称:</label>
-					      	<input name="definition_name" type="text" placeholder="名称">
+					      	<input type="text" name="def_name_show" placeholder="名称" readonly>
+					      	<input type="hidden" name="definition_name" placeholder="名称" value="|">
 					    </div>
 					    <div class="five wide field">
 				    		<label>角色:</label>
@@ -1628,8 +1631,8 @@
 		    				<label>类型:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">当前处理人领导</option>
-		      					<option value="2">当前处理人部门领导</option>
+		      					<option value="directleader|当前处理人领导">当前处理人领导</option>
+		      					<option value="DepartUpperLeading|当前处理人部门领导">当前处理人部门领导</option>
 							</select>      					
 		                </div>
 		                <div class="five wide field">
@@ -1658,12 +1661,12 @@
 						<div class="five wide field">
 		    				<label>类别:</label>
 		                	<select name="definition_type" class="ui search dropdown">
-		      					<option value="">请选择</option>
-		      					<option value="1">发送人本人</option>
-		      					<option value="2">发送人领导</option>
-		      					<option value="3">发送人下属</option>
-		      					<option value="4">发送人部门人员</option>
-		      					<option value="5">发送人部门领导</option>
+		                	<option value="">请选择</option>
+		      					<option value="self|发送人本人">发送人本人</option>
+		      					<option value="directleader|发送人领导">发送人领导</option>
+		      					<option value="directundering|发送人下属">发送人下属</option>
+		      					<option value="org|发送人部门人员">发送人部门人员</option>
+		      					<option value="departUpperLeading|发送人部门领导">发送人部门领导</option>
 							</select>      					
 		                </div>
 		                <div class="five wide field">
@@ -1693,8 +1696,8 @@
 		    				<label>类别:</label>
 		                	<select name="definition_type" class="ui search dropdown">
 		      					<option value="">请选择</option>
-		      					<option value="1">前一环节创建人本人</option>
-		      					<option value="2">前一环节创建人上级</option>
+		      					<option value="preActCreSelf|前一环节创建人本人">前一环节创建人本人</option>
+		      					<option value="preActCreLeader|前一环节创建人上级">前一环节创建人上级</option>
 							</select>      					
 		                </div>
 		                <div class="five wide field">
@@ -1742,7 +1745,7 @@
 			  	</div>
 			</div>
 		</div>
-		<div class="actions inverted segment">
+		<div class="actions inverted segment clearfix">
 			<button class="ui right floated green inverted ok button">
 				<i class="checkmark icon"></i>确定
 			</button>
@@ -1770,6 +1773,38 @@
 			</button>
 		</div>		
   	</div>
+  	<!-- 选择角色弹出层 -->
+  	<div class="ui coupled modal tab role_manage">
+	    <i class="close icon"></i>
+	    <div id="role-top" class="topfont addborder popup">
+			<i class="add user icon"></i>角色管理
+		</div>
+		<div id="role-center">
+			<form id="searchForm">
+				<div>
+					<div class="ui icon mini input role-search">
+		              	<label>角色名称：</label>
+					  	<input type="text" name="roleName" placeholder="搜索...">
+					  	<i class="search link icon"></i>
+					</div>
+					<button type="button" class="ui google plus mini button resetBtn">
+					  	<i class="reply all plus icon"></i>
+					  	重置
+					</button>
+					<button type="button" class="ui facebook mini button okBtn">
+					  	<i class="checkmark icon"></i>
+					  	确定
+					</button>
+				</div>
+			</form>
+			<input type="hidden" name="offset" id="offset" />
+			<input type="hidden" name="size" id="size" />
+			<div class="content-tab">
+				
+			</div>
+		</div>
+		<div id="pageDiv"></div>
+	</div>
 
 	<script type="text/javascript" src="js/jquery.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/common.js" charset="utf-8"></script>
@@ -1778,9 +1813,11 @@
 	<script type="text/javascript" src="layer/layer.js" charset="utf-8"></script>
 	<script type="text/javascript" src="semantic-ui-2.2.13/dist/semantic.js" charset="utf-8"></script>
 	<script type="text/javascript" src="ztree/js/jquery.ztree.all.js"></script>
+	<script type="text/javascript" src="js/jquery-form.min.js"></script>
 	<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/vkbeautify.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/base64.js" charset="utf-8"></script>
+	<script type="text/javascript" src="laypage/laypage.js"></script>
 	<script type="text/javascript" src="js/flowchart.js" charset="utf-8"></script>
 	
 	<script>
@@ -1789,7 +1826,11 @@
 			'tag::operationClose': '}',  
 			'tag::interpolateOpen': '{{=',  
 			'tag::interpolateClose': '}}'  
-		});  
+		});
+		// 通过`juicer.register`创建模板内引用方法
+		juicer.register('juicer_stringify', function(jsonObj) {
+		    return JSON.stringify(jsonObj);
+		});
 	</script>
 
 	<script id="tpl" type="text/template"><!-- 可以通过模板生成activity，暂时没用 -->
@@ -1810,6 +1851,37 @@
 			<td>{{=data.value}}</td>
 		</tr>
 	</script>
+	<!-- 角色管理tpl -->
+	<script id="role_manage_tpl" type="text/template">
+		<div class="row">
+			<div class="column">
+				<table class="ui blue sortable selectable celled striped compact table">
+					<thead>
+						<tr>
+							<th class="one wide">选择</th>
+							<th class="one wide">角色名称</th>
+							<th class="three wide">所属组织</th>
+							<th class="three wide">描述</th>
+						</tr>
+					</thead>
+					<tbody>
+					{@each list as it,index}
+						<tr jsonstr="{{=it|juicer_stringify}}">
+							<td>
+								<div class="ui radio checkbox">
+									<input type="radio" name="selectItem" tabindex="0" class="hidden">
+								</div>
+							</td>
+							<td>{{=it.ROLENAME}}</td>
+							<td>{{=it.ROLEID}}</td>
+							<td>{{=it.DESCRIPTION}}</td>
+						</tr>
+			        {@/each}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</script>
 	<!-- Transition转移属性tpl -->
 	<script id="transition_tpl" type="text/template">
 		<div class="ui top attached tabular mini menu">
@@ -1820,7 +1892,7 @@
     	<div class="ui bottom attached active tab segment" data-tab="four/a">
 			<div class="ui mini form">
 				<div class="fields">
-				    <div class="four wide field">
+				    <div class="five wide field">
 				      <label>ID:</label>
 				      <input type="text" name="edgeId" placeholder="ID">
 				    </div>
@@ -2145,17 +2217,24 @@
 	</script><!-- Transition转移属性tpl-end -->
 
 	<script>
-		var Word = randomWord(false, 8);
+		var package_id = 'Package_' + randomWord(false, 8);
 		var workflow_name = '过程';
-		var workflow_id = 'Package_' + Word + '_Wor1';
-		var activitySets = workflow_id + 'Ase1';
-		var package_id = workflow_id.substring(0, workflow_id.lastIndexOf('_'));
+		var workflow_id = package_id + '_Wor1';
 		var creat_time = new Date().pattern("yyyy-MM-dd HH:mm:ss");
-		var conventional_par = 1;
+		
+		//定义生成 node id 序列
+		var seqer_nodeID = serial_marker();
+		seqer_nodeID.set_prefix(workflow_id + "_Act");
+		//定义生成 edge id 序列
+		var seqer_edgeID = serial_marker();
+		seqer_edgeID.set_prefix(workflow_id + "_Tra");
+		//定义生成 参与者id 序列
+		var seqer_participantID = serial_marker();
+		seqer_participantID.set_prefix(workflow_id + "_Par");
 
 		$(function() {
 			//数据表格添加点击选中行
-			$('.toolgrid,.extended_attr,.post_condition,.prop_edge').on('click', 'tbody tr', function() {
+			$('.toolgrid,.extended_attr,.post_condition,.prop_edge,.role_manage').on('click', 'tbody tr', function() {
 				$(this).addClass('active').siblings().removeClass('active');
 				$(this).find('input:radio').prop('checked','checked');
 			});	
@@ -2262,7 +2341,7 @@
 					$('.component-prop').toggle();
 				}
 			});
-		})
+		});
 	    
 	</script>
 
@@ -2278,13 +2357,13 @@
 			$('.menu .item').tab();//标签显示必须放updateScrollbar之前
 
 			$('.menu .item').on('click', updateScrollbar);
-		})
+		});
 		
 		$(function() {
 			// $('#rMenu').hide();
 			$('#rMenu').on('mouseleave', function(){
 				$('#rMenu').hide();
-			})
+			});
 			//semantic初始化
 			$('.pop-btn').popup();
 			//jquery插件滚动条
@@ -2299,19 +2378,19 @@
 					$('.post_condition .postCondi_extendedAttr').mCustomScrollbar("update");
 					$('.prop_node.modal').css({
 						height: '745px'
-					})
+					});
 					$('.prop_node>.tab').css({
 						height: '608px'
-					})
+					});
 				} else {
 					$('.prop_node.modal').css({
 						height: '577px'
-					})
+					});
 					$('.prop_node>.tab').css({
 						height: '447px'
-					})
+					});
 				}
-			})
+			});
 
 			//后置条件下的tab
 			$('.targetActivity .menu .item').on('click', function() {//防止切换切换标签时滚动条消失
@@ -2322,7 +2401,7 @@
 				if (item == 'four/a') {
 					$('.targetActivity .postCondi_extendedAttr').mCustomScrollbar("update");
 				}
-			})
+			});
 
 			$('select.dropdown').dropdown();
 
@@ -2379,7 +2458,7 @@
 	          			$('.modal.prop_node').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 活动属性-工具-添加 */
 			$(document).on('click', '.modal.prop_node .toolAddBtn', function() {
@@ -2395,7 +2474,7 @@
 	          			$('.modal.prop_node').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 活动属性-工具-添加-扩展属性添加 */
 			$(document).on('click', '.modal.tool_add .actualParametersAdd2', function() {
@@ -2411,7 +2490,7 @@
 	          			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 活动属性-后置条件-扩展属性-添加 */
 			$(document).on('click', '.post_condition .extendAttrAddBtn', function() {
@@ -2428,7 +2507,7 @@
 	          			$('.postCondition_extendAttr_add .green.button').data('event_source', '.post_condition');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 连线属性-扩展属性-添加 */
 			$(document).on('click', '.prop_edge .extendAttrAddBtn', function() {
@@ -2445,7 +2524,7 @@
 	          			$('.postCondition_extendAttr_add .green.button').data('event_source', '.prop_edge');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 活动属性-后置条件-条件设置-关系设置 */
 			$(document).on('click', '.relationshipPlaBtn', function() {
@@ -2485,7 +2564,7 @@
 				} else {
 					layer.msg('请添加条件!', {time: 2000, icon:2});
 				}
-			})
+			});
 
 			/* 活动属性-扩展属性-添加 */
 			$(document).on('click', '.extended_attr .extendAttrAddBtn', function() {
@@ -2501,7 +2580,7 @@
 	          			$('.modal.prop_node').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 超时限制-增加 */
 			$(document).on('click', '.modal.prop_node .timeoutLimitAddBtn', function() {
@@ -2517,7 +2596,7 @@
 	          			$('.modal.prop_node').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 监控信息-增加 */
 			/*$('.monitorinf_add.modal').modal({
@@ -2546,7 +2625,7 @@
 	          			$('.modal.prop_node').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 监控信息-增加-定义 */
 			$(document).on('click', '.modal.monitorinf_add .definitionBtn', function() {
@@ -2561,9 +2640,11 @@
 	          		},
 					onShow: function() {
 	          			$('.modal.monitorinf_add').dimmer({closable: false}).dimmer('show');
+	          			$('.monitorinfAddDefinition select[name="definition_role"]').dropdown('set selected', 'responsible');
+	          			$('.monitorinfAddDefinition select[name="conventional_definition_role"]').dropdown('set selected', 'responsible');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 工具-添加-定义 */
 			$(document).on('click', '.modal.tool_add .definitionBtn', function() {
@@ -2579,7 +2660,7 @@
 	          			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 工具-添加-定义-添加 */
 			$(document).on('click', '.modal.tooldefinition .tooldefinitionAddBtn', function() {
@@ -2595,7 +2676,7 @@
 	          			$('.modal.tooldefinition').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 工具-添加-定义-添加-添加 */
 			$(document).on('click', '.modal.tooldefinition_add .tooldefinitionAddAddBtn', function() {
@@ -2611,7 +2692,7 @@
 	          			$('.modal.tooldefinition_add').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 工具-添加-添加 */
 			$(document).on('click', '.modal.tool_add .actualParametersAdd1', function() {
@@ -2625,9 +2706,11 @@
 	          		},
 					onShow: function() {
 	          			$('.modal.tool_add').dimmer({closable: false}).dimmer('show');
+	          			//ajax请求角色数据
+	          			
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 工具-添加-添加-定义 */
 			$(document).on('click', '.modal.actualParametersDiv .definitionBtn', function() {
@@ -2643,7 +2726,7 @@
 	          			$('.modal.actualParametersDiv').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			/* 工具-添加-添加-定义-添加 */
 			$(document).on('click', '.modal.toolAddDefinition .toolAddDefinitionAddBtn', function() {
@@ -2659,18 +2742,34 @@
 	          			$('.modal.toolAddDefinition').dimmer({closable: false}).dimmer('show');
 	          		}
 				}).modal('show');
-			})
+			});
 
 			//常规-定义-高级-一般 类型onChange事件
-			$('.conventional_definition [data-tab="definition_2/a"] select[name=definition_type]').on('change', function() {
-				$(this).parents('[data-tab="definition_2/a"]').find('input').val('');
-			})
+			$('.def_common [data-tab$="/a"] select[name=definition_type]').on('change', function() {
+				$(this).parents('[data-tab$="/a"]').find('input').val('');
+			});
 
     		//点击显示树形结构div
 			$('input[name="def_name_show"]').on('click', function() {
-				var def_type = $('.conventional_definition [data-tab="definition_2/a"] select[name=definition_type]').val();
+				var def_type = $(this).parents('.modal').find('.tab[data-tab$="/a"] select[name=definition_type]').val();
 				if (!def_type) {
-					layer.msg('先选择类型！', {time: 2000, icon:0});
+					layer.msg('先选择类型！', {time: 2000, icon:0, offset: '180px'});
+					return;
+				}
+				if (def_type.indexOf('role') != -1) {//类型-角色
+					$('.role_manage.modal').modal({
+						allowMultiple: true,
+						autofocus: false,
+						duration: {},
+						onHidden: function() {
+		          			$('.modal.conventional_definition,.modal.monitorinfAddDefinition').dimmer('hide');
+		          			clearModal(this);
+		          		},
+						onShow: function() {
+		          			$('.modal.conventional_definition,.modal.monitorinfAddDefinition').dimmer({closable: false}).dimmer('show');
+		          			selectInfo(1, 15);
+		          		}
+					}).modal('show');
 					return;
 				}
 				//根据类型 定义url
@@ -2679,8 +2778,6 @@
 					url = 'platform/person/userTree.do?state=';
 				} else if (def_type.indexOf('org') != -1) {
 					url = 'platform/organise/organiseTree.do?state=';
-				} else if (def_type.indexOf('role') != -1) {
-					url = 'platform/role/query.do?hyper=false';
 				} else if (def_type == 'allParty|所有人【人】') {
 					layer.msg('不需要填写！', {time: 2000, icon:4});
 					return;
@@ -2689,7 +2786,6 @@
 				var setting = {
 					view: {
 						dblClickExpand: false
-						//dblClickExpand: true
 					},
 					check: {
 						enable: true,
@@ -2697,9 +2793,7 @@
 						radioType: "all"
 					},
 					callback: {
-						/* onRightClick: OnRightClick,
-						onDblClick: OnDbClick,*/
-						// onClick: OnClick,
+						onClick: OnClick,
 						onAsyncSuccess: onsuccess 
 					},
 					async: {  
@@ -2714,8 +2808,6 @@
 					data:{  
 						simpleData: {
 							enable: true,
-							/*idKey: "id",
-							pIdKey: "value",*/
 							rootPId: "xnode-40"
 						} 
 					} 
@@ -2727,11 +2819,68 @@
 				  	skin: 'layui-layer-rim', //边框
 				  	area: ['300px', '350px'], //宽高
 				  	offset: ['167px', '587px'],
-				  	content: '<div><ul id="treeDemo" class="ztree"></ul></div>'
+				  	content: '<div id="treeDemo_div" style="height:98%">'+
+				  				'<ul id="treeDemo" class="ztree">'+
+				  				'</ul>'+
+				  				'<div class="buttons_bottom">'+
+					  				'<div class="ui horizontal divider">'+
+					  					'<button class="ui primary mini button">确定</button>'+
+										'<button class="ui cancel mini button">取消</button>'+
+									'</div>'+
+								'</div>'+
+							 '</div>'
 				});
 				/* ztree */
 				$.fn.zTree.init($("#treeDemo"), setting);
 				zTree = $.fn.zTree.getZTreeObj("treeDemo");
+			});
+			//树形结构下 取消
+			$(document).on('click', '#treeDemo_div .cancel', function() {
+				layer.close(treelayer);
+			});
+			//树形结构下 确定
+			$(document).on('click', '#treeDemo_div .primary', function() {
+				var nodes = zTree.getCheckedNodes(true);
+				if (nodes.length) {
+					if ($('.conventional_definition').is(':visible')) {
+						$('.conventional_definition input[name=def_name_show]').val(nodes[0].name);
+						$('.conventional_definition input[name=definition_name]').val(nodes[0].value + '|' + nodes[0].name);
+					} else {
+						$('.monitorinfAddDefinition input[name=def_name_show]').val(nodes[0].name);
+						$('.monitorinfAddDefinition input[name=definition_name]').val(nodes[0].value + '|' + nodes[0].name);
+					}
+				} else {
+					layer.msg('请选中元素！', {time: 2000, icon: 0, offset: ['270px','650px']});
+					return;
+				}
+				layer.close(treelayer);
+			});
+			//角色管理-搜索
+			$('.role_manage .search.icon').on('click', function() {
+				selectInfo(1, 15);
+			});
+			//角色管理-重置
+			$('.role_manage .resetBtn').on('click', function() {
+				$(this).siblings('.role-search').find('input').val('');
+				$('.role_manage .search.icon').trigger('click');
+			});
+			//角色管理-确定
+			$('.role_manage .okBtn').on('click', function() {
+				var jsonstr = $(this).parents('#role-center').find('tr.active').attr('jsonstr');
+				if (jsonstr) {
+					var jsonobj = JSON.parse(jsonstr);
+					if ($('.conventional_definition').is(':visible')) {
+						$('.conventional_definition input[name=def_name_show]').val(jsonobj.ROLENAME);
+						$('.conventional_definition input[name=definition_name]').val(jsonobj.ROLEID + '|' + jsonobj.ROLENAME);
+					} else {
+						$('.monitorinfAddDefinition input[name=def_name_show]').val(jsonobj.ROLENAME);
+						$('.monitorinfAddDefinition input[name=definition_name]').val(jsonobj.ROLEID + '|' + jsonobj.ROLENAME);
+					}
+					$(this).parents('.modal').modal('hide');
+				} else {
+					layer.msg('请选中元素！', {time: 2000, icon: 0, offset: '180px'});
+					return;
+				}
 			});
 
 			//工具栏-帮助
@@ -2742,16 +2891,16 @@
 					title: false, //不显示标题
 					offset: ['91px', '394px'],
 					content: '<ul class="layer_notice" style="display: block;">'+
-							 '  <li><a href="">1. 将左侧活动拖至编辑区</a></li>'+
-							 '  <li><a href="">2. 选中"转移"或"自转移"，编辑区活动之间连线</a></li>'+
-							 '  <li><a href="">3. 右击活动和线都有自己的属性 </a></li>'+
+							 '  <li><a href="javascript:;">1. 将左侧活动拖至编辑区</a></li>'+
+							 '  <li><a href="javascript:;">2. 选中"转移"或"自转移"，编辑区活动之间连线</a></li>'+
+							 '  <li><a href="javascript:;">3. 右击活动和线都有自己的属性 </a></li>'+
 							 '</ul>', //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
-					cancel: function(){
-					  // layer.msg('捕获就是从页面已经存在的元素上，包裹layer的结构', {time: 5000, icon:6});
+					cancel: function() {
+						// console.log('helper closed!');
 					}
 				});
-			})
-		})
+			});
+		});
 
 		//清空表单
 		function clearModal(selector) {
@@ -2763,13 +2912,9 @@
 		function updateScrollbar() {
 			var dataTab = $(this).attr('data-tab');
 			if (dataTab == 'third') { //xml视图
-				var customScrollbar = $("#xmlContainer").find(".mCSB_scrollTools");
-				// customScrollbar.css({"opacity":0});
 				$("#xmlContainer").mCustomScrollbar("update");
-				// customScrollbar.animate({opacity:1},"slow");
 			}
 			if (dataTab == 'second') { //xpdl视图
-				var customScrollbar = $("#xpdlContainer").find(".mCSB_scrollTools");
 				$("#xpdlContainer").mCustomScrollbar("update");
 			}
 		}
@@ -2784,12 +2929,11 @@
 		      }
 		    }
 		    return responseData;
-		};
+		}
 		//zTree 点击节点
 		function OnClick(event, treeId, treeNode) {
-			layer.close(treelayer);
-			$('.conventional_definition input[name=def_name_show]').val(treeNode.name);
-			$('.conventional_definition input[name=definition_name]').val(treeNode.value + '|' + treeNode.name);
+			zTree.checkNode(treeNode, true, false);
+			
 		}
 		//zTree onsuccess
 		function onsuccess(event, treeId, treeNode, msg) {
@@ -2799,6 +2943,40 @@
 				var node = zTree.getNodeByParam("id", dataJson[0].id);
 				zTree.expandNode(node, true);
 			}
+		}
+		function selectInfo(offset, size){
+			if (offset) {
+		 		$(".role_manage #offset").val(offset);
+		 	}
+		 	if (size) {
+		 		$(".role_manage #size").val(size);
+		 	}
+		 	$("#searchForm").trimForm().ajaxSubmit({
+	            url: "platform/role/query.do?hyper=false",
+		 		type: "post",
+		 		data: {
+		 			"start": (offset-1)*size,
+		        	"limit": size //后台用的默认参数15，传值无效
+		        },
+		        dataType: "json",
+	            success: function(result) {
+	            	$('.role_manage .content-tab').empty();
+	                if (result.totalCount) {
+	                    $.pages({
+	                        count: result.totalCount, //总数量
+	                        curr: offset, //初始化当前页
+	                    }, selectInfo, size);
+	                    //显示数据
+						$('.role_manage .content-tab').html(juicer($('#role_manage_tpl').html(), result));
+						$('.role_manage .content-tab').find('.ui.checkbox').checkbox();
+	                } else {
+						$('.role_manage .content-tab').html('<div class="no-info">暂无信息...</div>');
+					}
+	            },
+				error: function(data) {
+					alert("服务器繁忙,请稍后再试...");
+				}
+	        });
 		}
 	</script>
 </body>

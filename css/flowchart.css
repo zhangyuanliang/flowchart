@@ -46,12 +46,13 @@ table { border-collapse:collapse }
 .full {height: 93%; border:1px solid #d4d4d5;}
 .full-left,.full-right { height: 100%; float: left }
 .full-left { 
-    width: 8%; 
+    width: 9%; 
+    min-width:;
     padding: 5px; 
     border-right: 1px solid #58a5f3;
 }
 .full-right { 
-    width: 92%;
+    width: 91%;
     padding-top: 4px;
     padding-left: 6px;
 }
@@ -62,13 +63,16 @@ table { border-collapse:collapse }
 }
 .full-right>.menu>.item>i:hover { color: green!important; }
 .full-right form { height: 100% }
-.full-right-top { background-image: url(data:image/gif;base64,R0lGODlhCgAKAIAAAPPz89/f3ywAAAAACgAKAAACEQyOaJnL515ksz11YQah+18AADs=)!important; box-sizing: border-box; border: 1px dashed #FFF; }
+.full-right-top { 
+    background-image: url(data:image/gif;base64,R0lGODlhCgAKAIAAAPPz89/f3ywAAAAACgAKAAACEQyOaJnL515ksz11YQah+18AADs=)!important; 
+    box-sizing: border-box; 
+    border: 1px dashed #FFF; 
+}
 .view { 
     height: 68%; 
 }
 .full-right-btn { 
     border-top: 1px solid #D4D4D5!important;
-    /* border-left: 1px solid #D4D4D5!important; */ 
     margin-bottom: 0px!important
     height: 3%;
     margin-bottom: 0px!important;
@@ -91,28 +95,14 @@ table { border-collapse:collapse }
 .components-btn.active { background: #e6e7f5;border-radius: 3px;}
 .components-btn img,span{ cursor: pointer }
 .components-btn img { float: left; margin: 4px 0 4px 3px }
-.components-btn span { float: left; padding-left: 5px; display: block; }
+.components-btn span { 
+    float: left; 
+    padding-left: 5px; 
+    display: block; 
+}
 .selectBtn { padding-left: 2px }
 .selectBtn img { margin:4px 3px 4px 3px }
 
-.startComponent { 
-    height: 50px; 
-    width: 100px; 
-    border: 2px solid #938f8e; 
-    background: url('../icons/startevent/none.png') no-repeat; 
-}
-.activityComponent { 
-    height: 50px; 
-    width: 100px; 
-    border: 2px solid #938f8e; 
-    background: url('../icons/activity/list/type.user.png') no-repeat; 
-}
-.endComponent { 
-    height: 50px; 
-    width: 100px; 
-    border: 2px solid #938f8e; 
-    background: url('../icons/endevent/none.png') no-repeat; 
-}
 .component { cursor: move; }
 .component:hover > .connect {
 	display: block; 
@@ -161,12 +151,23 @@ table { border-collapse:collapse }
     padding-left: 10px 
 }
 
-#xpdlContainer xmp { margin: 0px; color: #736c6c; padding: 8px; }
-#xmlContainer xmp { margin: 0px; color: #736c6c; padding: 8px; }
+#xmlContainer xmp,#xpdlContainer xmp { 
+    margin: 0px; 
+    color: #736c6c; 
+    padding: 8px; 
+}
 #xmlContainer script { display: block; }
 .content-div { overflow: auto; }
-.json_data.modal textarea { width: 100%!important; height: 100px; padding: 7px }
-#rMenu { position: absolute; width: 82px!important; display: none;}
+.json_data.modal textarea { 
+    width: 100%!important; 
+    height: 100px; 
+    padding: 7px 
+}
+#rMenu { 
+    position: absolute; 
+    width: 82px!important; 
+    display: none;
+}
 .prop_node.modal{ height:577px; }
 .prop_node>.tab{ height: 447px }  
 /* .prop_node.modal { height: 705px; }
@@ -179,7 +180,13 @@ table { border-collapse:collapse }
 .tool_add { height: 529px }
 .front_condition { height: 416px }
 
-.post_condition .targetActivityShow { border: 1px solid #dedede; padding: 8px 6px; height: 60px; overflow-y: auto; font-size: 14px; }
+.post_condition .targetActivityShow { 
+    border: 1px solid #dedede; 
+    padding: 8px 6px; 
+    height: 60px; 
+    overflow-y: auto; 
+    font-size: 14px; 
+}
 .post_condition .aligned.list {  }
 .post_condition .item { line-height: 19px; padding: 3px 6px!important }
 .post_condition .list .active { background: #dedede; }
@@ -247,5 +254,43 @@ table { border-collapse:collapse }
 }
 .layer_notice a:hover {
     color: #d26438;
-    text-decoration:none
+    text-decoration: none;
 }
+
+#treeDemo { height: 80%; overflow-y: auto; }
+
+.role_manage { height: 440px; }
+#role-top {
+    margin: 0px 20px 14px 20px;
+    padding: 20px 20px 8px 0px;
+}
+#pageDiv {text-align: center;}
+
+.topfont {
+    font-size: 16px;
+    color: #999;
+    font-family: 'Microsoft Yahei';
+}
+.addborder {
+    border-bottom: 1px solid #dededf;
+}
+.content-tab {
+    width: 90%;
+    margin: 10px 0 50px 20px;
+    height: 250px; 
+    overflow-y: auto;
+}
+.role-search {
+    margin: 0 10px 0 19px;
+    width: 290px;
+    line-height: 38px;
+}
+.role-search label { font-size: 13px; color: #4c4c4c; }
+#role-center { height: 74%; }
+.no-info {
+    font-size: 15px;
+    padding:10px 0 0 10px;
+    font-weight:bold;
+    color:#999999;
+}
+
