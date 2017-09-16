@@ -1,7 +1,7 @@
 # flow-chart  
 
 Demo演示（Chrome）：  
-> &mdash;[**Demo Online**](https://zhangyuanliang.github.io/flow-chart/flowchart.html)  
+> &mdash;[**Demo Online**](https://zhangyuanliang.github.io/flowchart/flowchart.html)  
 
 SVG实现流程图绘制，前端页面应用：`jquery.js`/`d3.js`/ `semantic.css`  
 
