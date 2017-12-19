@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system-config>
+	<!--运算公式生成-->
+	<expressions>
+		<expression key="==">
+			<exp type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}=='${a}')]]></exp>
+			<exp type="DATETIME"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()==(${a}-0))]]></exp>
+			<exp type="DATE"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()==(${a}-0))]]></exp>
+			<exp type="Long"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}==${a})]]></exp>
+			<exp type="Float"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}==${a})]]></exp>
+			<exp type="Boolean"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}==${a})]]></exp>
+			<exp type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}==${a})]]></exp>
+			<str type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}=='${a}')]]></str>
+		</expression>
+		<expression key="!=">
+			<exp type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}!='${a}')]]></exp>
+			<exp type="DATETIME"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()!=(${a}-0))]]></exp>
+			<exp type="DATE"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()!=(${a}-0))]]></exp>
+			<exp type="Select"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}!='${a}')]]></exp>
+			<exp type="Long"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}!=${a})]]></exp>
+			<exp type="Float"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}!=${a})]]></exp>
+			<exp type="Boolean"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}!=${a})]]></exp>
+			<exp type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}!=${a})]]></exp>
+			<str type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}!='${a}')]]></str>
+		</expression>
+		<expression key="LESS">
+			<exp type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<'${a}')]]></exp>
+			<exp type="DATETIME"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()<(${a}-0))]]></exp>
+			<exp type="DATE"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()<(${a}-0))]]></exp>
+			<exp type="Select"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<'${a}')]]></exp>
+			<exp type="Long"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<${a})]]></exp>
+			<exp type="Float"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<${a})]]></exp>
+			<exp type="Boolean"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<${a})]]></exp>
+			<exp type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<${a})]]></exp>
+			<str type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<'${a}')]]></str>
+			<str type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<${a})]]></str>
+		</expression>
+		<expression key="GREATER">
+			<exp type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}>'${a}')]]></exp>
+			<exp type="date-time"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()>(${a}-0))]]></exp>
+			<exp type="DATETIME"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()>(${a}-0))]]></exp>
+			<exp type="DATE"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()>(${a}-0)))]]></exp>
+			<exp type="Select"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}>'${a}')]]></exp>
+			<exp type="Long"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}>${a})]]></exp>
+			<exp type="Float"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}>${a})]]></exp>
+			<exp type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}>${a})]]></exp>
+			<exp type="Boolean"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}>${a})]]></exp>
+			<str type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}>'${a}')]]></str>
+		</expression>
+		<expression key="LESS=">
+			<exp type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<='${a}')]]></exp>
+			<exp type="DATETIME"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()<=(${a}-0))]]></exp>
+			<exp type="DATE"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}.getTime()<=(${a}-0))]]></exp>
+			<exp type="Select"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<='${a}')]]></exp>
+			<exp type="Long"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<=${a})]]></exp>
+			<exp type="Float"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<=${a})]]></exp>
+			<exp type="Boolean"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<=${a})]]></exp>
+			<exp type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<=${a})]]></exp>
+			<str type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}<='${a}')]]></str>
+		</expression>
+		<expression key="GREATER=">
+			<exp type="String"><![CDATA[(typeof(${b})!='undefined'  && ${b}!=null && ${b}>='${a}')]]></exp>
+			<exp type="DATETIME"><![CDATA[(typeof(${b})!='undefined'  && ${b}!=null && ${b}.getTime()>=(${a}-0))]]></exp>
+			<exp type="DATE"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null  && ${b}.getTime()>=(${a}-0))]]></exp>
+			<exp type="Select"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null  && ${b}>='${a}')]]></exp>
+			<exp type="Long"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ${b}>=${a})]]></exp>
+			<exp type="Float"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null  &&  ${b}>=${a})]]></exp>
+			<exp type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null  && ${b}>=${a})]]></exp>
+			<exp type="Boolean"><![CDATA[(typeof(${b})!='undefined'  && ${b}!=null && ${b}>=${a})]]></exp>
+			<str type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null  && ${b}>='${a}')]]></str>
+		</expression>
+		<expression key="IN">
+			<exp type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.indexOf('${a}'))!=-1)]]></exp>
+			<exp type="DATETIME"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.indexOf('${a}'))!=-1)]]></exp>
+			<exp type="DATE"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.indexOf('${a}'))!=-1)]]></exp>
+			<exp type="Select"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.contains('${a}')))]]></exp>
+			<exp type="Long"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}+"").indexOf(${a}))!=-1)]]></exp>
+			<exp type="Float"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}+"").indexOf(${a}))！=-1)]]></exp>
+			<exp type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}+"").indexOf('${a}'))！=-1)]]></exp>
+			<exp type="Boolean"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}+"").indexOf('${a}'))！=-1)]]></exp>
+			<exp type="External_java.util.ArrayList"><![CDATA[(typeof(${b})!='undefined') && ${b}!=null && (${b}.contains('${a}'))]]></exp>
+			<str type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.indexOf('${a}'))！=-1)]]></str>
+		</expression>
+		<expression key="NOT">
+			<exp type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.indexOf('${a}'))==-1)]]></exp>
+			<exp type="DATETIME"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.indexOf('${a}'))==-1)]]></exp>
+			<exp type="DATE"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.indexOf('${a}'))==-1)]]></exp>
+			<exp type="Select"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}).contains('${a}')))]]></exp>
+			<exp type="Long"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}+"").indexOf('${a}'))==-1)]]></exp>
+			<exp type="Float"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}+"").indexOf('${a}'))==-1)]]></exp>
+			<exp type="Integer"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}+"").indexOf('${a}'))==-1)]]></exp>
+			<exp type="Boolean"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && ((${b}+"").indexOf('${a}'))==-1)]]></exp>
+			<exp type="External_java.util.ArrayList"><![CDATA[(typeof(${b})!='undefined')&& ${b}!=null && (!${b}.contains('${a}'))]]></exp>
+			<str type="String"><![CDATA[(typeof(${b})!='undefined' && ${b}!=null && (${b}.indexOf('${a}'))==-1)]]></str>
+		</expression>
+		<expression key="PREFIX">
+			<exp type="String"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test(${b}))]]></exp>
+			<exp type="DATETIME"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test(${b}))]]></exp>
+			<exp type="DATE"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test(${b}))]]></exp>
+			<exp type="Select"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test(${b}))]]></exp>
+			<exp type="Long"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test(${b}))]]></exp>
+			<exp type="Float"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test(${b}))]]></exp>
+			<exp type="Integer"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test(${b}))]]></exp>
+			<exp type="Boolean"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test((${b}))]]></exp>
+			<str type="String"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/^${a}/.test(${b}))]]></str>
+		</expression>
+		<expression key="SUFFIX">
+			<exp type="String"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test(${b}))]]></exp>
+			<exp type="DATETIME"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test(${b}))]]></exp>
+			<exp type="DATE"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test(${b}))]]></exp>
+			<exp type="Select"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test(${b}))]]></exp>
+			<exp type="Long"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test(${b}))]]></exp>
+			<exp type="Float"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test(${b}))]]></exp>
+			<exp type="Integer"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test(${b}))]]></exp>
+			<exp type="Boolean"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test((${b})))]]></exp>
+			<str type="String"><![CDATA[typeof(${b})!='undefined' && ${b}!=null && (/${a}$/.test(${b}))]]></str>
+		</expression>
+		<expression key="nextActivityName">
+			<exp type="nextActivityName">
+				<![CDATA[(typeof(nextActivityName)!='undefined' && nextActivityName!=null)?(nextActivityName.contains('${a}')):false]]>
+			</exp>
+		</expression>
+	</expressions>
+
+	<!-- 下拉列表-->
+	<selects>
+		<!-- 在前置条件为AND的情况下，进一步设置-->
+		<select id="syncType" size="100">
+			<selectOption value=""> </selectOption>
+			<selectOption value="toupiao">投票模式</selectOption>
+		</select>
+		<select id="taskAssign" title="任务委派规则:" size="200">
+			<selectOption value="taskAutoMode" selected="true">自动</selectOption>
+			<selectOption value="taskOrgConvertMode" >部门默认</selectOption>
+			<selectOption value="taskRandomMode">随机</selectOption>
+		</select>	
+		<select id="MustActivity" title="必须结束环节:" size="200">
+			<selectOption value="true" selected="true">是</selectOption>
+			<selectOption value="false" >否</selectOption>
+		</select>
+		<select id="isResponsibleTem" title="是否为临时监控:" size="200">
+			<selectOption value="true" selected="true">是</selectOption>
+			<selectOption value="false">否</selectOption>
+		</select>
+		<select id="isResponsible" title="参与者是否流程监控人:" size="200">
+			<selectOption value="true" selected="true">是</selectOption>
+			<selectOption value="false">否</selectOption>
+		</select>
+		<select id="transitionEventType" title="任务委派规则:" size="200">
+			<selectOption value="transitionScript">脚本类型</selectOption>
+			<selectOption value="transitionClass" selected="true">程序类型</selectOption>
+		</select>	
+		<select id="role" size="70">
+			<selectOption value="history">历史参与者</selectOption>
+			<selectOption value="responsible" selected="true">监控者</selectOption>
+			<selectOption value="share">共享</selectOption>
+		</select>	
+	</selects>
+
+	<!--参与者规则配置选项-->
+	<participant-option>
+		<!--针对组织机构配置选项-->
+		<select-item key="commonly" display-name="一般"	use-mode="organization">
+			<select-type key="human" name="人" select-type="radio" select-url="forwordproxy/tree.do?type=persin" />
+			<select-type key="orgOrg" name="部门【部门】" select-type="radio" select-url="forwordproxy/tree.do?type=organise" />
+			<select-type key="orgHuman" name="部门【人】" select-type="radio" select-url="forwordproxy/tree.do?type=organise" />
+			<select-type key="orgDefault" name="部门【默认】" select-type="radio" select-url="forwordproxy/tree.do?type=organise" />
+			<select-type key="roleHuman" name="角色【人】" select-type="radio" select-url="forwordproxy/tree.do?type=role" />
+			<select-type key="allParty" name="所有人【人】" select-type="radio" select-url="" />
+		</select-item>
+		<select-item key="creator" display-name="创建人" use-mode="organization">
+			<select-type key="self" name="创建人本人" select-url="" />
+			<select-type key="directleader" name="创建人领导" select-url="" />
+			<select-type key="directunderling" name="创建人下属" select-url="" />
+			<select-type key="branch" name="创建人部门人员" select-url="" />
+			<select-type key="branchLeading" name="创建人部门领导" select-url="" />
+		</select-item>
+		<select-item key="processer" display-name="当前处理人" use-mode="organizationtemp">
+			<select-type key="directleader" name="当前处理人领导" select-url="" />
+			<select-type key="DepartUpperLeading" name="当前处理人部门领导" select-url="" />
+		</select-item>
+		<select-item key="sender" display-name="发送人" use-mode="organization">
+			<select-type key="self" name="发送人本人" select-url="" />
+			<select-type key="directleader" name="发送人领导" select-url="" />
+			<select-type key="directunderling" name="发送人下属" select-url="" />
+			<select-type key="org" name="发送人部门人员" select-url="" />
+			<select-type key="departUpperLeading" name="发送人部门领导" select-url="" />
+		</select-item>
+		<!--针对历史环节处理人配置选项-->
+		<select-item key="historyactselect" display-name="历史环节处理人" use-mode="historyact">
+			<select-type key="historyactivity" name="处理人本人" select-url="" />
+			<select-type key="historyleader" name="处理人上级" select-url="" />
+			<select-type key="historyunderling" name="处理人下属" select-url="" />
+			<select-type key="historyDepartLeader" name="处理人部门领导" select-url="" />	
+			<select-type key="historyDepartMember" name="处理人部门人员" select-url="" />						
+		</select-item>
+		<select-item key="preActCreater" display-name="前一环节创建人" use-mode="organization">
+			<select-type key="preActCreSelf" name="前一环节创建人本人" select-url="" />
+			<select-type key="preActCreLeader" name="前一环节创建人上级" select-url="" />
+		</select-item>
+		<!--针对业务模块配置选项-->
+		<!-- 
+		<select-item key="response" display-name="当前处理人处理人" use-mode="response">
+			<select-type key="historyactivity" name="处理人本人" select-url="forwordproxy/tree.do?type=persin" />
+			<select-type key="historyleader" name="处理人上级" select-url="forwordproxy/tree.do?type=persin" />
+			<select-type key="historyunderling" name="处理人下属" select-url="forwordproxy/tree.do?type=persin" />
+		</select-item> -->
+	</participant-option>
+	
+	<!--迁移事件-->
+	<trans-event>
+		<event id="" name="" execution="" flow-type="" description="" />
+	</trans-event>
+
+	<!--系统枚举信息配置，包括流程监控者角色、环节参与者接受方式等-->
+	<enumerates>
+		<enumerate id="acceptmode" name="环节参与者接受方式" flow-type="" description="">
+			<enum-item id="auto" name="自动" description="" />
+			<enum-item id="random" name="随机" description="" />
+			<enum-item id="total" name="全部" description="" />
+		</enumerate>
+	</enumerates>
+
+	<!--BeanConditionsDef-->
+	<beanconditionsdefs>
+		<beanconditionsdef id="System_cre_id" name="创建人" module="personInfo" />
+		<beanconditionsdef id="System_Wf_Source_Party" name="发送人" module="personInfo" />
+	</beanconditionsdefs>
+
+	<Applications>
+		<Application Id="workflow_DefaultToolAgent" Name="执行其他的toolagent">
+			<Description>执行其他的toolagent</Description>
+			<FormalParameters>
+				<FormalParameter Id="ToolAgentClass" Index="0" Mode="IN" Description="其他组件名称">
+					<DataType>
+						<ExternalReference location="java.lang.String"/>
+					</DataType>
+				</FormalParameter>                
+			</FormalParameters>                
+			<ExtendedAttributes>
+				<ExtendedAttribute Name="ToolAgentClass" Value="" Description="指定其他toolagent的名称"/>
+			</ExtendedAttributes>
+		</Application>
+		<Application Id="workflow_sendMailToolAgent" Name="发送邮件">
+			<Description>发送电子邮件</Description>
+			<FormalParameters>
+				<FormalParameter Id="body" Index="body" Mode="IN" Description="邮件正文">
+					<DataType>
+						<BasicType Type="STRING"/>
+					</DataType>
+				</FormalParameter>
+				<FormalParameter Id="subject" Index="subject" Mode="IN" Description="邮件标题">
+					<DataType>
+						<BasicType Type="STRING"/>
+					</DataType>
+				</FormalParameter>
+				<FormalParameter Id="to" Index="to" Mode="IN" Description="邮件地址,多个使用,分割">
+					<DataType>
+						<BasicType Type="STRING"/>
+					</DataType>
+				</FormalParameter>
+			</FormalParameters>
+		</Application>
+       	<!--  
+        <Application Id="workflow_javaClassToolAgent" Name="运行java静态方法">
+            <Description>方法名称为execute</Description>
+            <ExtendedAttributes>
+                <ExtendedAttribute Name="ToolAgentClass" Description="需要执行的java类名称"/>
+            </ExtendedAttributes>
+		</Application> -->
+		<Application Id="workflow_dbToolAgent" Name="修改数据">
+			<Description>修改数据库数据</Description>
+			<FormalParameters>
+				<FormalParameter Id="tableName" Index="0" Mode="IN" Description="数据表名称">
+					<DataType>
+						<ExternalReference location="java.lang.String"/>
+					</DataType>
+				</FormalParameter>                
+				<FormalParameter Id="dbdata" Index="1" Mode="IN" Description="需要操作的数据可以是一个String,pojo或者Map">
+					<DataType>
+						<ExternalReference location="java.lang.Object"/>
+					</DataType>
+				</FormalParameter>
+				<FormalParameter Id="DbActionType" Index="2" Mode="IN" Description="对数据库的操作类型，取值：1 增加 2 修改 3 删除">
+					<DataType>
+						<BasicType Type="INTEGER"/>
+					</DataType>
+				</FormalParameter>
+				<FormalParameter Id="Condition" Index="3" Mode="IN" Description="数据操作条件，可以为pojo或者Map,为数据的操作条件">
+					<DataType>
+						<ExternalReference location="java.lang.Object"/>
+					</DataType>
+				</FormalParameter>
+			</FormalParameters>
+			<ExtendedAttributes>
+				<ExtendedAttribute Name="DataTableName" Value="" Description="当操作的数据为Map的时候指定数据表名称"/>
+			</ExtendedAttributes>
+			<ExtendedAttributes>
+				<ExtendedAttribute Name="DbActionType" Value="" Description="数据库操作类型，如果在形式参数中存在同样设置，则不起作用"/>
+			</ExtendedAttributes>                
+		</Application>
+		<Application Id="workflow_fetchDataAgent" Name="获取数据">
+			<Description>获取数据库数据</Description>
+			<FormalParameters>
+				<FormalParameter Id="Condition" Index="1" Mode="IN" Description="数据操作条件，可以为pojo或者Map,为数据的操作条件">
+					<DataType>
+						<ExternalReference location="java.lang.Object"/>
+					</DataType>
+				</FormalParameter>
+			</FormalParameters>
+			<ExtendedAttributes>
+				<ExtendedAttribute Name="DataTableName" Value="" Description="当操作的数据为Map的时候指定数据表名称"/>
+			</ExtendedAttributes>
+		</Application>            
+	</Applications>
+	<!--流程、环节时间限制-->
+	<limit>
+		<!--属性:id 限制id,name 限制名称,agent-class 代理执行类,flow-type 流程类型，description 限制说明-->
+	  	<!--   
+	  	<agent id="warnTest" name="警告测试" agentClass="workflow.testWarn" flowType="" description="" />
+	  	<agent id="limitTest" name="超时测试" agentClass="workflow.testLimit" flowType="" description="" /> -->
+	  	<agent id="mailLeader" name="邮件通知参与者领导" agentClass="workflow.mailPartyLeader" flowType="" description="" />
+	  	<agent id="mailParty" name="邮件通知参与者" agentClass="workflow.mailParty" flowType="" description="" />
+	</limit>
+	
+</system-config>

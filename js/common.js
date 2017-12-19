@@ -26,16 +26,16 @@ $.extend({
 		var pages = options.count % size == 0 ? options.count / size : Math.ceil(options.count/size);
 		//默认的分页配置
 		var settings = {
-		    cont: 'pageDiv', //容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="pageDiv"></div>
-		    pages: pages, //通过后台拿到的总页数
-		    skin: '#3B5998', //加载内置皮肤，也可以直接赋值16进制颜色值，如:#c00
-		    curr: options.curr, //当前页
-		    skip: true, //是否开启跳页
-		    groups: 3, //连续显示分页数
+		    cont: 'pageDiv', // 容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="pageDiv"></div>
+		    pages: pages, // 通过后台拿到的总页数
+		    skin: '#3B5998', // 加载内置皮肤，也可以直接赋值16进制颜色值，如:#c00
+		    curr: options.curr, // 当前页
+		    skip: true, // 是否开启跳页
+		    groups: 3, // 连续显示分页数
 		    jump: function(obj, first) {// 触发分页后的回调
-				//添加总页数
-				if (obj.count>size) {
-					$("#"+this.cont+'>div').append("<span class='pageCount'>共"+obj.count+"条</span>");
+				// 添加总页数
+				if (obj.count > size) {
+					$("#" + this.cont + '>div').append("<span class='pageCount'>共" + obj.count + "条</span>");
 				}
 				if (!first) {
 					select(obj.curr, size);
@@ -50,7 +50,8 @@ $.extend({
 
 });
 
- /** * 对Date的扩展，将 Date 转化为指定格式的String * 月(M)、日(d)、12小时(h)、24小时(H)、分(m)、秒(s)、周(E)、季度(q)
+ /**
+ * 对Date的扩展，将 Date 转化为指定格式的String * 月(M)、日(d)、12小时(h)、24小时(H)、分(m)、秒(s)、周(E)、季度(q)
  * 可以用 1-2 个占位符 * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字) * eg: * (new
  * Date()).pattern("yyyy-MM-dd hh:mm:ss.S")==> 2006-07-02 08:09:04.423      
  * (new Date()).pattern("yyyy-MM-dd E HH:mm:ss") ==> 2009-03-10 二 20:09:04      
@@ -60,33 +61,33 @@ $.extend({
  */     
 Date.prototype.pattern = function(fmt) {         
     var o = {         
-    "M+" : this.getMonth()+1, //月份         
-    "d+" : this.getDate(), //日         
-    "h+" : this.getHours()%12 == 0 ? 12 : this.getHours()%12, //小时         
-    "H+" : this.getHours(), //小时         
-    "m+" : this.getMinutes(), //分         
-    "s+" : this.getSeconds(), //秒         
-    "q+" : Math.floor((this.getMonth()+3)/3), //季度         
-    "S" : this.getMilliseconds() //毫秒         
+	    "M+" : this.getMonth() + 1, //月份         
+	    "d+" : this.getDate(), //日         
+	    "h+" : this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时         
+	    "H+" : this.getHours(), //小时         
+	    "m+" : this.getMinutes(), //分         
+	    "s+" : this.getSeconds(), //秒         
+	    "q+" : Math.floor((this.getMonth() + 3) / 3), //季度         
+	    "S" : this.getMilliseconds() //毫秒         
     };         
     var week = {         
-    "0" : "/u65e5",         
-    "1" : "/u4e00",         
-    "2" : "/u4e8c",         
-    "3" : "/u4e09",         
-    "4" : "/u56db",         
-    "5" : "/u4e94",         
-    "6" : "/u516d"        
+	    "0" : "/u65e5",         
+	    "1" : "/u4e00",         
+	    "2" : "/u4e8c",         
+	    "3" : "/u4e09",         
+	    "4" : "/u56db",         
+	    "5" : "/u4e94",         
+	    "6" : "/u516d"        
     };         
-    if(/(y+)/.test(fmt)){         
-        fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));         
+    if (/(y+)/.test(fmt)) {         
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));         
     }         
-    if(/(E+)/.test(fmt)){         
-        fmt=fmt.replace(RegExp.$1, ((RegExp.$1.length>1) ? (RegExp.$1.length>2 ? "/u661f/u671f" : "/u5468") : "")+week[this.getDay()+""]);         
+    if (/(E+)/.test(fmt)) {         
+        fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length>2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay()+""]);         
     }         
-    for(var k in o){         
-        if(new RegExp("("+ k +")").test(fmt)){         
-            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));         
+    for (var k in o) {         
+        if (new RegExp("("+ k +")").test(fmt)) {         
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));         
         }         
     }         
     return fmt;         
@@ -110,19 +111,19 @@ Number.prototype.formatMoney = function (places, symbol, thousand, decimal) {
 };
 
 //格式化数字
-function cc(obj){
-	if(obj){
+function cc(obj) {
+	if (obj) {
 		return obj.toFixed(2);
-	}else{
+	} else {
 		return "0.00";
 	}
 }
 
 //格式化金额
-function ccMoney(obj){
-	if(obj){
+function ccMoney(obj) {
+	if (obj) {
 		return obj.formatMoney();
-	}else{
+	} else {
 		return "￥ 0.00";
 	}
 }
@@ -130,12 +131,12 @@ function ccMoney(obj){
 // 格式化 json
 // json_obj('{"name":"zhang","sex":"男"}');
 // return '{\"name\":\"zhang\",\"sex\":\"男\"}' 
-function json_obj(str){
-	str=str.replace(new RegExp('(["\"])', 'g'),"\\\"");
-	var pattern= new RegExp("'([\r\n])[\s]+'") ; //创建一个包含\n的正则对象
-	var result="";  //定义一个空字符
-	for(var i=0;i<str.length;i++){
-		result=result+str.substr(i,1).replace(pattern,'');//逐字检索 发现\n就换为空;
+function json_obj(str) {
+	str = str.replace(new RegExp('(["\"])', 'g'), "\\\"");
+	var pattern = new RegExp("'([\r\n])[\s]+'") ; //创建一个包含\n的正则对象
+	var result = "";  //定义一个空字符
+	for(var i = 0;i < str.length; i++) {
+		result = result + str.substr(i, 1).replace(pattern, '');//逐字检索 发现\n就换为空;
 	}
 	return result; //返回转换完成的新json字符串
 }
@@ -160,11 +161,11 @@ function randomWord(randomFlag, min, max) {
         	   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
         	   'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
         	   'U', 'V', 'W', 'X', 'Y', 'Z'];
-    if(randomFlag){
-        range = Math.round(Math.random() * (max-min)) + min;
+    if (randomFlag) {
+        range = Math.round(Math.random() * (max - min)) + min;
     }
-    for(var i=0; i<range; i++){
-        pos = Math.round(Math.random() * (arr.length-1));
+    for (var i = 0; i < range; i++) {
+        pos = Math.round(Math.random() * (arr.length - 1));
         str += arr[pos];
     }
     return str;
@@ -177,14 +178,16 @@ function randomWord(randomFlag, min, max) {
 function generateUUID() {
     var d = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
+        var r = (d + Math.random() * 16) % 16 | 0;
         d = Math.floor(d/16);
         return (c=='x' ? r : (r&0x3|0x8)).toString(16);
     });
     return uuid;
 }
 
-// 生成不重复的序列号
+/**
+ * 生成不重复的序列号
+ */
 var serial_marker = function() {
 	var prefix = '';
 	var seq = 1;
@@ -201,4 +204,64 @@ var serial_marker = function() {
 	        return result;
 	    }
 	};
+};
+
+/**
+ * 根据id从nodes中获取相应的node对象
+ */
+function getNodeById(id, nodes) {
+	if (!nodes.length) return false;
+	nodes.forEach(function(node) {
+		if (node.id == id) {
+			return node;
+		}
+	});
+	return false;
+}
+
+//这一块的封装，主要是针对数字类型的数组
+function maxArr(arr) {
+    return Math.max.apply(null, arr);
+}
+function minArr(arr) {
+    return Math.min.apply(null, arr);
+}
+
+var is_array = function(value) {
+	return Object.prototype.toString.apply(value) === '[object Array]';
+};
+
+var is_number = function(value) {
+	return typeof value === 'number' && isFinite(value);
+};
+
+/**
+ * 存放所有 GraphCreator 对象及方法 
+ */
+var graphPool = {
+	pools: [],
+	updateGraphActiveById: function(containerId) {
+	  this.pools.forEach(function(graph) {
+	    if (graph.containerId === containerId) {
+	      	graph.state.activeEdit = true;
+	    } else {
+	      	graph.state.activeEdit = false;
+	    }
+	  });
+	},
+	getGraphByActiveEdit: function() {
+	  	var graph_active = this.pools.find(function(graph) {
+	    	return graph.state.activeEdit;
+	  	});
+	  	return graph_active;
+	},
+	removeGraphFromPools: function(containerId) {
+		var pools = this.pools;
+		for (var i = 0; i < pools.length; i++) {
+			if (pools[i].containerId === containerId) {
+				pools.splice(i, 1);
+			}
+		}
+
+	}
 };

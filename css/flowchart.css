@@ -1,25 +1,33 @@
-/* 代码初始化 */
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td { margin:0; padding:0; }
-body { background:#fff; color:#555; font-size:14px; font-family: Verdana, Arial, Helvetica, sans-serif }
-td,th,caption { font-size:14px }
-h1, h2, h3, h4, h5, h6 { font-weight:normal; font-size:100% }
-address, caption, cite, code, dfn, em, strong, th, var { font-style:normal; font-weight:normal}
-a { color:#555; text-decoration:none }
-a:hover { text-decoration:underline }
-img { border:none }
-ol,ul,li { list-style:none }
-input, textarea, select, button { font:14px Verdana,Helvetica,Arial,sans-serif }
-table { border-collapse:collapse }
-/* html {overflow-y: scroll} */
-/* css 清除浮动*/
-.clearfix:after {content: "."; display: block; height:0; clear:both; visibility: hidden}
-.clearfix { *zoom:1 }
+@charset "utf-8";
+
+/**
+ * @created :   2017/09/20
+ * @author  :   zhangyl
+ * @version :   v1.0
+ * @desc    :   流程图编辑器
+ */
+
+/*超出省略号*/
+.text-ellipsis{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 清除浮动 */
+.clearfix:after {
+    content: "."; 
+    display: block; 
+    height: 0; 
+    clear: both; 
+    visibility: hidden
+}
 
 .bg-gray { background: #d8d5d5; }
 
-.ui.menu {margin:0;}
-.ui.modal>.header {padding:0 0 0.7rem 0;}
-.field textarea {resize:none!important;}
+.ui.menu { margin: 0; }
+.ui.modal>.header { padding: 0 0 0.7rem 0; }
+.field textarea { resize: none!important; }
 
 .subheader { 
     min-height: 47px;
@@ -47,7 +55,6 @@ table { border-collapse:collapse }
 .full-left,.full-right { height: 100%; float: left }
 .full-left { 
     width: 9%; 
-    min-width:;
     padding: 5px; 
     border-right: 1px solid #58a5f3;
 }
@@ -68,16 +75,19 @@ table { border-collapse:collapse }
     box-sizing: border-box; 
     border: 1px dashed #FFF; 
 }
+.full-right-top.activate {
+    border: 1px dashed #37F537
+}
 .view { 
     height: 68%; 
 }
 .full-right-btn { 
     border-top: 1px solid #D4D4D5!important;
-    margin-bottom: 0px!important
+    margin-bottom: 0px!important;
     height: 3%;
     margin-bottom: 0px!important;
 }
-.full-right-btn .item{ height: 100% }
+.full-right-btn .item { height: 100% }
 .full-right-bottom { height: 26%; border: 1px solid #c7cacd }
 .components-btn { 
     margin-top: 2px; 
@@ -134,13 +144,14 @@ table { border-collapse:collapse }
 }
 .component-name:hover { cursor: pointer; }
 .component-name:hover i:first-child { color: #66C17B; }
-.component-prop { height: 114px; }
+.component-prop { height: 98px; }
 .component-prop .prop-value {
     float: left;
     width: 40%;
     height: 30px;
     line-height: 30px;
     padding-left: 7px;
+    overflow: hidden;
 }
 
 .prop-value span:first-child { 
@@ -168,17 +179,20 @@ table { border-collapse:collapse }
     width: 82px!important; 
     display: none;
 }
-.prop_node.modal{ height:577px; }
-.prop_node>.tab{ height: 447px }  
-/* .prop_node.modal { height: 705px; }
-.prop_node>.tab { height: 568px }*/
+/*.prop_node.modal{ height: 577px; }
+.prop_node>.tab{ height: 447px }  */
 .prop_node.model .ui.checkbox label { font-size: 0.8em!important }
 
 .prop_node_second.modal { height: 410px }
-.toolgrid { height: 444px; }
+/* .toolgrid { height: 444px; } */
+.toolgrid .toolgrid-empty { height: 263px } /*兼容IE11*/
 .ui.vertical button{ margin-bottom: 2px }
-.tool_add { height: 529px }
-.front_condition { height: 416px }
+/* .tool_add { height: 529px } */
+/* .front_condition { height: 416px } */
+.front_condition .otherOpt { height: 33px }
+.frontCond-empty { height: 320px }
+.extAttr-empty { height: 300px; }
+.highLevel-empty { height: 245px; }
 
 .post_condition .targetActivityShow { 
     border: 1px solid #dedede; 
@@ -188,7 +202,8 @@ table { border-collapse:collapse }
     font-size: 14px; 
 }
 .post_condition .aligned.list {  }
-.post_condition .item { line-height: 19px; padding: 3px 6px!important }
+.post_condition .targetActivityShow .item { line-height: 19px; padding: 3px 6px!important }
+.post_condition .targetActivity .item {padding: 9px 6px!important }
 .post_condition .list .active { background: #dedede; }
 .post_condition .tab { height: 414px }
 .post_condition .business_obj { height: 165px; }
@@ -202,6 +217,8 @@ table { border-collapse:collapse }
 
 .hideDiv { display: none }
 .hideitem { display: none!important }
+
+.invisible { visibility: hidden; }
 
 .prop_node_second .bottom.tab { height: 90px }
 
@@ -239,10 +256,8 @@ table { border-collapse:collapse }
 .prop_edge .tab { height: 400px }
 
 .layer_notice {
-    float: left;
-    height: 97px;
     width: 330px;
-    overflow: hidden;
+    height: 97px;
     background: #60B879;
     padding: 10px;
 }
@@ -251,6 +266,7 @@ table { border-collapse:collapse }
 }
 .layer_notice a {
     color: #fff;
+
 }
 .layer_notice a:hover {
     color: #d26438;
@@ -292,5 +308,12 @@ table { border-collapse:collapse }
     padding:10px 0 0 10px;
     font-weight:bold;
     color:#999999;
+}
+
+/*------------------------- 块活动编辑 -----------------------------*/
+.blockDiv {
+    margin: 0px!important;
+    border-right: 1px solid #d4d4d5!important;
+    border-bottom: none!important;
 }
 
