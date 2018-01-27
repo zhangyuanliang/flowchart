@@ -6,7 +6,11 @@
  * @version :   v1.0
  * @desc    :   流程图编辑器
  */
-
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+}
 /*超出省略号*/
 .text-ellipsis{
   overflow: hidden;
@@ -22,7 +26,7 @@
     clear: both; 
     visibility: hidden
 }
-
+/*-----------按主页面和弹出层划分 CSS -----------*/
 .bg-gray { background: #d8d5d5; }
 
 .ui.menu { margin: 0; }
@@ -30,7 +34,9 @@
 .field textarea { resize: none!important; }
 
 .subheader { 
+    height: 7%;
     min-height: 47px;
+    box-sizing: border-box;
     border-bottom: 1px solid #58a5f3; 
     padding-top: 18px; 
     padding-left: 10px; 
@@ -51,7 +57,11 @@
 .editor-toolbar .icon { color: #3B5998 }
 .editor-toolbar .icon:hover { color: #21BA45; }
 
-.full {height: 93%; border:1px solid #d4d4d5;}
+.full {
+    height: 93%; 
+    box-sizing: border-box;
+    /*border:1px solid #d4d4d5;*/
+}
 .full-left,.full-right { height: 100%; float: left }
 .full-left { 
     width: 9%; 
@@ -64,9 +74,10 @@
     padding-left: 6px;
 }
 .full-right>.tab { 
-    height: 551px; 
+    height: 97%; 
     padding: 6px;
     border-left: 1px solid #d4d4d5;
+    border-right: 1px solid #d4d4d4;
 }
 .full-right>.menu>.item>i:hover { color: green!important; }
 .full-right form { height: 100% }
