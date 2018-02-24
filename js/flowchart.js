@@ -149,11 +149,13 @@ $(function() {
 		var ishidden = parent.find('.component-prop').is(':hidden');
 		if (ishidden) {
 			parent.find('.full-right-bottom ').css({height: '26%'});
+			parent.find('.component-name').css({height: '28%'});
 			parent.find('.view').css({height: '68%'});
 			parent.find('.component-name .icon').removeClass('up').addClass('down');
 			parent.find('.component-prop').toggle('slow');
 		} else {
 			parent.find('.full-right-bottom ').css({height: '8%'});
+			parent.find('.component-name').css({height: '100%'});
 			parent.find('.view').css({height: '86%'});
 			parent.find('.component-name .icon').removeClass('down').addClass('up');
 			parent.find('.component-prop').toggle();

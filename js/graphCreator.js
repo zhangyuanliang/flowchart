@@ -222,7 +222,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
         icon.src = $(this).find('img').attr('src');
         ev.originalEvent.dataTransfer.setDragImage(icon,10,10);*/
         var json_obj = {
-          text: $(this).find('span').text(),
+          text: $(this).attr('data-show'),
           component: $(this).attr('name'),
           type: $(this).attr('type')
         };
@@ -2148,18 +2148,26 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
 
 
   /* insert svg line breaks: taken from http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts */
-  GraphCreator.prototype.insertTitleLinebreaks = function(gEl, title) {
-    var words = title.split(/\s+/g),
+  GraphCreator.prototype.insertTitleLinebreaks = function(gEl, d) {
+    var words = d.title.split(/\s+/g),
       nwords = words.length;
     var el = gEl.append("text")
-      .attr("text-anchor", "middle")
-      .attr("dy", "-" + (nwords - 1) * 7.5);
-
+      .attr("text-anchor", "middle");
+    switch (d.type) {
+      case 'start':
+      case 'end':
+        el.attr("dy", "13");
+        break;
+      default:
+        el.attr("dy", "-" + (nwords - 1) * 7.5);
+        break;
+    }
     for (var i = 0; i < words.length; i++) {
       var tspan = el.append('tspan').text(words[i]);
       if (i > 0)
         tspan.attr('x', 0).attr('dy', '15');
     }
+
   };
 
   // remove edges associated with a node
@@ -2586,6 +2594,13 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       .classed(consts.selectedClass, function(d) {
         return d === state.selectedEdge;
       })
+      .attr("conditype", function(d) {
+        if (d.postCondition) {
+          return changeCase(d.postCondition.conditype, 5);
+        } else {
+          return '';
+        }
+      })
       .attr("d", function(d) {
         if (d.drawLine == 'NOROUTING') {
           return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
@@ -2602,13 +2617,20 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
           return thisGraph.getLink_d(start, des);
         }
       });
-    refresh(link);// 兼容IE11
+    refresh(link); // 兼容IE11
 
     // add new paths
     paths.enter()
       .append("path")
       .style('marker-end', 'url(#'+thisGraph.containerId+'-end-arrow)')
       .classed("link", true)
+      .attr("conditype", function(d) {
+        if (d.postCondition) {
+          return changeCase(d.postCondition.conditype, 5);
+        } else {
+          return '';
+        }
+      })
       .attr("d", function(d) {
         if (d.drawLine == 'NOROUTING') {
           return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
@@ -2652,7 +2674,7 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     // add new nodes
     var newGs = thisGraph.circles.enter()
       .append("g")
-        .attr({"id": function(d){ return generateUUID(); }});
+        .attr({"id": function(d) { return generateUUID(); }});
 
     newGs.classed(consts.circleGClass, true)
       .attr("transform", function(d) {
@@ -2678,7 +2700,15 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       .attr("r", String(consts.nodeRadius));
 
     newGs.each(function(d) {
-      thisGraph.insertTitleLinebreaks(d3.select(this), d.title);
+      switch (d.type) {
+        case 'start':
+          d3.select(this).classed('start', true);
+          break;
+        case 'end':
+          d3.select(this).classed('end', true);
+          break;
+      }
+      thisGraph.insertTitleLinebreaks(d3.select(this), d);
     });
 
     // remove old nodes
@@ -2736,7 +2766,6 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
       graph_active.updateGraph();
     }
   };
-
 
   GraphCreator.prototype.createNode = function(data) {
     var node;

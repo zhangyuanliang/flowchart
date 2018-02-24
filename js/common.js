@@ -42,9 +42,9 @@ $.extend({
 				}
 			}	
 		};
-		//合并分页配置
+		// 合并分页配置
 		$.extend(settings, options);
-		//显示分页
+		// 显示分页
 		laypage(settings);
 	}
 
@@ -265,3 +265,63 @@ var graphPool = {
 
 	}
 };
+
+/**
+ * 大小写字母转化
+ * @param  {[type]} str  需要转化的字符串	
+ * @param  {[type]} type 1: 首字母大写 2：首页母小写 3：大小写转换 4：全部大写 5：全部小写
+ * @return {[type]}      转化后的字符串
+ * changeCase('asdasd', 1) --> Asdasd
+ */
+function changeCase(str, type) {
+	if (!str) return '';
+    function ToggleCase(str) {
+        var itemText = "";
+        str.split("").forEach(
+            function (item) {
+                if (/^([a-z]+)/.test(item)) {
+                    itemText += item.toUpperCase();
+                }
+                else if (/^([A-Z]+)/.test(item)) {
+                    itemText += item.toLowerCase();
+                }
+                else{
+                    itemText += item;
+                }
+            });
+        return itemText;
+    }
+    switch (type) {
+        case 1:
+            return str.replace(/^(\w)(\w+)/, function (v, v1, v2) {
+                return v1.toUpperCase() + v2;
+            });
+        case 2:
+            return str.replace(/^(\w)(\w+)/, function (v, v1, v2) {
+                return v1.toLowerCase() + v2;
+            });
+        case 3:
+            return ToggleCase(str);
+        case 4:
+            return str.toUpperCase();
+        case 5:
+            return str.toLowerCase();
+        default:
+            return str;
+    }
+}
+/*
+if (!String.prototype.includes) {
+  String.prototype.includes = function(search, start) {
+    'use strict';
+    if (typeof start !== 'number') {
+      start = 0;
+    }
+    
+    if (start + search.length > this.length) {
+      return false;
+    } else {
+      return this.indexOf(search, start) !== -1;
+    }
+  };
+}*/

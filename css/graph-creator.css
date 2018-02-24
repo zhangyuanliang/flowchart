@@ -75,12 +75,12 @@ body{
 }
 
 marker{
-  fill: #333;
+  fill: #3c39f2;
 }
 
 g.conceptG circle{
   fill: #F6FBFF;
-  stroke: #333;
+  stroke: #6164c1;
   stroke-width: 1px;
 }
 
@@ -90,24 +90,46 @@ g.conceptG:hover circle{
 
 g.selected circle{
   fill: #e8d0ef;
+  stroke: #9b78d3;
+  stroke-width: 1.5px;
 }
 g.selected:hover circle{
   fill: #e8d0ef;
 }
 g.conceptG text{    
-  font-size: 13px;
+  font-size: 12px;
+  fill: #151996;
 }
 
 path.link {
   fill: none;
-  stroke: #333;
+  stroke: #a6a6f2;
   stroke-width: 2px;
   cursor: default;
 }
 
 path.link:hover{
-  stroke: rgb(94, 196, 204);
-  /*stroke-width: 4px;*/
+  stroke: rgb(94, 196, 204) !important;
+}
+
+path.link[conditype=otherwise] {
+  stroke: #ffaf6c;
+}
+
+path.link[conditype=exception] {
+  stroke: #e98c99; 
+}
+
+path.link[conditype=workflowbean], path.link[conditype=tache] {
+  stroke: #232fc1;
+}
+
+path.link[conditype=condition], path.link[conditype=userdefine], path.link[conditype=custom] {
+  stroke: #a6a6f2;
+}
+
+path.link[conditype=defaultexception] {
+  stroke: #de4c4c;
 }
 
 g.connect-node circle{
@@ -120,6 +142,32 @@ path.link.hidden{
 }
 
 path.link.selected {
-  stroke: rgb(229, 172, 247);
-  /*stroke-width: 4px;*/
+  stroke: #9b78d3;
 }
+
+g.start circle {
+  fill: #59828c !important;
+  stroke: #fff;
+  stroke-width: 0px;
+}
+
+g.start text {
+  font-family: trebuche;
+  font-size: 37px;
+  fill: #fff;
+  font-weight: 550;
+}
+
+g.end circle {
+  fill: #9D5644 !important;
+  stroke: #fff;
+  stroke-width: 0px;
+}
+
+g.end text {
+  font-family: trebuche;
+  font-size: 37px;
+  fill: #fff;
+  font-weight: 550;
+}
+
