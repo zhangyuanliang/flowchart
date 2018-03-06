@@ -2152,7 +2152,8 @@ document.onload = (function(d3, saveAs, Blob, vkbeautify) {
     var words = d.title.split(/\s+/g),
       nwords = words.length;
     var el = gEl.append("text")
-      .attr("text-anchor", "middle");
+      .attr("text-anchor", "middle")
+      .attr("letter-spacing", "1");
     switch (d.type) {
       case 'start':
       case 'end':
