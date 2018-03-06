@@ -87,10 +87,14 @@ html, body {
 }
 
 .full-right>.tab { 
-    height: 93%; 
+    height: 95%; 
     padding: 6px;
     border-left: 1px solid #d4d4d5;
     border-right: 1px solid #d4d4d4;
+}
+
+.full-right>.menu {
+    height: 5%;
 }
 
 .full-right>.menu>.item { padding: 0.8em 1.0em !important; }
