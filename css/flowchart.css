@@ -158,27 +158,9 @@ html, body {
     border-radius: 3px;
 }
 
-.components-btn .components-icon {
-    box-sizing: border-box;
-    height: 16px;
-    padding-top: 3px;
-    padding-left: 3px;
-}
-
-.start-icon {
-    fill: #59828c;
-    fill-rule: evenodd;
-}
-
-.components-btn img,span{ cursor: pointer; }
-
-.components-btn img { 
-    float: left; 
-    margin: 4px 0 4px 3px; 
-}
-
 .components-btn span { 
     padding-left: 6px; 
+    cursor: pointer;
 }
 
 /*------------------------工具栏 icon start------------------------*/
@@ -250,33 +232,6 @@ html, body {
 }
 
 /*------------------------工具栏 icon end------------------------*/
-
-/* .selectBtn { padding-left: 2px; }
-
-.selectBtn img { margin: 4px 3px 4px 3px; }*/
-
-.component { cursor: move; }
-
-.component:hover>.connect {
-    display: block; 
-    cursor: crosshair;
-}
-
-.connect {
-    width: 23px;
-    height: 27px;
-    padding-bottom: 10px;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    border-radius: 50%;
-    background: url('../icons/connector/sequenceflow.png') no-repeat;
-    float: right;
-    position: relative;
-    right: -21px;
-    top: -5px;
-}
-
-.component span { margin-top: 20px; display: block; }
 
 .component-name {
     height: 28%;
