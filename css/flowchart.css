@@ -75,13 +75,13 @@ html, body {
 }
 
 .full-left { 
-    width: 8%; 
+    width: 9%; 
     padding: 5px; 
     border-right: 1px solid #58a5f3;
 }
 
 .full-right { 
-    width: 92%;
+    width: 91%;
     padding-top: 4px;
     padding-left: 6px;
 }
@@ -108,6 +108,7 @@ html, body {
     box-sizing: border-box; 
     border: 1px dashed #FFF; 
 }
+
 .full-right-top.activate {
     border: 1px dashed #37F537;
 }
@@ -177,14 +178,82 @@ html, body {
 }
 
 .components-btn span { 
-    /*float: left; */
-    padding-left: 5px; 
-    /*display: block; */
+    padding-left: 6px; 
 }
 
-.selectBtn { padding-left: 2px; }
+/*------------------------工具栏 icon start------------------------*/
+.full-left .components-btn>div {
+    display: flex;
+}
 
-.selectBtn img { margin: 4px 3px 4px 3px; }
+.full-left i.tools {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 5px 0 0 8px;
+    overflow: hidden;
+}
+
+.full-left .select-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 0px 0px;
+}
+
+.full-left .addStartEnd-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 42px 0px;
+}
+
+.full-left .start-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 81px 0px;
+}
+
+.full-left .end-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 61px 0px;
+}
+
+.full-left .ordinary-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 0px 57px;
+}
+
+.full-left .block-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 80px 57px;
+}
+
+.full-left .subFlow-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 61px 57px;
+}
+
+.full-left .route-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 41px 57px;
+}
+
+.full-left .line-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 0 34px;
+}
+
+.full-left .polyline-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 81px 34px;
+}
+
+.full-left .loop-icon {
+    background: url('../icons/wf_tools.png');
+    background-position: 60px 34px;
+}
+
+/*------------------------工具栏 icon end------------------------*/
+
+/* .selectBtn { padding-left: 2px; }
+
+.selectBtn img { margin: 4px 3px 4px 3px; }*/
 
 .component { cursor: move; }
 

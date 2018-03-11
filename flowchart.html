@@ -35,43 +35,38 @@
 	</div>
 	<div class="full clearfix">
 		<div id="flowComponents" class="full-left">
-			<div class="components-btn noComponent selectBtn clearfix" name="selectBtn">
-				<div><img src="icons/activity/select.png" draggable="false"><span>选择</span></div>
+			<div class="components-btn noComponent clearfix" name="selectBtn">
+				<div><i class="tools select-icon"></i><span>选择</span></div>
+			</div>
+			<div class="components-btn noComponent" name="" draggable="false">
+				<div><i class="tools addStartEnd-icon"></i><span>自动插入</span></div>
 			</div>
 			<div class="components-btn" name="startComponent" type="start" draggable="true" data-show="S">
-				<div class="components-icon">
-					<svg width="16" height="16" viewBox="0 0 289 289">
-						<path id="S" class="start-icon" d="M144.5,0A144.5,144.5,0,1,1,0,144.5,144.5,144.5,0,0,1,144.5,0ZM181,119c-8.209-7.911-25.13-10.667-32-12-7.214-.082-17.485,1.788-16.952,9.864,1.085,10.755,7.571,11.1,15.952,13.136,0.448,0,2.975.752,8,2,26.264,6.257,43.782,18.7,42,39-2.085,26.338-17,39.717-52.852,38.969C121.884,208.881,106.541,202.449,96,194l13-25c14.5,8.08,23.546,13.093,40,15,12.394-.115,16.541-3.852,17-9,0-8.645-4.731-10.475-21-15-2.245-.615-3.426-0.874-7-2-30.116-9.039-37-21.147-37-38,4.366-26.624,19.627-38.175,50-39,24.324,2.7,34.634,9.409,43,14Z"></path>
-					</svg>
-    			</div>
-    			<span>开始</span>
+				<div><i class="tools start-icon"></i><span>开始</span></div>
 			</div>
 			<div class="components-btn clearfix" name="endComponent" type="end" draggable="true" data-show="E">
-				<div class="components-icon">
-					<svg width="16" height="16">
-						<ellipse stroke="#000" ry="8" rx="8" cx="8" cy="8" stroke-width="0" fill="#9d5644"/>
-						<text stroke="#000" text-anchor="start" font-family="Helvetica" font-size="10" stroke-width="0" fill="#fff" x="5" y="11">E</text>
-					</svg>
-				</div>
-				<span>结束</span>
+				<div><i class="tools end-icon"></i><span>结束</span></div>
 			</div>
 			<div class="components-btn clearfix" name="ordinaryActivity" type="activity" draggable="true" data-show="普通活动">
-				<div><img src="icons/activity/list/type.user.png"><span>普通活动</span></div>
+				<div><i class="tools ordinary-icon"></i><span>普通活动</span></div>
 			</div>
 			<div class="components-btn clearfix" name="blockActivity" type="activity" draggable="true" data-show="块活动">
-				<div><img src="icons/activity/task.png"><span>块活动</span></div>
+				<div><i class="tools block-icon"></i><span>块活动</span></div>
 			</div>
 			<div class="components-btn clearfix" name="subFlowActivity" type="activity" draggable="true" data-show="子活动">
-				<div><img src="icons/activity/event.subprocess.png"><span>子活动</span></div>
+				<div><i class="tools subFlow-icon"></i><span>子活动</span></div>
 			</div>
 			<div class="components-btn clearfix" name="routeActivity" type="activity" draggable="true" data-show="路径活动">
-				<div><img src="icons/activity/list/type.receive.png"><span>路径活动</span></div>
+				<div><i class="tools route-icon"></i><span>路径活动</span></div>
 			</div>
 			<div class="components-btn noComponent clearfix" name="NOROUTING">
-				<div><img src="icons/connector/sequenceflow.png" draggable="false"><span>转移</span></div>
+				<div><i class="tools line-icon"></i><span>转移</span></div>
 			</div>
 			<div class="components-btn noComponent clearfix" name="SIMPLEROUTING">
-				<div><img src="icons/connector/messageflow.png" draggable="false"><span>自转移</span></div>
+				<div><i class="tools polyline-icon"></i><span>自转移</span></div>
+			</div>
+			<div class="components-btn noComponent clearfix" name="000ROUTING">
+				<div><i class="tools loop-icon"></i><span>循环</span></div>
 			</div>
 		</div>
 		<div class="full-right tab clearfix">
