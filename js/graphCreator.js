@@ -2844,6 +2844,7 @@ function initCommonEvent() {
   $("#delete-graph").on("click", clearGraph);
   $('.editor-toolbar .icon.save').on('click', handleSave);
   $('#rMenu .item').on('click', handleRightMenu);
+  $('.full-left [name=addStartEndBtn]').on('click', handleAddStartEnd);
 }
 
 function initFlowChart() {

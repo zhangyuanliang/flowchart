@@ -185,6 +185,55 @@ function handleComponentsBtn() {
 }
 
 /**
+ * 自动插入开始结束节点
+ */
+function handleAddStartEnd() {
+  var graph_active = graphPool.getGraphByActiveEdit();
+  var edges = graph_active.edges;
+  var nodes = graph_active.filterActivities();
+  nodes.forEach(function(node) {
+    if (!graph_active.hasLinked(node, false, -1)) {
+      var start = {
+        id: generateUUID(),
+        title: 'S',
+        component: 'startComponent',
+        type: 'start',
+        x: node.x - 120,
+        y: node.y
+      };
+      graph_active.nodes.push(start);
+      var edge_start = {
+        edgeId: generateUUID(),
+        drawLine: 'NOROUTING',
+        source: start,
+        target: node
+      };
+      graph_active.edges.push(edge_start);
+      graph_active.updateGraph();
+    }
+    if (!graph_active.hasLinked(node, false, 1)) {
+      var end = { 
+        id: generateUUID(),
+        title: 'E',
+        component: 'endComponent',
+        type: 'end',
+        x: node.x + 120,
+        y: node.y
+      };
+      graph_active.nodes.push(end);
+      var edge_end = {
+        edgeId: generateUUID(),
+        drawLine: 'NOROUTING',
+        source: node,
+        target: end
+      };
+      graph_active.edges.push(edge_end);
+      graph_active.updateGraph();
+    }
+  });
+}
+
+/**
  * 视图显示Tab（图标视图、Xpdl视图、Xml视图）
  */
 function handleViews() {
